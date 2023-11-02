@@ -1,0 +1,54 @@
+M1 = Create(M1,[mark 0],[Tran [0,1,1][1,2,0]])  (2,2)
+
+M2 = Create(M2,[mark 0],[Tran [0,3,1][1,4,0]])  (2,2)
+
+TU = Create(TU,[mark 0],[Tran [0,5,1][1,6,0][1,8,0]])  (2,3)
+
+B1 = Create(B1,[mark 0],[Tran [0,2,1][0,8,1][1,3,0]])  (2,3)
+
+B2 = Create(B2,[mark 0],[Tran [0,4,1][1,5,0]])  (2,2)
+
+PLANT = Sync(M1,M2,TU)  (8,28)
+
+ALL = Allevents(PLANT)  (1,7)
+
+M1 = Create(M1,[mark 0],[Tran [0,1,1][1,2,0]])  (2,2)
+
+M2 = Create(M2,[mark 0],[Tran [0,3,1][1,4,0]])  (2,2)
+
+TU = Create(TU,[mark 0],[Tran [0,5,1][1,6,0][1,8,0]])  (2,3)
+
+B1 = Create(B1,[mark 0],[Tran [0,2,1][0,8,1][1,3,0]])  (2,3)
+
+B2 = Create(B2,[mark 0],[Tran [0,4,1][1,5,0]])  (2,2)
+
+PLANT = Sync(M1,M2,TU)  (8,28)
+
+ALL = Allevents(PLANT)  (1,7)
+
+SPEC = Sync(B1,B2,ALL)  (4,18)
+
+SUP = Supcon(PLANT,SPEC)  (6,7)
+
+SUPDAT = Condat(PLANT,SUP)  Controllable
+
+LOC1 = Localize(PLANT,SUP,M1)  (2,3)
+
+LOC3 = Localize(PLANT,SUP,M2)  (3,5)
+
+LOC5 = Localize(PLANT,SUP,TU)  (3,5)
+
+PLANT2 = Sync(M1,M2)  (4,8)  Blocked_events = None  
+
+ALL2 = Allevents(PLANT2.DES)  (1,4)
+
+SPECT2 = Sync(B1,B2,ALL2)  (4,14)  Blocked_events = None  
+
+PLANT2 = Sync(M1,M2,TU)  (8,28)  Blocked_events = None  
+
+ALL2 = Allevents(PLANT2.DES)  (1,7)
+
+SPEC2 = Sync(B1,B2,ALL2)  (4,18)  Blocked_events = None  
+
+SUP2 = Supcon(PLANT2,SPEC2)  (6,7)
+

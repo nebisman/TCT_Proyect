@@ -1,0 +1,23 @@
+Screen settings for TCT_20210701
+
+1.  Options
+
+      Cursor: Medium; Buffer Size: 50; Number of Buffers: 4
+      Edit: Check all except "Use Ctrl ..."
+
+2.  Font
+
+      20, Lucida Console
+
+3.  Layout
+
+      Screen Buffer Size: W80, H300
+      Check: "Wrap text ..."
+      Window Size: W80, H50
+      Uncheck: "Let system ..." 
+      Window Position: 182, 61
+
+4.  After setting parameters, enter OK, then restart TCT.
+___________________________________________________________
+       
+       

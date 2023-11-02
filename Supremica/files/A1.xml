@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Automata name="Untitled" major="0" minor="9">
+<Automaton name="sup(clamp_lid||copy_of_Clamp_LId||copy_of_Lids_conveyor||lid_conveyor)" type="Supervisor">
+	<Events>
+		<Event id="0" label="FE_LaP:GD_IN_2" controllable="false"/>
+		<Event id="1" label="GD_IN_15:ON" controllable="false"/>
+		<Event id="2" label="GD_IN_4:ON" controllable="false"/>
+		<Event id="3" label="GD_OUT_2:OFF"/>
+		<Event id="4" label="GD_OUT_2:ON"/>
+		<Event id="5" label="GD_OUT_4:OFF"/>
+		<Event id="6" label="GD_OUT_4:ON"/>
+	</Events>
+	<States>
+		<State id="0" name="S0.clamp_lid_off.conveyor_on.S2" accepting="true"/>
+		<State id="1" name="S0.clamp_lid_off.conveyor_on.S3" accepting="true"/>
+		<State id="2" name="S1.clamp_lid_off.conveyor_off.S0" accepting="true"/>
+		<State id="3" name="S1.clamp_lid_off.conveyor_off.S1" accepting="true"/>
+		<State id="4" name="S2.clamp_lid_on.conveyor_off.S0" accepting="true"/>
+		<State id="5" name="S2.clamp_lid_on.conveyor_off.S1" accepting="true"/>
+		<State id="6" name="S3.clamp_lid_off.conveyor_off.S0" initial="true" accepting="true"/>
+		<State id="7" name="S3.clamp_lid_off.conveyor_off.S1" accepting="true"/>
+		<State id="8" name="S4.clamp_lid_on.conveyor_off.S0" accepting="true"/>
+		<State id="9" name="S4.clamp_lid_on.conveyor_off.S1" accepting="true"/>
+	</States>
+	<Transitions>
+		<Transition source="0" dest="1" event="0"/>
+		<Transition source="0" dest="0" event="1"/>
+		<Transition source="0" dest="0" event="2"/>
+		<Transition source="1" dest="1" event="0"/>
+		<Transition source="1" dest="1" event="1"/>
+		<Transition source="1" dest="1" event="2"/>
+		<Transition source="1" dest="2" event="3"/>
+		<Transition source="2" dest="2" event="0"/>
+		<Transition source="2" dest="3" event="1"/>
+		<Transition source="2" dest="2" event="2"/>
+		<Transition source="2" dest="4" event="6"/>
+		<Transition source="3" dest="3" event="0"/>
+		<Transition source="3" dest="3" event="1"/>
+		<Transition source="3" dest="3" event="2"/>
+		<Transition source="3" dest="5" event="6"/>
+		<Transition source="4" dest="4" event="0"/>
+		<Transition source="4" dest="5" event="1"/>
+		<Transition source="4" dest="8" event="2"/>
+		<Transition source="5" dest="5" event="0"/>
+		<Transition source="5" dest="5" event="1"/>
+		<Transition source="5" dest="9" event="2"/>
+		<Transition source="6" dest="6" event="0"/>
+		<Transition source="6" dest="7" event="1"/>
+		<Transition source="6" dest="6" event="2"/>
+		<Transition source="7" dest="7" event="0"/>
+		<Transition source="7" dest="7" event="1"/>
+		<Transition source="7" dest="7" event="2"/>
+		<Transition source="7" dest="0" event="4"/>
+		<Transition source="8" dest="8" event="0"/>
+		<Transition source="8" dest="9" event="1"/>
+		<Transition source="8" dest="8" event="2"/>
+		<Transition source="8" dest="6" event="5"/>
+		<Transition source="9" dest="9" event="0"/>
+		<Transition source="9" dest="9" event="1"/>
+		<Transition source="9" dest="9" event="2"/>
+		<Transition source="9" dest="7" event="5"/>
+	</Transitions>
+</Automaton>
+</Automata>

@@ -1,0 +1,974 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<Module xmlns="http://waters.sourceforge.net/xsd/module" xmlns:B="http://waters.sourceforge.net/xsd/base" Name="Ensamblador">
+<EventDeclList>
+<EventDecl Kind="UNCONTROLLABLE" Name="GD_IN_15:ON"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="FE_LaP:GD_IN_2"/>
+<EventDecl Kind="CONTROLLABLE" Name="GD_OUT_7:ON"/>
+<EventDecl Kind="PROPOSITION" Name=":accepting"/>
+<EventDecl Kind="CONTROLLABLE" Name="GD_OUT_6:ON"/>
+<EventDecl Kind="CONTROLLABLE" Name="GD_OUT_6:OFF"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="FE_Zag:GD_IN_6"/>
+<EventDecl Kind="CONTROLLABLE" Name="GD_OUT_7:OFF"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="GD_IN_4:ON"/>
+<EventDecl Kind="CONTROLLABLE" Name="GD_OUT_2:OFF"/>
+<EventDecl Kind="CONTROLLABLE" Name="GD_OUT_2:ON"/>
+<EventDecl Kind="CONTROLLABLE" Name="GD_OUT_4:ON"/>
+<EventDecl Kind="CONTROLLABLE" Name="GD_OUT_4:OFF"/>
+</EventDeclList>
+<ComponentList>
+<SimpleComponent Kind="PLANT" Name="Lids_conveyor">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="GD_OUT_2:OFF">
+<PointGeometry>
+<Point X="288" Y="240"/>
+</PointGeometry>
+<InitialArrowGeometry>
+<Point X="-66" Y="-12"/>
+</InitialArrowGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-61" Y="19"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="GD_OUT_2:ON">
+<PointGeometry>
+<Point X="512" Y="240"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="58" Y="2"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="GD_OUT_2:OFF" Target="GD_OUT_2:ON">
+<LabelBlock>
+<SimpleIdentifier Name="GD_IN_15:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="-41" Y="-36"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="400" Y="224"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="GD_OUT_2:ON" Target="GD_OUT_2:OFF">
+<LabelBlock>
+<SimpleIdentifier Name="FE_LaP:GD_IN_2"/>
+<LabelGeometry Anchor="NW">
+<Point X="-17" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="400" Y="256"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="Clamp_LId">
+<Graph>
+<NodeList>
+<SimpleNode Name="GD_OUT_4:ON">
+<PointGeometry>
+<Point X="400" Y="416"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-4" Y="17"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Initial="true" Name="GD_OUT_4:OFF">
+<PointGeometry>
+<Point X="208" Y="416"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-84" Y="16"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="GD_OUT_4:OFF" Target="GD_OUT_4:ON">
+<LabelBlock>
+<SimpleIdentifier Name="FE_LaP:GD_IN_2"/>
+<LabelGeometry Anchor="NW">
+<Point X="-51" Y="-29"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="304" Y="395"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="GD_OUT_4:ON" Target="GD_OUT_4:OFF">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_7:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="-38" Y="13"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="304" Y="437"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="new_z">
+<Graph>
+<NodeList>
+<SimpleNode Name="GD_OUT_6:ON">
+<PointGeometry>
+<Point X="320" Y="384"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Initial="true" Name="GD_OUT_6:OFF">
+<PointGeometry>
+<Point X="112" Y="384"/>
+</PointGeometry>
+<InitialArrowGeometry>
+<Point X="-11" Y="-22"/>
+</InitialArrowGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="GD_OUT_6:OFF" Target="GD_OUT_6:ON">
+<LabelBlock>
+<SimpleIdentifier Name="GD_IN_4:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="-32" Y="-27"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="207" Y="356"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="SUPERVISOR" Name="sup(Lids_conveyor||copy_of_Clamp_LId||new_z)">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="GD_OUT_2:OFF.GD_OUT_4:OFF.GD_OUT_6:OFF">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="56" Y="56"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="GD_OUT_2:OFF.GD_OUT_4:ON.GD_OUT_6:OFF">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="193" Y="210"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="GD_OUT_2:OFF.GD_OUT_4:ON.GD_OUT_6:ON">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="288" Y="237"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="GD_OUT_2:ON.GD_OUT_4:OFF.GD_OUT_6:OFF">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="114" Y="120"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="GD_OUT_2:ON.GD_OUT_4:ON.GD_OUT_6:OFF">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="207" Y="308"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="GD_OUT_2:ON.GD_OUT_4:ON.GD_OUT_6:ON">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="288" Y="320"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="GD_OUT_2:OFF.GD_OUT_4:OFF.GD_OUT_6:OFF" Target="GD_OUT_2:ON.GD_OUT_4:OFF.GD_OUT_6:OFF">
+<LabelBlock>
+<SimpleIdentifier Name="GD_IN_15:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="GD_OUT_2:OFF.GD_OUT_4:ON.GD_OUT_6:OFF" Target="GD_OUT_2:OFF.GD_OUT_4:ON.GD_OUT_6:ON">
+<LabelBlock>
+<SimpleIdentifier Name="GD_IN_4:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="244" Y="219"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="GD_OUT_2:OFF.GD_OUT_4:ON.GD_OUT_6:OFF" Target="GD_OUT_2:ON.GD_OUT_4:ON.GD_OUT_6:OFF">
+<LabelBlock>
+<SimpleIdentifier Name="GD_IN_15:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="194" Y="262"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="GD_OUT_2:OFF.GD_OUT_4:ON.GD_OUT_6:ON" Target="GD_OUT_2:ON.GD_OUT_4:ON.GD_OUT_6:ON">
+<LabelBlock>
+<SimpleIdentifier Name="GD_IN_15:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="297" Y="281"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="GD_OUT_2:ON.GD_OUT_4:OFF.GD_OUT_6:OFF" Target="GD_OUT_2:OFF.GD_OUT_4:ON.GD_OUT_6:OFF">
+<LabelBlock>
+<SimpleIdentifier Name="FE_LaP:GD_IN_2"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="GD_OUT_2:ON.GD_OUT_4:ON.GD_OUT_6:OFF" Target="GD_OUT_2:ON.GD_OUT_4:ON.GD_OUT_6:ON">
+<LabelBlock>
+<SimpleIdentifier Name="GD_IN_4:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="248" Y="323"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="Z">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="z_next">
+<PointGeometry>
+<Point X="304" Y="416"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-71" Y="14"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="z_exten">
+<PointGeometry>
+<Point X="544" Y="416"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="z_extending">
+<PointGeometry>
+<Point X="432" Y="368"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-14" Y="16"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="z_contracting">
+<PointGeometry>
+<Point X="432" Y="464"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="z_next" Target="z_extending">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_6:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="-74" Y="-40"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="z_extending" Target="z_exten">
+<LabelBlock>
+<SimpleIdentifier Name="FE_Zag:GD_IN_6"/>
+<LabelGeometry Anchor="NW">
+<Point X="-17" Y="-35"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="z_exten" Target="z_contracting">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_6:OFF"/>
+</LabelBlock>
+<SplineGeometry>
+<Point X="489" Y="443"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="z_contracting" Target="z_next">
+<LabelBlock>
+<SimpleIdentifier Name="FE_Zag:GD_IN_6"/>
+<LabelGeometry Anchor="NW">
+<Point X="-81" Y="15"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="copy_of_Lids_conveyor">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="conveyor_off">
+<PointGeometry>
+<Point X="288" Y="240"/>
+</PointGeometry>
+<InitialArrowGeometry>
+<Point X="-43" Y="-2"/>
+</InitialArrowGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-65" Y="12"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="conveyor_on">
+<PointGeometry>
+<Point X="512" Y="240"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="3" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="conveyor_off" Target="conveyor_on">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_2:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="-41" Y="-36"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="400" Y="224"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="conveyor_on" Target="conveyor_off">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_2:OFF"/>
+<LabelGeometry Anchor="NW">
+<Point X="-17" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="400" Y="256"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="copy_of_Clamp_LId">
+<Graph>
+<NodeList>
+<SimpleNode Name="clamp_lid_on">
+<PointGeometry>
+<Point X="400" Y="416"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-4" Y="17"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Initial="true" Name="clamp_lid_off">
+<PointGeometry>
+<Point X="208" Y="416"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-84" Y="16"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="clamp_lid_off" Target="clamp_lid_on">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_4:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="-51" Y="-29"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="304" Y="395"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="clamp_lid_on" Target="clamp_lid_off">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_4:OFF"/>
+<LabelGeometry Anchor="NW">
+<Point X="-49" Y="13"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="304" Y="437"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="SPEC" Name="lid_conveyor">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="S0">
+<PointGeometry>
+<Point X="720" Y="272"/>
+</PointGeometry>
+<InitialArrowGeometry>
+<Point X="-41" Y="-13"/>
+</InitialArrowGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-19" Y="17"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S1">
+<PointGeometry>
+<Point X="848" Y="272"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="3" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S2">
+<PointGeometry>
+<Point X="992" Y="272"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="-2"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S3">
+<PointGeometry>
+<Point X="848" Y="384"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="S0" Target="S1">
+<LabelBlock>
+<SimpleIdentifier Name="GD_IN_15:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="-48" Y="-28"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="785" Y="251"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="S1" Target="S2">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_2:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="-52" Y="-25"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="916" Y="254"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="S2" Target="S3">
+<LabelBlock>
+<SimpleIdentifier Name="FE_LaP:GD_IN_2"/>
+<LabelGeometry Anchor="NW">
+<Point X="2" Y="17"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="923" Y="354"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="S3" Target="S0">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_2:OFF"/>
+<LabelGeometry Anchor="NW">
+<Point X="-122" Y="-17"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="765" Y="356"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="SPEC" Name="clamp_lid">
+<Graph>
+<NodeList>
+<SimpleNode Name="S0">
+<PointGeometry>
+<Point X="208" Y="272"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S1">
+<PointGeometry>
+<Point X="384" Y="272"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S2">
+<PointGeometry>
+<Point X="560" Y="272"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Initial="true" Name="S3">
+<PointGeometry>
+<Point X="144" Y="272"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="S0" Target="S1">
+<LabelBlock>
+<SimpleIdentifier Name="FE_LaP:GD_IN_2"/>
+<LabelGeometry Anchor="NW">
+<Point X="-56" Y="-29"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="S1" Target="S2">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_4:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="-47" Y="-30"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="S3" Target="S0">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_2:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="-40" Y="-43"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="SUPERVISOR" Name="sup(clamp_lid||copy_of_Clamp_LId||copy_of_Lids_conveyor||lid_conveyor)">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="S0.clamp_lid_off.conveyor_off.S0">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="58" Y="57"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S0.clamp_lid_off.conveyor_off.S1">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="121" Y="97"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S0.clamp_lid_off.conveyor_on.S2">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="214" Y="153"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S1.clamp_lid_off.conveyor_off.S0">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="476" Y="225"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S1.clamp_lid_off.conveyor_off.S1">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="611" Y="211"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S1.clamp_lid_off.conveyor_on.S2">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="712" Y="201"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S1.clamp_lid_off.conveyor_on.S3">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="341" Y="226"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S2.clamp_lid_off.conveyor_off.S0">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="527" Y="416"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S2.clamp_lid_off.conveyor_off.S1">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="649" Y="396"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S2.clamp_lid_off.conveyor_on.S2">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="744" Y="374"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S2.clamp_lid_off.conveyor_on.S3">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="428" Y="426"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S2.clamp_lid_on.conveyor_off.S0">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="503" Y="321"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S2.clamp_lid_on.conveyor_off.S1">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="631" Y="303"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S2.clamp_lid_on.conveyor_on.S2">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="732" Y="287"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="S2.clamp_lid_on.conveyor_on.S3">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="396" Y="333"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="5" Y="5"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="S0.clamp_lid_off.conveyor_off.S0" Target="S0.clamp_lid_off.conveyor_off.S1">
+<LabelBlock>
+<SimpleIdentifier Name="GD_IN_15:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="S0.clamp_lid_off.conveyor_off.S1" Target="S0.clamp_lid_off.conveyor_on.S2">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_2:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="S0.clamp_lid_off.conveyor_on.S2" Target="S1.clamp_lid_off.conveyor_on.S3">
+<LabelBlock>
+<SimpleIdentifier Name="FE_LaP:GD_IN_2"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="S1.clamp_lid_off.conveyor_off.S0" Target="S1.clamp_lid_off.conveyor_off.S1">
+<LabelBlock>
+<SimpleIdentifier Name="GD_IN_15:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="543" Y="210"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="S1.clamp_lid_off.conveyor_off.S0" Target="S2.clamp_lid_on.conveyor_off.S0">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_4:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="S1.clamp_lid_off.conveyor_off.S1" Target="S1.clamp_lid_off.conveyor_on.S2">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_2:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="665" Y="198"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="S1.clamp_lid_off.conveyor_off.S1" Target="S2.clamp_lid_on.conveyor_off.S1">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_4:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="623" Y="254"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="S1.clamp_lid_off.conveyor_on.S2" Target="S2.clamp_lid_on.conveyor_on.S2">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_4:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="731" Y="240"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="S1.clamp_lid_off.conveyor_on.S3" Target="S1.clamp_lid_off.conveyor_off.S0">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_2:OFF"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="406" Y="221"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="S1.clamp_lid_off.conveyor_on.S3" Target="S2.clamp_lid_on.conveyor_on.S3">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_4:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="363" Y="280"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="S2.clamp_lid_off.conveyor_off.S0" Target="S2.clamp_lid_off.conveyor_off.S1">
+<LabelBlock>
+<SimpleIdentifier Name="GD_IN_15:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="590" Y="415"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="S2.clamp_lid_off.conveyor_off.S1" Target="S2.clamp_lid_off.conveyor_on.S2">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_2:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="702" Y="392"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="S2.clamp_lid_off.conveyor_on.S3" Target="S2.clamp_lid_off.conveyor_off.S0">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_2:OFF"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="476" Y="429"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="S2.clamp_lid_on.conveyor_off.S0" Target="S2.clamp_lid_off.conveyor_off.S0">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_4:OFF"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="S2.clamp_lid_on.conveyor_off.S0" Target="S2.clamp_lid_on.conveyor_off.S1">
+<LabelBlock>
+<SimpleIdentifier Name="GD_IN_15:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="S2.clamp_lid_on.conveyor_off.S1" Target="S2.clamp_lid_off.conveyor_off.S1">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_4:OFF"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="643" Y="353"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="S2.clamp_lid_on.conveyor_off.S1" Target="S2.clamp_lid_on.conveyor_on.S2">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_2:ON"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="S2.clamp_lid_on.conveyor_on.S2" Target="S2.clamp_lid_off.conveyor_on.S2">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_4:OFF"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="748" Y="332"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="S2.clamp_lid_on.conveyor_on.S3" Target="S2.clamp_lid_off.conveyor_on.S3">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_4:OFF"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="405" Y="384"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="S2.clamp_lid_on.conveyor_on.S3" Target="S2.clamp_lid_on.conveyor_off.S0">
+<LabelBlock>
+<SimpleIdentifier Name="GD_OUT_2:OFF"/>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+</ComponentList>
+</Module>

@@ -1,0 +1,168 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns:ns1="http://www.plcopen.org/xml/tc6_0201" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.plcopen.org/xml/tc6_0201">
+  <fileHeader companyName="Desconocido" productName="Sin nombre" productVersion="1" creationDateTime="2023-08-02T19:37:37"/>
+  <contentHeader name="Sin nombre" modificationDateTime="2023-08-03T01:02:56">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="10" y="10"/>
+      </fbd>
+      <ld>
+        <scaling x="10" y="10"/>
+      </ld>
+      <sfc>
+        <scaling x="10" y="10"/>
+      </sfc>
+    </coordinateInfo>
+  </contentHeader>
+  <types>
+    <dataTypes/>
+    <pous>
+      <pou name="tesis0" pouType="program">
+        <interface>
+          <localVars>
+            <variable name="initial">
+              <type>
+                <BOOL/>
+              </type>
+              <initialValue>
+                <simpleValue value="0"/>
+              </initialValue>
+            </variable>
+            <variable name="state">
+              <type>
+                <INT/>
+              </type>
+            </variable>
+            <variable name="slt">
+              <type>
+                <array>
+                  <dimension lower="0" upper="200"/>
+                  <baseType>
+                    <DINT/>
+                  </baseType>
+                </array>
+              </type>
+            </variable>
+            <variable name="FE_LaP">
+              <type>
+                <derived name="F_TRIG"/>
+              </type>
+            </variable>
+          </localVars>
+          <localVars>
+            <variable name="GD_IN_2" address="%IX100.2">
+              <type>
+                <BOOL/>
+              </type>
+            </variable>
+            <variable name="GD_IN_4" address="%IX100.4">
+              <type>
+                <BOOL/>
+              </type>
+            </variable>
+            <variable name="GD_IN_15" address="%IX100.15">
+              <type>
+                <BOOL/>
+              </type>
+            </variable>
+            <variable name="GD_OUT_2" address="%QX100.2">
+              <type>
+                <BOOL/>
+              </type>
+            </variable>
+            <variable name="GD_OUT_4" address="%QX100.4">
+              <type>
+                <BOOL/>
+              </type>
+            </variable>
+            <variable name="GD_OUT_6" address="%QX100.6">
+              <type>
+                <BOOL/>
+              </type>
+            </variable>
+            <variable name="GD_OUT_7" address="%QX100.7">
+              <type>
+                <BOOL/>
+              </type>
+            </variable>
+            <variable name="GD_OUT_8" address="%QX100.8">
+              <type>
+                <BOOL/>
+              </type>
+            </variable>
+            <variable name="GD_OUT_9" address="%QX100.9">
+              <type>
+                <BOOL/>
+              </type>
+            </variable>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml:p><![CDATA[IF NOT initial THEN
+	state := 4;
+	initial := 1;
+END_IF;
+
+FE_LaP(CLK:=GD_IN_2);
+IF state = 0 & FE_LaP.Q THEN
+	 state := 1;
+ELSIF state = 2 & GD_IN_15 THEN
+	 state := 3;
+ELSIF state = 4 & GD_IN_15 THEN
+	 state := 5;
+ELSIF state = 6 & GD_IN_15 THEN
+	 state := 7;
+ELSIF state = 6 & GD_IN_4 THEN
+	 state := 8;
+ELSIF state = 7 & GD_IN_4 THEN
+	 state := 9;
+ELSIF state = 8 & GD_IN_15 THEN
+	 state := 9;
+END_IF;
+CASE state OF
+	1:
+		GD_OUT_2 := 0;
+	2:
+		GD_OUT_4 := 1;
+	3:
+		GD_OUT_4 := 1;
+
+	5:
+		GD_OUT_2 := 1;
+
+	8:
+		GD_OUT_4 := 0;
+	9:
+		GD_OUT_4 := 0;
+END_CASE;
+IF state = 1 & NOT GD_OUT_2 THEN
+	 state := 2;
+ELSIF state = 2 & GD_OUT_4 THEN
+	 state := 6;
+ELSIF state = 3 & GD_OUT_4 THEN
+	 state := 7;
+ELSIF state = 5 & GD_OUT_2 THEN
+	 state := 0;
+ELSIF state = 8 & NOT GD_OUT_4 THEN
+	 state := 4;
+ELSIF state = 9 & NOT GD_OUT_4 THEN
+	 state := 5;
+END_IF;]]></xhtml:p>
+          </ST>
+        </body>
+      </pou>
+    </pous>
+  </types>
+  <instances>
+    <configurations>
+      <configuration name="Config0">
+        <resource name="Res0">
+          <task name="task0" priority="0" interval="T#20ms">
+            <pouInstance name="instance0" typeName="tesis0"/>
+          </task>
+        </resource>
+      </configuration>
+    </configurations>
+  </instances>
+</project>
