@@ -1,26 +1,26 @@
 import automat_generate as ag
 
 actuators = dict([])
-actuators['lids_conveyor_on'] = 'GD_OUT_2:ON'
+actuators['lids_conveyor_on'] = 'GD_OUT_2:ON:%QX100.2'
 actuators['lids_conveyor_off'] = 'GD_OUT_2:OFF'
-actuators['bases_conveyor_on'] = 'GD_OUT_3:ON'
+actuators['bases_conveyor_on'] = 'GD_OUT_3:ON:%QX100.3'
 actuators['bases_conveyor_off'] = 'GD_OUT_3:OFF'
-actuators['clamp_lid_on'] = 'GD_OUT_4:ON'
+actuators['clamp_lid_on'] = 'GD_OUT_4:ON:%QX100.4'
 actuators['clamp_lid_off'] = 'GD_OUT_4:OFF'
-actuators['clamp_base_on'] = 'GD_OUT_5:ON'
+actuators['clamp_base_on'] = 'GD_OUT_5:ON:%QX100.5'
 actuators['clamp_base_off'] = 'GD_OUT_5:OFF'
-actuators['z_axis_on'] = 'GD_OUT_6:ON'
+actuators['z_axis_on'] = 'GD_OUT_6:ON:%QX100.6'
 actuators['z_axis_off'] = 'GD_OUT_6:OFF'
-actuators['grab_on'] = 'GD_OUT_7:ON'
+actuators['grab_on'] = 'GD_OUT_7:ON:%QX100.7'
 actuators['grab_off'] = 'GD_OUT_7:OFF'
-actuators['x_axis_on'] = 'GD_OUT_8:ON'
+actuators['x_axis_on'] = 'GD_OUT_8:ON:%QX100.8'
 actuators['x_axis_off'] = 'GD_OUT_8:OFF'
-actuators['blade_on'] = 'GD_OUT_9:ON'
+actuators['blade_on'] = 'GD_OUT_9:ON:%QX100.9'
 actuators['blade_off'] = 'GD_OUT_9:OFF'
-actuators['start'] = 'GD_IN_15:ON'
-actuators['lid_at_place_FE'] = 'FE_LaP:GD_IN_2'
-actuators['lid_clampled'] = "GD_IN_4:ON"
-actuators['movement_finish'] = 'FE_Zag:GD_IN_6'
+actuators['start'] = 'GD_IN_15:ON:%IX100.15'
+actuators['lid_at_place_FE'] = 'FE_LaP:GD_IN_2:%IX100.2'
+actuators['lid_clampled'] = "GD_IN_4:ON:%IX100.4"
+actuators['movement_finish'] = 'FE_Zag:GD_IN_6:%IX100.6'
 
 new_process = ag.process()
 
@@ -74,6 +74,7 @@ new_process.add_state(buffer_lid, 5, ["enciende", "esperando", " llega_lids", "p
 new_process.add_transition(buffer_lid, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0)],
                            ['lids_conveyor_on', 'lid_at_place_FE', "lids_conveyor_off", 'clamp_lid_on', 'clamp_lid_off'],
                            ['lid_at_place_FE'])
+
 new_process.add_self_event(Clamp_lid, 'lid_at_place_FE')
 new_process.add_self_event(Lids_conveyor, 'lid_at_place_FE')
 
@@ -85,13 +86,14 @@ new_process.add_transition(Grab, [(0, 1), (1, 0)],
 
 z_axis = new_process.automata('z_axis')
 new_process.add_state(z_axis, 4, names=["recogido", '1', "extendido", '0'],
-                      marked=[False, False, False, True])
+                      marked=[True, True, True, True])
 new_process.add_transition(z_axis, [(0, 1), (1, 2), (2, 3), (3, 0)],
                            ["z_axis_on", 'movement_finish', "z_axis_off", 'movement_finish'],
                            uncontrollable=['movement_finish'])
 
 buffer_z = new_process.automata('buffer_z')
-new_process.add_state(buffer_z, 5, ["z_recogida", "lids_lista", "z_extendida", "lid_agarrada", "restart"], [True])
+new_process.add_state(buffer_z, 5, ["z_recogida", "lids_lista", "z_extendida", "lid_agarrada", "restart"],
+                      [False, False, False, False, True])
 new_process.add_transition(buffer_z, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0)],
                            ['lid_clampled', 'movement_finish', 'grab_on', 'clamp_lid_off', 'z_axis_off',], ['lid_clampled', 'movement_finish'])
 
@@ -113,10 +115,7 @@ new_process.plot_automatas([sup, spec, all, plant, simsup, buffer_lid, Clamp_lid
 new_process.print_events(actuators)
 #ag.DEStoADS(sup)
 new_process.read_ADS(sup)
-if_controllable, if_uncontrollable = new_process.ifs(sup, actuators)
-st_code = new_process.OBS(sup,actuators) + "\n" + if_uncontrollable + "\n" + new_process.sw_case(sup,actuators) + "\n" + if_controllable
 
-print(st_code)
 
 plant2 = new_process.automata_syncronize([Clamp_lid, Grab, z_axis], name_sync='plant2')
 all2 = new_process.all_events(plant2, 'all2')
@@ -129,10 +128,6 @@ new_process.plot_automatas([sup2, spec2, all2, plant2, simsup2, buffer_z, z_axis
 new_process.print_events(actuators)
 #ag.DEStoADS(sup2)
 new_process.read_ADS(sup2)
-if_controllable, if_uncontrollable = new_process.ifs(sup2, actuators)
-st_code = new_process.OBS(sup2, actuators) + "\n" + if_uncontrollable + "\n" + new_process.sw_case(sup2, actuators) + "\n" + if_controllable
-
-print(st_code)
 nonconflict, TESTcoor, alltest = new_process.coordinator([sup, sup2],[plant,plant2])  # revisa si son conflictivos
 nonconflict2 = new_process.nonconflict(sup, sup2)  # revisa si son conflictivos
 print(nonconflict)
@@ -143,65 +138,8 @@ new_process.plot_automatas([sup2, spec2, all2, plant2, simsup2, buffer_z, z_axis
 TESTSUP = new_process.supcon(TESTcoor, alltest, "TESTSUP")
 TESTSUP_dat = new_process.condat(TESTcoor, TESTSUP, 'TESTSUPdat')
 CO = new_process.supreduce(TESTcoor,TESTSUP,TESTSUP_dat,"simsupCO")
-new_process.plot_automatas([CO],1,True)
+new_process.plot_automatas([CO],1,False)
 
 
-
-'''
-
-plant3 = new_process.automata_syncronize([M1, M2], name_sync='plant3')
-all3 = new_process.all_events(plant3, 'all3')
-spec3 = new_process.automata_syncronize([repair, buffer, all3], name_sync='spec3')
-sup3 = new_process.supcon(plant3, spec3, 'sup3')
-supdat3 = new_process.condat(plant3, sup3, 'supdat3')
-simsup3 = new_process.supreduce(plant3, sup3, supdat3, 'simsup3')'''
-
-
-# ag.DEStoADS(sup)
-#new_process.read_ADS(sup)
-# ag.DEStoADS(sup2)
-#new_process.read_ADS(sup2)
-
-'''nonconflict = new_process.coordinator(sup, sup2)  # revisa si son conflictivos
-nonconflict2 = new_process.nonconflict(sup, sup2)  # revisa si son conflictivos
-print(nonconflict)
-print(nonconflict2)'''
-
-'''LCCL=new_process.automata_syncronize(['REQ_lcc', 'clamp_lid', 'lids_conveyor'],"LCCL")
-CLZA=new_process.automata_syncronize(['REQ_zlc', 'clamp_lid', 'z_axis'],"CLZA")
-ZAG=new_process.automata_syncronize(['REQ_lcc', 'z_axis', 'grab'],"ZAG")
-LCCL_CLZA_COOR = new_process.coordinator(LCCL,CLZA)'''
-
-'''if LCCL_CLZA_COOR:
-    plant1 =new_process.automata_syncronize(['clamp_lid','lids_conveyor'],name_sync='plant1')
-    all1 = new_process.all_events(plant1,'all1')
-    spec1 = new_process.automata_syncronize(['REQ_lcc',all1],name_sync='spec1')
-    sup1 = new_process.supcon(plant1,spec1,'sup1')
-    sup1dat= new_process.condat(plant1,sup1,'sup1dat')
-    simsup1 = new_process.supreduce(plant1,sup1,sup1dat,'simsup1')
-
-    plant2 =new_process.automata_syncronize(['clamp_lid','z_axis'],name_sync='plant2')
-    all2 = new_process.all_events(plant2,'all2')
-    spec2 = new_process.automata_syncronize(['REQ_zlc',all2],name_sync='spec2')
-    sup2 = new_process.supcon(plant2,spec2,'sup2')
-    sup2dat= new_process.condat(plant2,sup2,'sup2dat')
-    simsup2 = new_process.supreduce(plant2,sup2,sup2dat,'simsup2')
-'''
-'''ag.DEStoADS(sup)
-new_process.read_ADS(sup)
-
-if_controllable, if_uncontrollable = new_process.ifs(sup, actuators)
-st_code = new_process.OBS(sup,actuators) + "\n" + if_uncontrollable + "\n" + new_process.sw_case(sup,actuators) + "\n" + if_controllable
-
-print(st_code)'''
-# if not A_E_NC:
-#    new_process.supcon(a_b,AE_a_b)
-
-
-# lid_clamp = new_process.automata_syncronize(['REQ_lcc','clamp_lid','lids_conveyor'])
-# new_process.automatas[lid_clamp].generate_image(15)
-
-# new_process.to_ADS()
-# ag.generate_automata()
-
-# sync = new_process.automata_syncronize(['grab','blade'])
+a=new_process.generate_ST_OPENPLC([sup,sup2], actuators)
+print(a)

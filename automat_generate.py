@@ -350,10 +350,68 @@ class process:
         self.add_transition(name, transitions, events, uc_events)
         return name
 
-    def ifs(self, name: str, actuators=dict([])):
-        if_uncontrollable = ""
-        if_controllable = ""
+    def generate_ST_OPENPLC(self, name:list, actuators:dict):
+        HEADER = "PROGRAM tesis0\n"
+        END = "\nEND_PROGRAM\n\n"
+        END += "CONFIGURATION Config0\n\n\tRESOURCE Res0 ON PLC\n\t\tTASK task0(INTERVAL := T#20ms,PRIORITY := 0);"
+        END += "\n\t\tPROGRAM instance0 WITH task0 : tesis0;"+"\n\tEND_RESOURCE\nEND_CONFIGURATION"
+        to_print = ""
+        st=[];
+        if len(actuators)!=0:
+            for i in range(len(name)):
+                if_controllable, if_uncontrollable = self.ifs(name[i], actuators, i)
+                sc,n_r=self.sw_case(name[i], actuators, i)
+                to_print += if_uncontrollable + "\n" +sc + "\n" + if_controllable
+                st.append(n_r)
+        declaration = self.declaration_OPENPLC(actuators.values(), st, len(name))
+        out = HEADER + declaration + to_print + END
+        with open('ST_Generated/codigo_st.st', 'w') as archivo:
+            archivo.write(out)
+        return out
 
+    def declaration_OPENPLC(self, actuators, n_state:list, n_automata = 0):
+        declaration = "\tVAR\n"
+        clocks = ""
+        start = "\tVAR\n"
+        start += "\t\tstate : ARRAY [0.." + str(n_automata+1) + "] OF DINT;\n"
+        for i in range(0,n_automata):
+            if n_state[i] == 0:
+                continue
+            start += "\t\tslt"+str(i)+" : ARRAY [0.." + str(n_state[i] + 1) + "] OF DINT;\n"
+        declared = []
+        for act in actuators:
+            aux = act.split(':')
+            if aux[1] == 'ON' or aux [1] == 'OFF':
+                if aux[0] in declared:
+                    continue
+                declaration += "\t\t" + aux[0] + " AT "
+                declared.append(aux[0])
+                if "IN" in aux[0]:
+                    declaration +=  aux[2] + " : BOOL;\n"
+                elif "OUT" in aux[0]:
+                    declaration +=  aux[2] + " : BOOL;\n"
+            else:
+                if aux[1] not in declared:
+                    declared.append(aux[1])
+                    declaration += "\t\t" + aux [1] + " AT "
+                    if "IN" in aux[1]:
+                        declaration += aux[2] + " : BOOL;\n"
+                    elif "OUT" in aux[1]:
+                        declaration += aux[2] + " : BOOL;\n"
+                start += "\t\t" + aux[0] + " : "
+                if "FE" in aux[0]:
+                    start += "F_TRIG;\n"
+                if "RE" in aux[0]:
+                    start += "R_TRIG;\n"
+
+                clocks += "\t" + aux[0] +'(CLK:= '+aux[1] + ');\n'
+        start += "\tEND_VAR\n"
+        declaration += "\tEND_VAR\n"
+        return start + declaration + clocks
+
+    def ifs(self, name: str, actuators=dict([]), n_state=0):
+        if_uncontrollable = "\t"
+        if_controllable = "\t"
         for i in range(0, len(self.automatas[name].transitions)):
             origin = self.automatas[name].transitions[i][0]
             destination = self.automatas[name].transitions[i][2]
@@ -370,54 +428,56 @@ class process:
             if origin == destination:
                 continue
             if self.dict_events_name[event] in self.c_events:
-                if_controllable += "IF state = " + str(origin) \
+                if_controllable += "IF state["+ str(n_state) +"] = " + str(origin) \
                                    + " & " + name_event \
-                                   + " THEN\n" + "\t state := " \
-                                   + str(destination) + ";\n" + "ELS"
+                                   + " THEN\n  " + "\t\t" + "state["+ str(n_state) +"] := " \
+                                   + str(destination) + ";\n  " + "\tELS"
             else:
-                if_uncontrollable += "IF state = " + str(origin) + " & "
+                if_uncontrollable += "IF state["+ str(n_state) +"] = " + str(origin) + " & "
                 if_uncontrollable += name_event + ('.Q' if 'FE' in name_event or 'RE' in name_event else '')
-                if_uncontrollable += " THEN\n" + "\t state := "
-                if_uncontrollable += str(destination) + ";\n" + "ELS"
+                if_uncontrollable += " THEN\n  " + "\t\t" + "state["+ str(n_state) +"] := "
+                if_uncontrollable += str(destination) + ";\n  " + "\tELS"
         if not if_controllable == "":
             if_controllable = if_controllable.rstrip("ELS") + "END_IF;"
         if not if_uncontrollable == "":
             if_uncontrollable = if_uncontrollable.rstrip("ELS") + "END_IF;"
         return if_controllable, if_uncontrollable
 
-    def sw_case(self, name, actuators=dict([])):
+    def sw_case(self, name, actuators=dict([]), n_state=0):
+        n_r = 0
         state_list = self.automatas[name].states
-        case = "CASE state OF\n"
+        case = "\tCASE state[" + str(n_state) +"] OF\n  "
         for state in state_list:
             events = [event for event in state.get_active_events() if event not in self.uc_events]
             num_event = len(events)
             if len(events) != 0:
-                case += "\t" + str(state.get_id()) + ":\n"
+                case += "\t\t" + str(state.get_id()) + ":\n  "
                 if num_event > 1:
-                    case += "\t\tCASE " + "slt[" + str(state.get_id()) + "] OF\n"
+                    case += "\t\t\tCASE " + "slt"+str(n_state)+"[" + str(n_r) + "] OF\n  "
                     for i in range(0, num_event):
                         name_event = events[i] if len(actuators) == 0 else actuators[events[i]]
-                        case += "\t\t\t" + str(i) + ":" + "\n"
+                        case += "\t\t\t\t" + str(i) + ":" + "\n  "
                         aux = name_event.split(":")
                         if "OFF" in name_event:
-                            case += "\t\t\t\t" + aux[0] + " := 0;\n"
+                            case += "\t\t\t\t\t" + aux[0] + " := 0;\n  "
                         else:
-                            case += "\t\t\t\t" + aux[0] + " := 1;\n"
-                    case += "\t\tEND_CASE;\n"
-                    case += "\t\t" + "slt[" + str(state.get_id()) + "] := " + "slt[" + str(state.get_id()) + "] + 1;\n "
-                    case += "\t\t" + "IF " + "slt[" + str(state.get_id()) + "] = " + str(num_event) + " THEN\n"
-                    case += "\t\t\t" + "slt[" + str(state.get_id()) + "] := 0;\n"
-                    case += "\t\t" + "END_IF;\n"
+                            case += "\t\t\t\t\t" + aux[0] + " := 1;\n  "
+                    case += "\t\t\tEND_CASE;\n  "
+                    case += "\t\t\t" +"slt"+str(n_state)+"[" + str(n_r) + "] := " + "slt"+str(n_state)+"[" + str(n_r) + "] + 1;\n  "
+                    case += "\t\t\t" + "IF " + "slt"+str(n_state)+"[" + str(n_r) + "] = " + str(num_event) + " THEN\n  "
+                    case += "\t\t\t\t" + "slt"+str(n_state)+"[" + str(n_r) + "] := 0;\n  "
+                    case += "\t\t\t" + "END_IF;\n  "
+                    n_r += 1
 
                 elif num_event == 1:
                     name_event = name_event = events[0] if len(actuators) == 0 else actuators[events[0]]
                     aux = name_event.split(":")
                     if "OFF" in name_event:
-                        case += "\t\t" + aux[0] + " := 0;\n"
+                        case += "\t\t\t" + aux[0] + " := 0;\n  "
                     else:
-                        case += "\t\t" + aux[0] + " := 1;\n"
+                        case += "\t\t\t" + aux[0] + " := 1;\n  "
 
-        return case + "END_CASE;"
+        return [case + "\tEND_CASE;", n_r]
 
     def OBS(self, name, actuators=dict([])):
         OSB = "state := 0;\n"
