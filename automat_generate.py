@@ -45,8 +45,7 @@ class process:
                 print(self.dict_events[n] + " -> " + n)
         else:
             for n in self.dict_events.keys():
-                print(self.dict_events[n] + " -> " + n + " : " + actuators [n])
-
+                print(self.dict_events[n] + " -> " + n + " : " + actuators[n])
 
     def plot_automatas(self, nameList: list, numcolumns: int = 1, show=True):
         self.generate_image(nameList)
@@ -100,7 +99,7 @@ class process:
         planta = self.automata_syncronize(plantas, "plantaTotal")
         AEcoor = self.all_events(planta, 'AEcoor')
         noncoor = self.nonconflict(TESTcoor, AEcoor)
-        return noncoor,TESTcoor,AEcoor
+        return noncoor, TESTcoor, AEcoor
 
     def all_events(self, name, alleventsname):
         ruta_carpeta = "TCTX64_20210701/USER/"
@@ -320,7 +319,7 @@ class process:
                     transitions.append((transition[0], transition[2]))
                     event = self.dict_events_name[str(transition[1])]
                     if event not in events:
-                        if transition[1] % 2 == 1:
+                        if transition[1] % 2 == 0:
                             uc_events.append(event)
                     events.append(event)
                 if "Transitions" in linea:
@@ -350,50 +349,205 @@ class process:
         self.add_transition(name, transitions, events, uc_events)
         return name
 
-    def generate_ST_OPENPLC(self, name:list, actuators:dict):
+    def generate_ST_OPENPLC(self, supervisors: list, plants: list, actuators: dict):
+
         HEADER = "PROGRAM tesis0\n"
         END = "\nEND_PROGRAM\n\n"
         END += "CONFIGURATION Config0\n\n\tRESOURCE Res0 ON PLC\n\t\tTASK task0(INTERVAL := T#20ms,PRIORITY := 0);"
-        END += "\n\t\tPROGRAM instance0 WITH task0 : tesis0;"+"\n\tEND_RESOURCE\nEND_CONFIGURATION"
-        to_print = ""
-        st=[];
-        if len(actuators)!=0:
-            for i in range(len(name)):
-                if_controllable, if_uncontrollable = self.ifs(name[i], actuators, i)
-                sc,n_r=self.sw_case(name[i], actuators, i)
-                to_print += if_uncontrollable + "\n" +sc + "\n" + if_controllable
+        END += "\n\t\tPROGRAM instance0 WITH task0 : tesis0;" + "\n\tEND_RESOURCE\nEND_CONFIGURATION"
+
+        if len(supervisors) == 1:
+            return self.aux_generate_ST_OPENPLC(supervisors, actuators)
+        Coordinators = []
+        Intersections = dict([])
+        for i in range(len(supervisors)):
+            for j in range(i + 1, len(supervisors)):
+                nonconflict, TESTcoor, alltest = self.coordinator([supervisors[i], supervisors[j]],
+                                                                  [plants[i], plants[j]])  # revisa si son conflictivos
+                if not nonconflict:
+                    print('conflict',i,j)
+                    TESTSUP = self.supcon(TESTcoor, alltest, "TESTSUP")
+                    TESTSUP_dat = self.condat(TESTcoor, TESTSUP, 'TESTSUPdat')
+                    CO = self.supreduce(TESTcoor, TESTSUP, TESTSUP_dat, "CO_" + str(i) + "_" + str(j))
+                    self.plot_automatas([CO,TESTcoor,alltest,TESTSUP], 1, False)
+                    DEStoADS(CO)
+                    self.read_ADS(CO)
+                    Coordinators.append(CO)
+                a = set(self.automatas[supervisors[i]].c_events)
+                b = set(self.automatas[supervisors[j]].c_events)
+                intersect = list(a & b)
+                intersect = set([actuators[act].split(':')[0] for act in intersect])
+                if len(intersect) != 0:
+                    for inter in intersect:
+                        if inter in Intersections.keys():
+                            if i not in Intersections[inter]:
+                                Intersections[inter].append(i)
+                            if j not in Intersections[inter]:
+                                Intersections[inter].append(j)
+                        else:
+                            Intersections[inter] = [i, j]
+        COsw = ""
+        COc = ""
+        COu = ""
+        st = []
+        if_controllable = ""
+        if_uncontrollable = ""
+        sc = ""
+        j=0
+        if len(actuators) != 0:
+            for i in range(len(supervisors)):
+                if_c, if_u = self.ifs(supervisors[i], actuators, i)
+                s, n_r = self.sw_case(supervisors[i], actuators, i, i, Intersections)
+                j+=1
+                if_controllable += if_c + "\n"
+                if_uncontrollable += if_u + '\n'
+                sc += "\n" + s + "\n"
                 st.append(n_r)
-        declaration = self.declaration_OPENPLC(actuators.values(), st, len(name))
-        out = HEADER + declaration + to_print + END
+        for c in Coordinators:
+            COsw += self.coordinator_sc(c, actuators=actuators, state_it=j)
+            a, b = self.ifs(c, actuators, j)
+            st.append(0)
+            j += 1
+            COc += a
+            COu += b
+        intersection= self.intersection(Intersections, len(Coordinators)!=0 )
+        declaration = self.declaration_OPENPLC(actuators, st, j, Intersections, Coordinators)
+        out = HEADER
+        out += declaration + if_uncontrollable + COu + COsw + sc + intersection + COc + if_controllable
+        out += END
         with open('ST_Generated/codigo_st.st', 'w') as archivo:
             archivo.write(out)
         return out
 
-    def declaration_OPENPLC(self, actuators, n_state:list, n_automata = 0):
+    def aux_generate_ST_OPENPLC(self, name: list = [], actuators: dict = dict([]), CO=""):
+        COsw = ""
+        COc = ""
+        COu = ""
+        if CO != "":
+            COsw = self.coordinator_sc(CO, actuators=actuators)
+            COc, Cou = self.ifs(CO, actuators, 2)
+        Intersections = dict([])
+        if len(name) > 1:
+            for i in range(len(name)):
+                for j in range(i + 1, len(name)):
+                    a = set(self.automatas[name[i]].c_events)
+                    b = set(self.automatas[name[j]].c_events)
+                    intersect = list(a & b)
+                    intersect = set([actuators[act].split(':')[0] for act in intersect])
+                    if len(intersect) != 0:
+                        for inter in intersect:
+                            if inter in Intersections.keys():
+                                if i not in Intersections[inter]:
+                                    Intersections[inter].append(i)
+                                if j not in Intersections[inter]:
+                                    Intersections[inter].append(j)
+                            else:
+                                Intersections[inter] = [i, j]
+
+        HEADER = "PROGRAM tesis0\n"
+        END = "\nEND_PROGRAM\n\n"
+        END += "CONFIGURATION Config0\n\n\tRESOURCE Res0 ON PLC\n\t\tTASK task0(INTERVAL := T#20ms,PRIORITY := 0);"
+        END += "\n\t\tPROGRAM instance0 WITH task0 : tesis0;" + "\n\tEND_RESOURCE\nEND_CONFIGURATION"
+
+        st = []
+        if_controllable = ""
+        if_uncontrollable = ""
+        sc = ""
+        if len(actuators) != 0:
+            for i in range(len(name)):
+                if_c, if_u = self.ifs(name[i], actuators, i)
+                s, n_r = self.sw_case(name[i], actuators, i, intersection=Intersections)
+                if_controllable += if_c + "\n"
+                if_uncontrollable += if_u + '\n'
+                sc += "\n" + s + "\n"
+                st.append(n_r)
+        print(if_uncontrollable + sc + if_controllable)
+        declaration = self.declaration_OPENPLC(actuators, st, len(name), Intersections, CO)
+        intersection = self.intersection(Intersections, CO != "")
+        out = HEADER + declaration + if_uncontrollable + COu + COsw + sc + intersection + COc + if_controllable + END
+        with open('ST_Generated/codigo_st.st', 'w') as archivo:
+            archivo.write(out)
+        return out
+
+    def intersection(self, intersection: dict, CO=False, addG="_G[", addC = "_C[", name_intersection="aux"):
+        out = ""
+        for inter in intersection.keys():
+            aux = ""
+            coor = ""
+            bandera = inter if not CO else name_intersection
+            out += "\tIF "
+            guesses = []
+            for act in range(len(intersection[inter])):
+                guesses.append(inter + addG + str(act) + "]")
+            if len(guesses) == 2:
+                out += guesses[0] + " <> " + guesses[1] + " THEN\n"
+                out += "\t\t" + guesses[0] + " := " + inter + ";\n"
+                out += "\t\t" + guesses[1] + " := " + inter + ";"
+            else:
+                i = 0
+                j = 1
+                while j < len(guesses):
+                    aux += "\t\t" + guesses[i] + " := " + inter + ";\n"
+                    out += "(" + guesses[i] + " <> " + guesses[j] + ")"
+                    i += 1
+                    j += 1
+                    if j != len(guesses):
+                        out += " OR "
+                    else:
+                        out += " THEN\n"
+                aux += "\t\t" + guesses[j - 1] + " := " + inter + ";\t\t\t"
+            if CO:
+                coor += "\tIF " + bandera + " XOR " + inter + " THEN\n\t\t"
+                coor += "IF NOT " + bandera + " & " + inter + addC + "0] THEN\n\t\t\t"
+                coor += inter + " := 0;\n\t\t"
+                coor += "ELSIF " + bandera + " & " + inter + addC + "1] THEN\n\t\t\t"
+                coor += inter + " := 1;"
+                coor += "\n\t\tEND_IF;"
+                coor += "\n\tEND_IF;\n"
+            out += aux+'\n'
+            out += "\tEND_IF;\n\t"
+            out += bandera + " := " + guesses[0] + ";\n"
+            out += coor
+        return out
+
+    def declaration_OPENPLC(self, actuators, n_state: list, n_automata=0, intersetion: dict = dict([]), CO=list):
         declaration = "\tVAR\n"
         clocks = ""
         start = "\tVAR\n"
-        start += "\t\tstate : ARRAY [0.." + str(n_automata+1) + "] OF DINT;\n"
-        for i in range(0,n_automata):
+        start += "\t\tstate : ARRAY [0.." + str(n_automata) + "] OF DINT;\n"
+        if len(CO)!=0:
+            declared = []
+            start += "\t\taux : BOOL := 0;\n"
+            for coor in CO:
+                for i in self.automatas[coor].c_events:
+                    aux = actuators[i].split(':')[0]
+                    if aux not in declared:
+                        start += "\t\t" + aux + "_C : ARRAY [0..1] OF BOOL;\n"
+                        declared.append(aux)
+        for i in range(0, n_automata):
             if n_state[i] == 0:
                 continue
-            start += "\t\tslt"+str(i)+" : ARRAY [0.." + str(n_state[i] + 1) + "] OF DINT;\n"
+            start += "\t\tslt" + str(i) + " : ARRAY [0.." + str(n_state[i]) + "] OF DINT;\n"
+        if len(intersetion.keys()) > 0:
+            for inter in intersetion.keys():
+                start += "\t\t" + inter + "_G : ARRAY [0.." + str(len(intersetion[inter]))+"] OF BOOL;\n"
+
         declared = []
-        for act in actuators:
+        for act in actuators.values():
             aux = act.split(':')
-            if aux[1] == 'ON' or aux [1] == 'OFF':
+            if aux[1] == 'ON' or aux[1] == 'OFF':
                 if aux[0] in declared:
                     continue
                 declaration += "\t\t" + aux[0] + " AT "
                 declared.append(aux[0])
                 if "IN" in aux[0]:
-                    declaration +=  aux[2] + " : BOOL;\n"
+                    declaration += aux[2] + " : BOOL;\n"
                 elif "OUT" in aux[0]:
-                    declaration +=  aux[2] + " : BOOL;\n"
+                    declaration += aux[2] + " : BOOL;\n"
             else:
                 if aux[1] not in declared:
                     declared.append(aux[1])
-                    declaration += "\t\t" + aux [1] + " AT "
+                    declaration += "\t\t" + aux[1] + " AT "
                     if "IN" in aux[1]:
                         declaration += aux[2] + " : BOOL;\n"
                     elif "OUT" in aux[1]:
@@ -404,7 +558,7 @@ class process:
                 if "RE" in aux[0]:
                     start += "R_TRIG;\n"
 
-                clocks += "\t" + aux[0] +'(CLK:= '+aux[1] + ');\n'
+                clocks += "\t" + aux[0] + '(CLK:= ' + aux[1] + ');\n'
         start += "\tEND_VAR\n"
         declaration += "\tEND_VAR\n"
         return start + declaration + clocks
@@ -428,74 +582,110 @@ class process:
             if origin == destination:
                 continue
             if self.dict_events_name[event] in self.c_events:
-                if_controllable += "IF state["+ str(n_state) +"] = " + str(origin) \
+                if_controllable += "IF state[" + str(n_state) + "] = " + str(origin) \
                                    + " & " + name_event \
-                                   + " THEN\n  " + "\t\t" + "state["+ str(n_state) +"] := " \
+                                   + " THEN\n  " + "\t\t" + "state[" + str(n_state) + "] := " \
                                    + str(destination) + ";\n  " + "\tELS"
-            else:
-                if_uncontrollable += "IF state["+ str(n_state) +"] = " + str(origin) + " & "
+            elif self.dict_events_name[event] in self.uc_events:
+                if_uncontrollable += "IF state[" + str(n_state) + "] = " + str(origin) + " & "
                 if_uncontrollable += name_event + ('.Q' if 'FE' in name_event or 'RE' in name_event else '')
-                if_uncontrollable += " THEN\n  " + "\t\t" + "state["+ str(n_state) +"] := "
+                if_uncontrollable += " THEN\n  " + "\t\t" + "state[" + str(n_state) + "] := "
                 if_uncontrollable += str(destination) + ";\n  " + "\tELS"
+        if if_controllable == "\t": if_controllable = ""
+        if if_uncontrollable == "\t": if_uncontrollable = ""
         if not if_controllable == "":
             if_controllable = if_controllable.rstrip("ELS") + "END_IF;"
         if not if_uncontrollable == "":
-            if_uncontrollable = if_uncontrollable.rstrip("ELS") + "END_IF;"
+            if_uncontrollable = if_uncontrollable.rstrip("ELS") + "END_IF;\n"
         return if_controllable, if_uncontrollable
 
-    def sw_case(self, name, actuators=dict([]), n_state=0):
+    def sw_case(self, name, actuators=dict([]), n_aut=0, n_state=0, intersection: dict = dict([])):
+        act_guess = dict([])
+        for inter in intersection.keys():
+            for i in range(len(intersection[inter])):
+                if intersection[inter][i] == n_aut:
+                        if i in act_guess.keys():
+                            act_guess[i].append(inter)
+                        else:
+                            act_guess[i] = [inter]
         n_r = 0
         state_list = self.automatas[name].states
-        case = "\tCASE state[" + str(n_state) +"] OF\n  "
+        case = "\tCASE state[" + str(n_aut) + "] OF\n  "
         for state in state_list:
             events = [event for event in state.get_active_events() if event not in self.uc_events]
             num_event = len(events)
             if len(events) != 0:
                 case += "\t\t" + str(state.get_id()) + ":\n  "
                 if num_event > 1:
-                    case += "\t\t\tCASE " + "slt"+str(n_state)+"[" + str(n_r) + "] OF\n  "
+                    case += "\t\t\tCASE " + "slt" + str(n_state) + "[" + str(n_r) + "] OF\n  "
                     for i in range(0, num_event):
                         name_event = events[i] if len(actuators) == 0 else actuators[events[i]]
                         case += "\t\t\t\t" + str(i) + ":" + "\n  "
                         aux = name_event.split(":")
+                        guess = ""
+                        for i in act_guess.keys():
+                            if aux[0] in act_guess[i]:
+                                guess = "_G["+ str(i) + "]"
                         if "OFF" in name_event:
-                            case += "\t\t\t\t\t" + aux[0] + " := 0;\n  "
+                            case += "\t\t\t\t\t" + aux[0]
+                            case += guess
+                            case += " := 0;\n  "
                         else:
-                            case += "\t\t\t\t\t" + aux[0] + " := 1;\n  "
+                            case += "\t\t\t\t\t" + aux[0]
+                            case += guess
+                            case += " := 1;\n  "
                     case += "\t\t\tEND_CASE;\n  "
-                    case += "\t\t\t" +"slt"+str(n_state)+"[" + str(n_r) + "] := " + "slt"+str(n_state)+"[" + str(n_r) + "] + 1;\n  "
-                    case += "\t\t\t" + "IF " + "slt"+str(n_state)+"[" + str(n_r) + "] = " + str(num_event) + " THEN\n  "
-                    case += "\t\t\t\t" + "slt"+str(n_state)+"[" + str(n_r) + "] := 0;\n  "
+                    case += "\t\t\t" + "slt" + str(n_state) + "[" + str(n_r) + "] := " + "slt" + str(
+                        n_state) + "[" + str(n_r) + "] + 1;\n  "
+                    case += "\t\t\t" + "IF " + "slt" + str(n_state) + "[" + str(n_r) + "] = " + str(
+                        num_event) + " THEN\n  "
+                    case += "\t\t\t\t" + "slt" + str(n_state) + "[" + str(n_r) + "] := 0;\n  "
                     case += "\t\t\t" + "END_IF;\n  "
                     n_r += 1
 
                 elif num_event == 1:
                     name_event = name_event = events[0] if len(actuators) == 0 else actuators[events[0]]
                     aux = name_event.split(":")
+                    guess = ""
+                    for i in act_guess.keys():
+                        if aux[0] in act_guess[i]:
+                            guess = "_G[" + str(i) + "]"
                     if "OFF" in name_event:
-                        case += "\t\t\t" + aux[0] + " := 0;\n  "
+                        case += "\t\t\t" + aux[0]
+                        case += guess
+                        case += " := 0;\n  "
                     else:
-                        case += "\t\t\t" + aux[0] + " := 1;\n  "
+                        case += "\t\t\t" + aux[0]
+                        case += guess
+                        case += " := 1;\n"
 
         return [case + "\tEND_CASE;", n_r]
 
-    def OBS(self, name, actuators=dict([])):
-        OSB = "state := 0;\n"
-        events = self.automatas[name].uc_events
-        for event in events:
-            name_event = event if len(actuators) == 0 else actuators[event]
-            if ":" in name_event:
-                aux = name_event.split(":")
-                if "FE" in name_event or "RE" in name_event:
-                    # FE_LaP(CLK := GD_IN_2);
-                    OSB += aux[0] + "(CLK:= " + aux[1] + ");\n"
-                else:
-                    if "on" in aux[1].lower():
-                        labels = ""
+    def coordinator_sc(self, name, state_it: int = 2, actuators=dict([])):
+        state_list = self.automatas[name].states
+        case = "\tCASE state[" + str(state_it) + "] OF\n  "
+        for state in state_list:
+            all_events = self.automatas[name].c_events
+            events = [event for event in state.get_active_events() if event not in self.uc_events]
+            num_event = len(all_events)
+            if len(events) != 0:
+                case += "\t\t" + str(state.get_id()) + ":\n  "
+                for i in range(0, num_event):
+                    name_event = all_events[i] if len(actuators) == 0 else actuators[all_events[i]]
+                    aux = name_event.split(":")
+                    if "OFF" in name_event:
+                        case += "\t\t\t" + aux[0]
+                        case += "_C"+"[0]"
                     else:
-                        labels = "NOT "
-                    labels += aux[0]
-        return OSB
+                        case += "\t\t\t" + aux[0]
+                        case += "_C"+"[1]"
+                    if all_events[i] in events:
+                        case += " := 1;\n"
+                    else:
+                        case += " := 0;\n"
+
+        case += "\tEND_CASE;\n  "
+        return case
 
 
 def DEStoADS(name):
@@ -510,6 +700,7 @@ def DEStoADS(name):
         send('FE')\n"""
     codigo_autoit += "send('" + name + "{ENTER}')\n" + "send('a')\n" + "send('" + name + "{ENTER}')\n"
     codigo_autoit += """send('y')
+        Sleep(100)
         send('{ENTER}')
         send('{ENTER}')
         send('x')
@@ -590,7 +781,6 @@ class Automata:
                         dict_events_name[str(id)] = event[i]
                 else:
                     if event[i] not in c_events:
-                        self.c_events.append(event[i])
                         c_events.append(event[i])
                         id = 2 * (len(c_events) - 1) + 1
                         dict_events[event[i]] = str(id)

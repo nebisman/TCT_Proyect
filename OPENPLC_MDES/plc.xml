@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <project xmlns:ns1="http://www.plcopen.org/xml/tc6_0201" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.plcopen.org/xml/tc6_0201">
   <fileHeader companyName="Desconocido" productName="Sin nombre" productVersion="1" creationDateTime="2023-08-02T19:37:37"/>
-  <contentHeader name="Sin nombre" modificationDateTime="2023-11-01T14:37:22">
+  <contentHeader name="Sin nombre" modificationDateTime="2023-11-04T22:36:46">
     <coordinateInfo>
       <fbd>
         <scaling x="10" y="10"/>
@@ -713,7 +713,8 @@ ELSIF state = 49 & NOT GD_OUT_7 THEN
 	 state := 51;
 ELSIF state = 50 & GD_OUT_4 THEN
 	 state := 51;
-END_IF;]]></xhtml:p>
+END_IF;
+GD_OUT_4 := GD_OUT_4 <> GD_OUT_7;]]></xhtml:p>
           </ST>
         </body>
       </pou>

@@ -1,0 +1,8 @@
+PRUEBA = Supcon(TESTCOOR,AECOOR)  (0,0)
+
+false = Nonconflict(TESTCOOR,AECOOR)
+
+false = Nonconflict(TESTCOOR,AECOOR)
+
+PRUBEA = Supcon(TESTCOOR,AECOOR)  (0,0)
+
