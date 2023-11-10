@@ -100,8 +100,25 @@ typedef struct {
 void PYTHON_GEAR_init__(PYTHON_GEAR *data__, BOOL retain);
 // Code part
 void PYTHON_GEAR_body__(PYTHON_GEAR *data__);
+// FUNCTION_BLOCK RAN
+// Data part
+typedef struct {
+  // FB Interface - IN, OUT, IN_OUT variables
+  __DECLARE_VAR(BOOL,EN)
+  __DECLARE_VAR(BOOL,ENO)
+  __DECLARE_VAR(BOOL,IN)
+  __DECLARE_VAR(DINT,OUT)
+
+  // FB private variables - TEMP, private and located variables
+  __DECLARE_VAR(BOOL,M)
+  __DECLARE_VAR(BOOL,INIT)
+
+} RAN;
+
+void RAN_init__(RAN *data__, BOOL retain);
+// Code part
+void RAN_body__(RAN *data__);
 __DECLARE_ARRAY_TYPE(__ARRAY_OF_DINT_201,DINT,[201])
-__DECLARE_ARRAY_TYPE(__ARRAY_OF_BOOL_3,BOOL,[3])
 // PROGRAM TESIS0
 // Data part
 typedef struct {
@@ -109,12 +126,12 @@ typedef struct {
 
   // PROGRAM private variables - TEMP, private and located variables
   __DECLARE_VAR(BOOL,INITIAL)
-  __DECLARE_VAR(__ARRAY_OF_DINT_201,SLT0)
-  __DECLARE_VAR(__ARRAY_OF_DINT_201,STATE)
-  __DECLARE_VAR(__ARRAY_OF_DINT_201,SLT1)
+  __DECLARE_VAR(DINT,STATE)
+  __DECLARE_VAR(DINT,STATE0)
+  __DECLARE_VAR(INT,STATE1)
+  __DECLARE_VAR(__ARRAY_OF_DINT_201,SLT)
   F_TRIG FE_LAP;
   F_TRIG FE_ZAG;
-  F_TRIG FE_XAG;
   __DECLARE_VAR(BOOL,GD_IN_2)
   __DECLARE_VAR(BOOL,GD_IN_4)
   __DECLARE_VAR(BOOL,GD_IN_5)
@@ -128,10 +145,7 @@ typedef struct {
   __DECLARE_VAR(BOOL,GD_OUT_4)
   __DECLARE_VAR(BOOL,GD_OUT_6)
   __DECLARE_VAR(BOOL,GD_OUT_7)
-  __DECLARE_VAR(BOOL,GD_OUT_8)
-  __DECLARE_VAR(__ARRAY_OF_BOOL_3,GD_OUT_4_G)
-  __DECLARE_VAR(__ARRAY_OF_BOOL_3,GD_OUT_4_C)
-  __DECLARE_VAR(BOOL,AUX)
+  RAN RANDOM;
 
 } TESIS0;
 

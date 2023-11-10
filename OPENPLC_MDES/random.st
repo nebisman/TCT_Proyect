@@ -33,7 +33,6 @@ PROGRAM tesis0
     initial : BOOL := 1;
     state : DINT := 0;
     state0 : DINT := 0;
-    state1 : INT := 0;
     slt : ARRAY [0..200] OF DINT;
     FE_LaP : F_TRIG;
     FE_Zag : F_TRIG;
@@ -67,7 +66,7 @@ PROGRAM tesis0
     state0 := state MOD 2;
   END_IF;
 
-  state1 := DINT_TO_INT(1);
+  GD_OUT_7 := 1;
 END_PROGRAM
 
 

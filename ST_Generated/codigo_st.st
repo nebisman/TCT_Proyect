@@ -1,5 +1,28 @@
+FUNCTION_BLOCK random_number
+	VAR_INPUT
+		IN : BOOL;
+	END_VAR
+	VAR
+		M : BOOL;
+		INIT : BOOL;
+	END_VAR
+	VAR_OUTPUT
+		OUT : DINT;
+	END_VAR
+
+	IF INIT = 0 THEN
+		{#include <stdio.h>}
+		{#include <stdlib.h>}
+		IN := 1;
+	END_IF;
+	IF M = 0 and IN = 1 THEN
+		{SetFbVar(OUT,rand())}
+	END_IF;
+END_FUNCTION_BLOCK
 PROGRAM tesis0
 	VAR
+		random : random_number;
+		random_numer : DINT;
 		state : ARRAY [0..5] OF DINT;
 		slt1 : ARRAY [0..8] OF DINT;
 		slt2 : ARRAY [0..15] OF DINT;
@@ -37,6 +60,9 @@ PROGRAM tesis0
 	FE_PaL(CLK:= GD_IN_9);
 	FE_Zag(CLK:= GD_IN_6);
 	FE_Xag(CLK:= GD_IN_7);
+	random(
+		IN := True,
+		OUT => random_numer);
 	IF state[0] = 0 & GD_IN_15 THEN
   		state[0] := 1;
   	ELSIF state[0] = 2 & FE_LaP.Q THEN
@@ -169,11 +195,9 @@ PROGRAM tesis0
   				1:
   					GD_OUT_6 := 1;
   			END_CASE;
-  			slt1[0] := slt1[0] + 1;
-  			IF slt1[0] = 2 THEN
-  				slt1[0] := 0;
-  			END_IF;
-  		3:
+  			slt1[0] := (random_numer +slt1[0])MOD 2;
+  			random_numer := random_numer - slt1[0];
+ 		3:
   			GD_OUT_6 := 1;
 		4:
   			GD_OUT_4_G[1] := 1;
@@ -184,11 +208,9 @@ PROGRAM tesis0
   				1:
   					GD_OUT_7_G[0] := 1;
   			END_CASE;
-  			slt1[1] := slt1[1] + 1;
-  			IF slt1[1] = 2 THEN
-  				slt1[1] := 0;
-  			END_IF;
-  		7:
+  			slt1[1] := (random_numer +slt1[1])MOD 2;
+  			random_numer := random_numer - slt1[1];
+ 		7:
   			GD_OUT_7_G[0] := 1;
 		8:
   			GD_OUT_4_G[1] := 1;
@@ -201,11 +223,9 @@ PROGRAM tesis0
   				1:
   					GD_OUT_6 := 0;
   			END_CASE;
-  			slt1[2] := slt1[2] + 1;
-  			IF slt1[2] = 2 THEN
-  				slt1[2] := 0;
-  			END_IF;
-  		11:
+  			slt1[2] := (random_numer +slt1[2])MOD 2;
+  			random_numer := random_numer - slt1[2];
+ 		11:
   			GD_OUT_6 := 0;
   		12:
   			GD_OUT_4_G[1] := 1;
@@ -216,11 +236,9 @@ PROGRAM tesis0
   				1:
   					GD_OUT_8_G[0] := 1;
   			END_CASE;
-  			slt1[3] := slt1[3] + 1;
-  			IF slt1[3] = 2 THEN
-  				slt1[3] := 0;
-  			END_IF;
-  		15:
+  			slt1[3] := (random_numer +slt1[3])MOD 2;
+  			random_numer := random_numer - slt1[3];
+ 		15:
   			GD_OUT_8_G[0] := 1;
 		16:
   			GD_OUT_4_G[1] := 1;
@@ -231,11 +249,9 @@ PROGRAM tesis0
   				1:
   					GD_OUT_6 := 1;
   			END_CASE;
-  			slt1[4] := slt1[4] + 1;
-  			IF slt1[4] = 2 THEN
-  				slt1[4] := 0;
-  			END_IF;
-  		19:
+  			slt1[4] := (random_numer +slt1[4])MOD 2;
+  			random_numer := random_numer - slt1[4];
+ 		19:
   			GD_OUT_6 := 1;
 		20:
   			GD_OUT_4_G[1] := 1;
@@ -246,11 +262,9 @@ PROGRAM tesis0
   				1:
   					GD_OUT_7_G[0] := 0;
   			END_CASE;
-  			slt1[5] := slt1[5] + 1;
-  			IF slt1[5] = 2 THEN
-  				slt1[5] := 0;
-  			END_IF;
-  		23:
+  			slt1[5] := (random_numer +slt1[5])MOD 2;
+  			random_numer := random_numer - slt1[5];
+ 		23:
   			GD_OUT_7_G[0] := 0;
   		24:
   			CASE slt1[6] OF
@@ -259,11 +273,9 @@ PROGRAM tesis0
   				1:
   					GD_OUT_6 := 0;
   			END_CASE;
-  			slt1[6] := slt1[6] + 1;
-  			IF slt1[6] = 2 THEN
-  				slt1[6] := 0;
-  			END_IF;
-  		25:
+  			slt1[6] := (random_numer +slt1[6])MOD 2;
+  			random_numer := random_numer - slt1[6];
+ 		25:
   			GD_OUT_6 := 0;
   		26:
   			GD_OUT_4_G[1] := 1;
@@ -274,11 +286,9 @@ PROGRAM tesis0
   				1:
   					GD_OUT_8_G[0] := 0;
   			END_CASE;
-  			slt1[7] := slt1[7] + 1;
-  			IF slt1[7] = 2 THEN
-  				slt1[7] := 0;
-  			END_IF;
-  		29:
+  			slt1[7] := (random_numer +slt1[7])MOD 2;
+  			random_numer := random_numer - slt1[7];
+ 		29:
   			GD_OUT_8_G[0] := 0;
   		30:
   			GD_OUT_4_G[1] := 1;
@@ -292,11 +302,9 @@ PROGRAM tesis0
   				1:
   					GD_OUT_5_G[0] := 1;
   			END_CASE;
-  			slt2[0] := slt2[0] + 1;
-  			IF slt2[0] = 2 THEN
-  				slt2[0] := 0;
-  			END_IF;
-  		1:
+  			slt2[0] := (random_numer +slt2[0])MOD 2;
+  			random_numer := random_numer - slt2[0];
+ 		1:
   			GD_OUT_5_G[0] := 1;
 		2:
   			GD_OUT_7_G[1] := 1;
@@ -307,11 +315,9 @@ PROGRAM tesis0
   				1:
   					GD_OUT_8_G[1] := 1;
   			END_CASE;
-  			slt2[1] := slt2[1] + 1;
-  			IF slt2[1] = 2 THEN
-  				slt2[1] := 0;
-  			END_IF;
-  		5:
+  			slt2[1] := (random_numer +slt2[1])MOD 2;
+  			random_numer := random_numer - slt2[1];
+ 		5:
   			GD_OUT_8_G[1] := 1;
 		6:
   			GD_OUT_7_G[1] := 1;
@@ -324,33 +330,27 @@ PROGRAM tesis0
   				1:
   					GD_OUT_8_G[1] := 0;
   			END_CASE;
-  			slt2[2] := slt2[2] + 1;
-  			IF slt2[2] = 2 THEN
-  				slt2[2] := 0;
-  			END_IF;
-  		9:
+  			slt2[2] := (random_numer +slt2[2])MOD 2;
+  			random_numer := random_numer - slt2[2];
+ 		9:
   			CASE slt2[3] OF
   				0:
   					GD_OUT_7_G[1] := 0;
   				1:
   					GD_OUT_8_G[1] := 0;
   			END_CASE;
-  			slt2[3] := slt2[3] + 1;
-  			IF slt2[3] = 2 THEN
-  				slt2[3] := 0;
-  			END_IF;
-  		10:
+  			slt2[3] := (random_numer +slt2[3])MOD 2;
+  			random_numer := random_numer - slt2[3];
+ 		10:
   			CASE slt2[4] OF
   				0:
   					GD_OUT_7_G[1] := 1;
   				1:
   					GD_OUT_5_G[0] := 0;
   			END_CASE;
-  			slt2[4] := slt2[4] + 1;
-  			IF slt2[4] = 2 THEN
-  				slt2[4] := 0;
-  			END_IF;
-  		11:
+  			slt2[4] := (random_numer +slt2[4])MOD 2;
+  			random_numer := random_numer - slt2[4];
+ 		11:
   			GD_OUT_7_G[1] := 1;
 		12:
   			CASE slt2[5] OF
@@ -361,11 +361,9 @@ PROGRAM tesis0
   				2:
   					GD_OUT_5_G[0] := 0;
   			END_CASE;
-  			slt2[5] := slt2[5] + 1;
-  			IF slt2[5] = 3 THEN
-  				slt2[5] := 0;
-  			END_IF;
-  		13:
+  			slt2[5] := (random_numer +slt2[5])MOD 3;
+  			random_numer := random_numer - slt2[5];
+ 		13:
   			GD_OUT_7_G[1] := 0;
   		14:
   			GD_OUT_5_G[0] := 0;
@@ -376,11 +374,9 @@ PROGRAM tesis0
   				1:
   					GD_OUT_5_G[0] := 1;
   			END_CASE;
-  			slt2[6] := slt2[6] + 1;
-  			IF slt2[6] = 2 THEN
-  				slt2[6] := 0;
-  			END_IF;
-  		16:
+  			slt2[6] := (random_numer +slt2[6])MOD 2;
+  			random_numer := random_numer - slt2[6];
+ 		16:
   			GD_OUT_7_G[1] := 1;
 		17:
   			CASE slt2[7] OF
@@ -389,22 +385,18 @@ PROGRAM tesis0
   				1:
   					GD_OUT_5_G[0] := 0;
   			END_CASE;
-  			slt2[7] := slt2[7] + 1;
-  			IF slt2[7] = 2 THEN
-  				slt2[7] := 0;
-  			END_IF;
-  		18:
+  			slt2[7] := (random_numer +slt2[7])MOD 2;
+  			random_numer := random_numer - slt2[7];
+ 		18:
   			CASE slt2[8] OF
   				0:
   					GD_OUT_7_G[1] := 1;
   				1:
   					GD_OUT_5_G[0] := 0;
   			END_CASE;
-  			slt2[8] := slt2[8] + 1;
-  			IF slt2[8] = 2 THEN
-  				slt2[8] := 0;
-  			END_IF;
-  		19:
+  			slt2[8] := (random_numer +slt2[8])MOD 2;
+  			random_numer := random_numer - slt2[8];
+ 		19:
   			CASE slt2[9] OF
   				0:
   					GD_OUT_7_G[1] := 1;
@@ -413,11 +405,9 @@ PROGRAM tesis0
   				2:
   					GD_OUT_5_G[0] := 1;
   			END_CASE;
-  			slt2[9] := slt2[9] + 1;
-  			IF slt2[9] = 3 THEN
-  				slt2[9] := 0;
-  			END_IF;
-  		20:
+  			slt2[9] := (random_numer +slt2[9])MOD 3;
+  			random_numer := random_numer - slt2[9];
+ 		20:
   			GD_OUT_7_G[1] := 0;
   		21:
   			GD_OUT_5_G[0] := 1;
@@ -432,44 +422,36 @@ PROGRAM tesis0
   				1:
   					GD_OUT_5_G[0] := 1;
   			END_CASE;
-  			slt2[10] := slt2[10] + 1;
-  			IF slt2[10] = 2 THEN
-  				slt2[10] := 0;
-  			END_IF;
-  		25:
+  			slt2[10] := (random_numer +slt2[10])MOD 2;
+  			random_numer := random_numer - slt2[10];
+ 		25:
   			CASE slt2[11] OF
   				0:
   					GD_OUT_7_G[1] := 1;
   				1:
   					GD_OUT_5_G[0] := 0;
   			END_CASE;
-  			slt2[11] := slt2[11] + 1;
-  			IF slt2[11] = 2 THEN
-  				slt2[11] := 0;
-  			END_IF;
-  		26:
+  			slt2[11] := (random_numer +slt2[11])MOD 2;
+  			random_numer := random_numer - slt2[11];
+ 		26:
   			CASE slt2[12] OF
   				0:
   					GD_OUT_7_G[1] := 1;
   				1:
   					GD_OUT_5_G[0] := 1;
   			END_CASE;
-  			slt2[12] := slt2[12] + 1;
-  			IF slt2[12] = 2 THEN
-  				slt2[12] := 0;
-  			END_IF;
-  		27:
+  			slt2[12] := (random_numer +slt2[12])MOD 2;
+  			random_numer := random_numer - slt2[12];
+ 		27:
   			CASE slt2[13] OF
   				0:
   					GD_OUT_7_G[1] := 1;
   				1:
   					GD_OUT_8_G[1] := 0;
   			END_CASE;
-  			slt2[13] := slt2[13] + 1;
-  			IF slt2[13] = 2 THEN
-  				slt2[13] := 0;
-  			END_IF;
-  		29:
+  			slt2[13] := (random_numer +slt2[13])MOD 2;
+  			random_numer := random_numer - slt2[13];
+ 		29:
   			GD_OUT_7_G[1] := 1;
 		30:
   			GD_OUT_5_G[0] := 0;
@@ -486,11 +468,9 @@ PROGRAM tesis0
   				1:
   					GD_OUT_8_G[1] := 0;
   			END_CASE;
-  			slt2[14] := slt2[14] + 1;
-  			IF slt2[14] = 2 THEN
-  				slt2[14] := 0;
-  			END_IF;
-  		37:
+  			slt2[14] := (random_numer +slt2[14])MOD 2;
+  			random_numer := random_numer - slt2[14];
+ 		37:
   			GD_OUT_8_G[1] := 0;
   		38:
   			GD_OUT_7_G[1] := 1;

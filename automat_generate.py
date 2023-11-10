@@ -350,11 +350,15 @@ class process:
         return name
 
     def generate_ST_OPENPLC(self, supervisors: list, plants: list, actuators: dict):
-
+        RANDOM = "FUNCTION_BLOCK random_number\n\tVAR_INPUT\n\t\tIN : BOOL;\n\tEND_VAR\n\tVAR\n\t\tM : BOOL;"
+        RANDOM +="\n\t\tINIT : BOOL;\n\tEND_VAR\n\tVAR_OUTPUT\n\t\tOUT : DINT;\n\tEND_VAR\n"
+        RANDOM += "\n\tIF INIT = 0 THEN\n\t\t{#include <stdio.h>}\n\t\t{#include <stdlib.h>}\n\t\tIN := 1;\n\tEND_IF;"
+        RANDOM += "\n\tIF M = 0 and IN = 1 THEN\n\t\t{SetFbVar(OUT,rand())}\n\tEND_IF;\nEND_FUNCTION_BLOCK\n"
         HEADER = "PROGRAM tesis0\n"
         END = "\nEND_PROGRAM\n\n"
         END += "CONFIGURATION Config0\n\n\tRESOURCE Res0 ON PLC\n\t\tTASK task0(INTERVAL := T#20ms,PRIORITY := 0);"
         END += "\n\t\tPROGRAM instance0 WITH task0 : tesis0;" + "\n\tEND_RESOURCE\nEND_CONFIGURATION"
+
 
         if len(supervisors) == 1:
             return self.aux_generate_ST_OPENPLC(supervisors, actuators)
@@ -412,7 +416,7 @@ class process:
             COu += b
         intersection= self.intersection(Intersections, len(Coordinators)!=0 )
         declaration = self.declaration_OPENPLC(actuators, st, j, Intersections, Coordinators)
-        out = HEADER
+        out = RANDOM + HEADER
         out += declaration + if_uncontrollable + COu + COsw + sc + intersection + COc + if_controllable
         out += END
         with open('ST_Generated/codigo_st.st', 'w') as archivo:
@@ -514,6 +518,8 @@ class process:
         declaration = "\tVAR\n"
         clocks = ""
         start = "\tVAR\n"
+        start += '\t\trandom : random_number;\n'
+        start += '\t\trandom_numer : DINT;\n'
         start += "\t\tstate : ARRAY [0.." + str(n_automata) + "] OF DINT;\n"
         if len(CO)!=0:
             declared = []
@@ -559,9 +565,10 @@ class process:
                     start += "R_TRIG;\n"
 
                 clocks += "\t" + aux[0] + '(CLK:= ' + aux[1] + ');\n'
+                ran ="\trandom(\n\t\tIN := True,\n\t\tOUT => random_numer);\n"
         start += "\tEND_VAR\n"
         declaration += "\tEND_VAR\n"
-        return start + declaration + clocks
+        return start + declaration + clocks + ran
 
     def ifs(self, name: str, actuators=dict([]), n_state=0):
         if_uncontrollable = "\t"
@@ -635,12 +642,9 @@ class process:
                             case += guess
                             case += " := 1;\n  "
                     case += "\t\t\tEND_CASE;\n  "
-                    case += "\t\t\t" + "slt" + str(n_state) + "[" + str(n_r) + "] := " + "slt" + str(
-                        n_state) + "[" + str(n_r) + "] + 1;\n  "
-                    case += "\t\t\t" + "IF " + "slt" + str(n_state) + "[" + str(n_r) + "] = " + str(
-                        num_event) + " THEN\n  "
-                    case += "\t\t\t\t" + "slt" + str(n_state) + "[" + str(n_r) + "] := 0;\n  "
-                    case += "\t\t\t" + "END_IF;\n  "
+                    case += ("\t\t\t" + "slt" + str(n_state) + "[" + str(n_r) + "] := " + "(random_numer + " + "slt" +
+                             str(n_state) + "[" + str(n_r) + "]" + ") MOD "+ str(num_event)+";\n  ")
+                    case += "\t\t\t" + "random_numer := " + "random_numer - " + "slt" + str(n_state) + "[" + str(n_r) + "];\n "
                     n_r += 1
 
                 elif num_event == 1:

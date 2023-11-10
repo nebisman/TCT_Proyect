@@ -232,7 +232,7 @@ simsup5 = new_process.supreduce(plant5, sup5, supdat5, 'simsup45')
 
 new_process.plot_automatas([Grab, blade, spec5, sup5, plant5, all5], 1, False)
 
-
+'''
 ag.DEStoADS(sup)
 ag.DEStoADS(sup2)
 ag.DEStoADS(sup3)
@@ -243,7 +243,7 @@ ag.DEStoADS(plant2)
 ag.DEStoADS(plant3)
 ag.DEStoADS(plant4)
 ag.DEStoADS(plant5)
-
+'''
 new_process.read_ADS(sup)
 new_process.read_ADS(sup2)
 new_process.read_ADS(sup3)

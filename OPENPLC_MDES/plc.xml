@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <project xmlns:ns1="http://www.plcopen.org/xml/tc6_0201" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.plcopen.org/xml/tc6_0201">
   <fileHeader companyName="Desconocido" productName="Sin nombre" productVersion="1" creationDateTime="2023-08-02T19:37:37"/>
-  <contentHeader name="Sin nombre" modificationDateTime="2023-11-04T22:36:46">
+  <contentHeader name="Sin nombre" modificationDateTime="2023-11-09T23:05:52">
     <coordinateInfo>
       <fbd>
         <scaling x="10" y="10"/>
@@ -25,21 +25,25 @@
                 <BOOL/>
               </type>
               <initialValue>
-                <simpleValue value="0"/>
+                <simpleValue value="1"/>
               </initialValue>
             </variable>
-          </localVars>
-          <localVars>
-            <variable name="state" address="%IW100.0">
+            <variable name="state">
               <type>
-                <INT/>
+                <DINT/>
               </type>
               <initialValue>
                 <simpleValue value="0"/>
               </initialValue>
             </variable>
-          </localVars>
-          <localVars>
+            <variable name="state0">
+              <type>
+                <DINT/>
+              </type>
+              <initialValue>
+                <simpleValue value="0"/>
+              </initialValue>
+            </variable>
             <variable name="slt">
               <type>
                 <array>
@@ -146,575 +150,80 @@
               </initialValue>
             </variable>
           </localVars>
+          <localVars>
+            <variable name="random">
+              <type>
+                <derived name="ran"/>
+              </type>
+            </variable>
+          </localVars>
         </interface>
         <body>
           <ST>
             <xhtml:p><![CDATA[FE_LaP(CLK:= GD_IN_2);
 FE_Zag(CLK:= GD_IN_6);
+ random(
+     IN := True,
+     OUT => state);
+    
+IF state <> state0 THEN
+  state0 := state MOD 2;
+END_IF;
 
-IF state = 0 & GD_IN_4 THEN
-	 state := 1;
-ELSIF state = 2 & GD_IN_4 THEN
-	 state := 3;
-ELSIF state = 4 & FE_Zag.Q THEN
-	 state := 6;
-ELSIF state = 5 & FE_Zag.Q THEN
-	 state := 7;
-ELSIF state = 11 & FE_Zag.Q THEN
-	 state := 15;
-ELSIF state = 13 & FE_Zag.Q THEN
-	 state := 17;
-ELSIF state = 14 & FE_Zag.Q THEN
-	 state := 19;
-ELSIF state = 16 & FE_Zag.Q THEN
-	 state := 20;
-ELSIF state = 18 & GD_IN_4 THEN
-	 state := 23;
-ELSIF state = 18 & FE_Zag.Q THEN
-	 state := 22;
-ELSIF state = 21 & GD_IN_4 THEN
-	 state := 25;
-ELSIF state = 21 & FE_Zag.Q THEN
-	 state := 0;
-ELSIF state = 22 & GD_IN_4 THEN
-	 state := 27;
-ELSIF state = 23 & FE_Zag.Q THEN
-	 state := 30;
-ELSIF state = 24 & GD_IN_4 THEN
-	 state := 29;
-ELSIF state = 24 & FE_Zag.Q THEN
-	 state := 28;
-ELSIF state = 25 & FE_Zag.Q THEN
-	 state := 32;
-ELSIF state = 26 & GD_IN_4 THEN
-	 state := 31;
-ELSIF state = 26 & FE_Zag.Q THEN
-	 state := 2;
-ELSIF state = 28 & GD_IN_4 THEN
-	 state := 33;
-ELSIF state = 29 & FE_Zag.Q THEN
-	 state := 35;
-ELSIF state = 31 & FE_Zag.Q THEN
-	 state := 37;
-ELSIF state = 34 & FE_Zag.Q THEN
-	 state := 41;
-ELSIF state = 36 & FE_Zag.Q THEN
-	 state := 41;
-ELSIF state = 39 & FE_Zag.Q THEN
-	 state := 6;
-ELSIF state = 40 & FE_Zag.Q THEN
-	 state := 47;
-ELSIF state = 42 & FE_Zag.Q THEN
-	 state := 47;
-ELSIF state = 44 & FE_Zag.Q THEN
-	 state := 7;
-ELSIF state = 46 & FE_Zag.Q THEN
-	 state := 8;
-ELSIF state = 49 & FE_Zag.Q THEN
-	 state := 9;
-ELSIF state = 50 & FE_Zag.Q THEN
-	 state := 10;
-ELSIF state = 51 & FE_Zag.Q THEN
-	 state := 12;
+GD_OUT_7 := 1;
+]]></xhtml:p>
+          </ST>
+        </body>
+      </pou>
+      <pou name="ran" pouType="functionBlock">
+        <interface>
+          <inputVars>
+            <variable name="IN">
+              <type>
+                <BOOL/>
+              </type>
+            </variable>
+          </inputVars>
+          <localVars>
+            <variable name="M">
+              <type>
+                <BOOL/>
+              </type>
+            </variable>
+            <variable name="INIT">
+              <type>
+                <BOOL/>
+              </type>
+            </variable>
+          </localVars>
+          <outputVars>
+            <variable name="OUT">
+              <type>
+                <DINT/>
+              </type>
+            </variable>
+          </outputVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml:p><![CDATA[{//#include <time.h>}
+
+
+(* Initialize our random generator *)
+(* This IF is called only the first time this *)
+(* block executes *)
+IF INIT = 0 THEN
+  {time_t t;
+  srand((unsigned) time(&t))}
+  IN := 1;
 END_IF;
-CASE state OF
-	0:
-		GD_OUT_4 := 1;
-	1:
-		CASE slt[1] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_6 := 1;
-		END_CASE;
-		slt[1] := slt[1] + 1;
- 		IF slt[1] = 2 THEN
-			slt[1] := 0;
-		END_IF;
-	3:
-		GD_OUT_6 := 1;
-	4:
-		GD_OUT_4 := 1;
-	6:
-		CASE slt[6] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 1;
-		END_CASE;
-		slt[6] := slt[6] + 1;
- 		IF slt[6] = 2 THEN
-			slt[6] := 0;
-		END_IF;
-	7:
-		GD_OUT_7 := 1;
-	8:
-		CASE slt[8] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 0;
-			2:
-				GD_OUT_6 := 0;
-		END_CASE;
-		slt[8] := slt[8] + 1;
- 		IF slt[8] = 3 THEN
-			slt[8] := 0;
-		END_IF;
-	9:
-		CASE slt[9] OF
-			0:
-				GD_OUT_7 := 0;
-			1:
-				GD_OUT_6 := 0;
-		END_CASE;
-		slt[9] := slt[9] + 1;
- 		IF slt[9] = 2 THEN
-			slt[9] := 0;
-		END_IF;
-	10:
-		CASE slt[10] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_6 := 0;
-		END_CASE;
-		slt[10] := slt[10] + 1;
- 		IF slt[10] = 2 THEN
-			slt[10] := 0;
-		END_IF;
-	11:
-		CASE slt[11] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 0;
-		END_CASE;
-		slt[11] := slt[11] + 1;
- 		IF slt[11] = 2 THEN
-			slt[11] := 0;
-		END_IF;
-	12:
-		GD_OUT_6 := 0;
-	13:
-		CASE slt[13] OF
-			0:
-				GD_OUT_4 := 0;
-			1:
-				GD_OUT_7 := 0;
-		END_CASE;
-		slt[13] := slt[13] + 1;
- 		IF slt[13] = 2 THEN
-			slt[13] := 0;
-		END_IF;
-	14:
-		GD_OUT_4 := 1;
-	15:
-		CASE slt[15] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 0;
-		END_CASE;
-		slt[15] := slt[15] + 1;
- 		IF slt[15] = 2 THEN
-			slt[15] := 0;
-		END_IF;
-	16:
-		GD_OUT_4 := 0;
-	17:
-		CASE slt[17] OF
-			0:
-				GD_OUT_4 := 0;
-			1:
-				GD_OUT_7 := 0;
-		END_CASE;
-		slt[17] := slt[17] + 1;
- 		IF slt[17] = 2 THEN
-			slt[17] := 0;
-		END_IF;
-	18:
-		CASE slt[18] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 0;
-		END_CASE;
-		slt[18] := slt[18] + 1;
- 		IF slt[18] = 2 THEN
-			slt[18] := 0;
-		END_IF;
-	19:
-		GD_OUT_4 := 1;
-	20:
-		GD_OUT_4 := 0;
-	21:
-		GD_OUT_4 := 1;
-	22:
-		CASE slt[22] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 0;
-		END_CASE;
-		slt[22] := slt[22] + 1;
- 		IF slt[22] = 2 THEN
-			slt[22] := 0;
-		END_IF;
-	23:
-		CASE slt[23] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 0;
-		END_CASE;
-		slt[23] := slt[23] + 1;
- 		IF slt[23] = 2 THEN
-			slt[23] := 0;
-		END_IF;
-	24:
-		GD_OUT_7 := 0;
-	25:
-		GD_OUT_4 := 1;
-	27:
-		CASE slt[27] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 0;
-			2:
-				GD_OUT_6 := 1;
-		END_CASE;
-		slt[27] := slt[27] + 1;
- 		IF slt[27] = 3 THEN
-			slt[27] := 0;
-		END_IF;
-	28:
-		GD_OUT_7 := 0;
-	29:
-		GD_OUT_7 := 0;
-	30:
-		CASE slt[30] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 0;
-			2:
-				GD_OUT_6 := 1;
-		END_CASE;
-		slt[30] := slt[30] + 1;
- 		IF slt[30] = 3 THEN
-			slt[30] := 0;
-		END_IF;
-	32:
-		CASE slt[32] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 1;
-			2:
-				GD_OUT_6 := 1;
-		END_CASE;
-		slt[32] := slt[32] + 1;
- 		IF slt[32] = 3 THEN
-			slt[32] := 0;
-		END_IF;
-	33:
-		CASE slt[33] OF
-			0:
-				GD_OUT_7 := 0;
-			1:
-				GD_OUT_6 := 1;
-		END_CASE;
-		slt[33] := slt[33] + 1;
- 		IF slt[33] = 2 THEN
-			slt[33] := 0;
-		END_IF;
-	34:
-		CASE slt[34] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 0;
-		END_CASE;
-		slt[34] := slt[34] + 1;
- 		IF slt[34] = 2 THEN
-			slt[34] := 0;
-		END_IF;
-	35:
-		CASE slt[35] OF
-			0:
-				GD_OUT_7 := 0;
-			1:
-				GD_OUT_6 := 1;
-		END_CASE;
-		slt[35] := slt[35] + 1;
- 		IF slt[35] = 2 THEN
-			slt[35] := 0;
-		END_IF;
-	36:
-		CASE slt[36] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 0;
-		END_CASE;
-		slt[36] := slt[36] + 1;
- 		IF slt[36] = 2 THEN
-			slt[36] := 0;
-		END_IF;
-	37:
-		CASE slt[37] OF
-			0:
-				GD_OUT_7 := 1;
-			1:
-				GD_OUT_6 := 1;
-		END_CASE;
-		slt[37] := slt[37] + 1;
- 		IF slt[37] = 2 THEN
-			slt[37] := 0;
-		END_IF;
-	38:
-		CASE slt[38] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 0;
-			2:
-				GD_OUT_6 := 1;
-		END_CASE;
-		slt[38] := slt[38] + 1;
- 		IF slt[38] = 3 THEN
-			slt[38] := 0;
-		END_IF;
-	39:
-		CASE slt[39] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 1;
-		END_CASE;
-		slt[39] := slt[39] + 1;
- 		IF slt[39] = 2 THEN
-			slt[39] := 0;
-		END_IF;
-	40:
-		GD_OUT_7 := 0;
-	41:
-		CASE slt[41] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 0;
-		END_CASE;
-		slt[41] := slt[41] + 1;
- 		IF slt[41] = 2 THEN
-			slt[41] := 0;
-		END_IF;
-	42:
-		GD_OUT_7 := 0;
-	43:
-		CASE slt[43] OF
-			0:
-				GD_OUT_7 := 0;
-			1:
-				GD_OUT_6 := 1;
-		END_CASE;
-		slt[43] := slt[43] + 1;
- 		IF slt[43] = 2 THEN
-			slt[43] := 0;
-		END_IF;
-	44:
-		GD_OUT_7 := 1;
-	45:
-		CASE slt[45] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_6 := 1;
-		END_CASE;
-		slt[45] := slt[45] + 1;
- 		IF slt[45] = 2 THEN
-			slt[45] := 0;
-		END_IF;
-	46:
-		CASE slt[46] OF
-			0:
-				GD_OUT_4 := 1;
-			1:
-				GD_OUT_7 := 0;
-		END_CASE;
-		slt[46] := slt[46] + 1;
- 		IF slt[46] = 2 THEN
-			slt[46] := 0;
-		END_IF;
-	47:
-		GD_OUT_7 := 0;
-	48:
-		GD_OUT_6 := 1;
-	49:
-		GD_OUT_7 := 0;
-	50:
-		GD_OUT_4 := 1;
-END_CASE;
-IF state = 0 & GD_OUT_4 THEN
-	 state := 2;
-ELSIF state = 1 & GD_OUT_4 THEN
-	 state := 3;
-ELSIF state = 1 & GD_OUT_6 THEN
-	 state := 4;
-ELSIF state = 3 & GD_OUT_6 THEN
-	 state := 5;
-ELSIF state = 4 & GD_OUT_4 THEN
-	 state := 5;
-ELSIF state = 6 & GD_OUT_4 THEN
-	 state := 7;
-ELSIF state = 6 & GD_OUT_7 THEN
-	 state := 8;
-ELSIF state = 7 & GD_OUT_7 THEN
-	 state := 9;
-ELSIF state = 8 & GD_OUT_4 THEN
-	 state := 9;
-ELSIF state = 8 & NOT GD_OUT_7 THEN
-	 state := 10;
-ELSIF state = 8 & NOT GD_OUT_6 THEN
-	 state := 11;
-ELSIF state = 9 & NOT GD_OUT_7 THEN
-	 state := 12;
-ELSIF state = 9 & NOT GD_OUT_6 THEN
-	 state := 13;
-ELSIF state = 10 & GD_OUT_4 THEN
-	 state := 12;
-ELSIF state = 10 & NOT GD_OUT_6 THEN
-	 state := 14;
-ELSIF state = 11 & GD_OUT_4 THEN
-	 state := 13;
-ELSIF state = 11 & NOT GD_OUT_7 THEN
-	 state := 14;
-ELSIF state = 12 & NOT GD_OUT_6 THEN
-	 state := 16;
-ELSIF state = 13 & NOT GD_OUT_4 THEN
-	 state := 18;
-ELSIF state = 13 & NOT GD_OUT_7 THEN
-	 state := 16;
-ELSIF state = 14 & GD_OUT_4 THEN
-	 state := 16;
-ELSIF state = 15 & GD_OUT_4 THEN
-	 state := 17;
-ELSIF state = 15 & NOT GD_OUT_7 THEN
-	 state := 19;
-ELSIF state = 16 & NOT GD_OUT_4 THEN
-	 state := 21;
-ELSIF state = 17 & NOT GD_OUT_4 THEN
-	 state := 22;
-ELSIF state = 17 & NOT GD_OUT_7 THEN
-	 state := 20;
-ELSIF state = 18 & GD_OUT_4 THEN
-	 state := 24;
-ELSIF state = 18 & NOT GD_OUT_7 THEN
-	 state := 21;
-ELSIF state = 19 & GD_OUT_4 THEN
-	 state := 20;
-ELSIF state = 20 & NOT GD_OUT_4 THEN
-	 state := 0;
-ELSIF state = 21 & GD_OUT_4 THEN
-	 state := 26;
-ELSIF state = 22 & GD_OUT_4 THEN
-	 state := 28;
-ELSIF state = 22 & NOT GD_OUT_7 THEN
-	 state := 0;
-ELSIF state = 23 & GD_OUT_4 THEN
-	 state := 29;
-ELSIF state = 23 & NOT GD_OUT_7 THEN
-	 state := 25;
-ELSIF state = 24 & NOT GD_OUT_7 THEN
-	 state := 26;
-ELSIF state = 25 & GD_OUT_4 THEN
-	 state := 31;
-ELSIF state = 27 & GD_OUT_4 THEN
-	 state := 33;
-ELSIF state = 27 & NOT GD_OUT_7 THEN
-	 state := 1;
-ELSIF state = 27 & GD_OUT_6 THEN
-	 state := 34;
-ELSIF state = 28 & NOT GD_OUT_7 THEN
-	 state := 2;
-ELSIF state = 29 & NOT GD_OUT_7 THEN
-	 state := 31;
-ELSIF state = 30 & GD_OUT_4 THEN
-	 state := 35;
-ELSIF state = 30 & NOT GD_OUT_7 THEN
-	 state := 32;
-ELSIF state = 30 & GD_OUT_6 THEN
-	 state := 36;
-ELSIF state = 32 & GD_OUT_4 THEN
-	 state := 37;
-ELSIF state = 32 & GD_OUT_7 THEN
-	 state := 38;
-ELSIF state = 32 & GD_OUT_6 THEN
-	 state := 39;
-ELSIF state = 33 & NOT GD_OUT_7 THEN
-	 state := 3;
-ELSIF state = 33 & GD_OUT_6 THEN
-	 state := 40;
-ELSIF state = 34 & GD_OUT_4 THEN
-	 state := 40;
-ELSIF state = 34 & NOT GD_OUT_7 THEN
-	 state := 4;
-ELSIF state = 35 & NOT GD_OUT_7 THEN
-	 state := 37;
-ELSIF state = 35 & GD_OUT_6 THEN
-	 state := 42;
-ELSIF state = 36 & GD_OUT_4 THEN
-	 state := 42;
-ELSIF state = 36 & NOT GD_OUT_7 THEN
-	 state := 39;
-ELSIF state = 37 & GD_OUT_7 THEN
-	 state := 43;
-ELSIF state = 37 & GD_OUT_6 THEN
-	 state := 44;
-ELSIF state = 38 & GD_OUT_4 THEN
-	 state := 43;
-ELSIF state = 38 & NOT GD_OUT_7 THEN
-	 state := 45;
-ELSIF state = 38 & GD_OUT_6 THEN
-	 state := 46;
-ELSIF state = 39 & GD_OUT_4 THEN
-	 state := 44;
-ELSIF state = 39 & GD_OUT_7 THEN
-	 state := 46;
-ELSIF state = 40 & NOT GD_OUT_7 THEN
-	 state := 5;
-ELSIF state = 41 & GD_OUT_4 THEN
-	 state := 47;
-ELSIF state = 41 & NOT GD_OUT_7 THEN
-	 state := 6;
-ELSIF state = 42 & NOT GD_OUT_7 THEN
-	 state := 44;
-ELSIF state = 43 & NOT GD_OUT_7 THEN
-	 state := 48;
-ELSIF state = 43 & GD_OUT_6 THEN
-	 state := 49;
-ELSIF state = 44 & GD_OUT_7 THEN
-	 state := 49;
-ELSIF state = 45 & GD_OUT_4 THEN
-	 state := 48;
-ELSIF state = 45 & GD_OUT_6 THEN
-	 state := 50;
-ELSIF state = 46 & GD_OUT_4 THEN
-	 state := 49;
-ELSIF state = 46 & NOT GD_OUT_7 THEN
-	 state := 50;
-ELSIF state = 47 & NOT GD_OUT_7 THEN
-	 state := 7;
-ELSIF state = 48 & GD_OUT_6 THEN
-	 state := 51;
-ELSIF state = 49 & NOT GD_OUT_7 THEN
-	 state := 51;
-ELSIF state = 50 & GD_OUT_4 THEN
-	 state := 51;
-END_IF;
-GD_OUT_4 := GD_OUT_4 <> GD_OUT_7;]]></xhtml:p>
+
+IF M = 0 and IN = 1 THEN
+  (* Using pragma to write code directly M C. *)
+  (* You can access your PLC program variables using *)
+  (* GetFbVar(var,...) and SetFbVar(var,val,...) calls *)
+  {SetFbVar(OUT,rand())}
+END_IF;]]></xhtml:p>
           </ST>
         </body>
       </pou>
