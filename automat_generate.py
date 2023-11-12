@@ -39,12 +39,20 @@ class process:
         self.c_events = []
         self.uc_events = []
 
-    def get_automata(self, name):
-        return self.automatas[name]
-
-    def auto2txt(self, names: list):
+    def charge_automata(self,names:list, save_txt = False):
         for name in names:
             self.aux_auto2txt(name)
+            self.aux_read_TXT(name)
+            if not save_txt:
+                try:
+                    repo.index.remove([file_to_delete])
+                    print(f"Archivo '{file_to_delete}' eliminado del repositorio.")
+                except Exception as e:
+                    print(f"No se pudo eliminar el archivo: {e}")
+
+
+    def get_automata(self, name):
+        return self.automatas[name]
 
     def aux_auto2txt(self, name: str):
         ruta_carpeta = "TCTX64_20210701/USER/"
@@ -275,52 +283,6 @@ class process:
         self.componed.append(name_sync)
         return name_sync
 
-    def automata_syncronize_autoit(self, names: list, timefactor: int = 1):
-        out = "("
-        ruta = 'TCTX64_20210701\TCTX64_20210701.exe'
-        # Código AutoIt generado desde Python
-        codigo_autoit = """Run('cmd.exe')
-                    Sleep(500)
-                    send('"""
-        codigo_autoit += ruta + """{ENTER}')
-                    send('{ENTER}')
-                    Sleep(100)
-                    send('T')
-                    send('3')
-                    Sleep(500)
-                    """
-        codigo_autoit += "send('" + str(len(names)) + "{ENTER}')\n"
-        for name in names:
-            if name not in self.automatas:
-                return name + ' not in session'
-            codigo_autoit += "send('" + name + "{ENTER}')\nSleep(10)\n"
-            out += name[0]
-        out += ')'
-        codigo_autoit += "send('" + out + "{ENTER}')\n"
-        codigo_autoit += """send('Y{ENTER}')
-        send('{ENTER}')
-        send('FE')
-        """
-        codigo_autoit += "send('" + out + "{ENTER}')\n"
-        codigo_autoit += "send('A')\n"
-        codigo_autoit += "send('" + out + "{ENTER}')\n"
-        codigo_autoit += "send('Y')\n"
-        codigo_autoit += """send('{ENTER}')
-        send('{ENTER}')
-        send('x')
-        send('x')
-        send('exit{ENTER}')"""
-        with open("aut3/sync.au3", "w") as archivo:
-            archivo.write(codigo_autoit)
-        au32exe('aut3/sync')
-        run_exe('aut3/sync')
-        self.read_ADS(out.upper())
-        return out.upper()
-
-    def read_TXT(self, names: list):
-        for name in names:
-            self.aux_read_TXT(name)
-
     def aux_read_TXT(self, name):
         aux = ""
         marker = []
@@ -437,6 +399,7 @@ class process:
                     TESTSUP_dat = self.condat(TESTcoor, TESTSUP, 'TESTSUPdat')
                     CO = self.supreduce(TESTcoor, TESTSUP, TESTSUP_dat, "CO_" + str(i) + "_" + str(j))
                     self.plot_automatas([CO, TESTcoor, alltest, TESTSUP], 1, False)
+                    self.auto2txt(CO)
                     DEStoADS(CO)
                     self.read_ADS(CO)
                     Coordinators.append(CO)
@@ -755,32 +718,6 @@ class process:
         case += "\tEND_CASE;\n  "
         return case
 
-
-def DEStoADS(name):
-    ruta = 'TCTX64_20210701\TCTX64_20210701.exe'
-    codigo_autoit = """Run('cmd.exe')
-        Sleep(1000)
-        send('"""
-    codigo_autoit += ruta + """{ENTER}')
-        send('{ENTER}')
-        Sleep(500)
-        send('T')
-        send('FE')\n"""
-    codigo_autoit += "send('" + name + "{ENTER}')\n" + "send('a')\n" + "send('" + name + "{ENTER}')\n"
-    codigo_autoit += """send('y')
-        Sleep(100)
-        send('{ENTER}')
-        send('{ENTER}')
-        send('x')
-        send('x')
-        send('exit{ENTER}')
-        """
-    with open("aut3/DESADS.au3", "w") as archivo:
-        archivo.write(codigo_autoit)
-    au32exe('aut3/DESADS')
-    run_exe('aut3/DESADS')
-
-
 class State:
     def __init__(self, id):
         self.id = id
@@ -884,113 +821,3 @@ class Automata:
             archivo.write(to_Print)
         return to_Print
 
-    def generate_image(self, time_factor: int = 10):
-        ruta = 'TCTX64_20210701.exe'
-        # Código AutoIt generado desde Python
-        codigo_autoit = """Run('cmd.exe')
-        Sleep(500)
-        send('cd TCTX64_20210701{ENTER}')
-        send('"""
-        codigo_autoit += ruta + """{ENTER}')
-        Sleep(100)
-        send('{ENTER}')
-        Sleep(100)
-        send('T')
-        Sleep(100)
-        send('CE')
-        Sleep(1000)"""
-        codigo_autoit += "\nsend('" + self.name + "{ENTER}')"
-        codigo_autoit += """
-        send('{ENTER}')
-        send('y')
-        send('{ENTER}')
-        Sleep(""" + str((len(self.states) + len(self.transitions)) * time_factor) + """)
-        send('x')
-        send('x')
-        send('exit{ENTER}')
-        """
-        with open("aut3/generate_image.au3", "w") as archivo:
-            archivo.write(codigo_autoit)
-        au32exe('aut3/generate_image')
-        run_exe('aut3/generate_image')
-
-
-def au32exe(name):
-    # Inicia el proceso
-    proceso = subprocess.Popen(
-        "cmd",  # Puedes especificar otro comando o programa aquí
-        shell=True,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
-    )
-
-    # Lista de comandos que deseas enviar
-    comandos = [
-        'AutoIt3\Aut2Exe\Aut2exe.exe /in ' + name + '.au3 /out ' + name + '.exe',
-        "exit",
-    ]
-    # Itera a través de los comandos y envíalos al proceso
-    for comando in comandos:
-        proceso.stdin.write(comando + "\n")
-        proceso.stdin.flush()
-
-    # Leer la salida estándar y la salida de error estándar
-    salida_estandar, errores_estandar = proceso.communicate()
-    # Cierra el flujo de entrada estándar
-    proceso.stdin.close()
-    # Espera a que el proceso termine
-    proceso.wait()
-
-
-def automatas_list():
-    # Especifica la ruta de la carpeta que deseas explorar
-    ruta_carpeta = "TCTX64_20210701/USER"
-
-    # Utiliza la función os.listdir para obtener una lista de nombres de archivos en la carpeta
-    nombres_archivos = os.listdir(ruta_carpeta)
-
-    # Itera a través de la lista de nombres de archivos y muestra cada nombre
-    for nombre_archivo in nombres_archivos:
-        print(nombre_archivo)
-
-
-def run_exe(name):
-    archivo_autoit_compilado = name + ".exe"
-    # Configura las opciones para ocultar la ventana de la consola
-    opciones = subprocess.STARTUPINFO()
-    opciones.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    opciones.wShowWindow = subprocess.SW_HIDE
-
-    # Ejecuta el archivo EXE sin mostrar la ventana de la consola
-    proceso = subprocess.Popen([archivo_autoit_compilado], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
-                               startupinfo=opciones)
-
-    # Captura la salida estándar y de error del proceso AutoIt
-    salida_estandar, errores_estandar = proceso.communicate()
-    # Espera a que el proceso termine
-    proceso.wait()
-
-
-def generate_automata():
-    ruta = 'TCTX64_20210701\TCTX64_20210701.exe'
-    # Código AutoIt generado desde Python
-    codigo_autoit = """Run('cmd.exe')
-    Sleep(500)
-    send('"""
-    codigo_autoit += ruta + """{ENTER}')
-    send('{ENTER}')
-    Sleep(100)
-    send('T')
-    send('FD')
-    send('2{ENTER}')
-    send('{ENTER}')
-    send('x')
-    send('x')
-    send('exit{ENTER}')
-    """
-    with open("aut3/generate.au3", "w") as archivo:
-        archivo.write(codigo_autoit)
-    au32exe('aut3/generate')
-    run_exe('aut3/generate')
