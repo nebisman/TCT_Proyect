@@ -27,26 +27,27 @@ actuators['z_movement_finish'] = 'FE_Zag:GD_IN_6:%IX100.6'
 actuators['x_movement_finish'] = 'FE_Xag:GD_IN_7:%IX100.7'
 actuators['blade_pos_limit'] = 'GD_IN_8:ON:%IX100.8'
 
-new_process = ag.process()
-
-'''M1 = new_process.automata('M1')
-new_process.add_state(M1, 3, ['I1', 'D1', 'P1'], [True])
-new_process.add_transition(M1, [(0, 2), (2, 0), (2, 1), (1, 0)],
+new_process = ag.process('PLANTA1')
+new_process2 = ag.process('EJEMPLO1')
+M1 = new_process2.new_automata('M1')
+new_process2.add_state(M1, 3, ['I1', 'D1', 'P1'], [True])
+new_process2.add_transition(M1, [(0, 2), (2, 0), (2, 1), (1, 0)],
                            ['start1', 'end1', 'breakdown1', 'repair1'], uncontrollable=['end1', 'breakdown1'])
 
-M2 = new_process.automata('M2')
-new_process.add_state(M2, 3, ['I2', 'D2', 'P2'], [True])
-new_process.add_transition(M2, [(0, 2), (2, 0), (2, 1), (1, 0)],
+M2 = new_process2.new_automata('M2')
+new_process2.add_state(M2, 3, ['I2', 'D2', 'P2'], [True])
+new_process2.add_transition(M2, [(0, 2), (2, 0), (2, 1), (1, 0)],
                            ['start2', 'end2', 'breakdown2', 'repair2'], uncontrollable=['end2', 'breakdown2'])
-buffer = new_process.automata('buffer')
-new_process.add_state(buffer, 3, ['empty', 'inter', 'full'], [True, True, True])
-new_process.add_transition(buffer, [(0, 1), (1, 2), (2, 1), (1, 0)],
+buffer = new_process2.new_automata('buffer')
+new_process2.add_state(buffer, 3, ['empty', 'inter', 'full'], [True, True, True])
+new_process2.add_transition(buffer, [(0, 1), (1, 2), (2, 1), (1, 0)],
                            ['end1', 'end1', 'start2', 'start2'], uncontrollable=['end1'])
 
-repair = new_process.automata('repair')
-new_process.add_state(repair, 2, ['2ok', '2down'], [True, True])
-new_process.add_transition(repair, [(0, 0), (0, 1), (1, 0)],
-                           ['repair1', 'breakdown2', 'repair2'], uncontrollable=['breakdown2'])'''
+repair = new_process2.new_automata('repair')
+new_process2.add_state(repair, 2, ['2ok', '2down'], [True, True])
+new_process2.add_transition(repair, [(0, 0), (0, 1), (1, 0)],
+                           ['repair1', 'breakdown2', 'repair2'], uncontrollable=['breakdown2'])
+new_process2.generate_all_automata()
 
 Lids_conveyor = new_process.new_automata('lids_conveyor')
 new_process.add_state(Lids_conveyor, 2, ['lids_on', 'lids_off'], marked=[True, True])
@@ -201,7 +202,7 @@ sup2 = new_process.supcon(plant2, spec2, 'sup2')
 supdat2 = new_process.condat(plant2, sup2, 'supdat2')
 simsup2 = new_process.supreduce(plant2, sup2, supdat2, 'simsup2')
 
-#new_process.plot_automatas([Clamp_lid, Grab, z_axis, x_axis, spec2, plant2, sup2], 1, False)
+#new_process.plot_automatas([Clamp_lid, Grab, z_axis, x_axis, spec2, plant2, sup2], 1, True)
 
 plant3 = new_process.automata_syncronize([Clamp_base, Grab, x_axis], name_sync='plant3')
 all3 = new_process.all_events(plant3, 'all3')
@@ -229,45 +230,20 @@ sup5 = new_process.supcon(plant5, spec5, 'sup5')
 supdat5 = new_process.condat(plant5, sup5, 'supdat5')
 simsup5 = new_process.supreduce(plant5, sup5, supdat5, 'simsup45')
 
-#new_process.plot_automatas([Grab, blade, spec5, sup5, plant5, all5], 1, False)
+new_process.plot_automatas([Grab, blade, spec5, sup5, plant5, all5], 1, False)
+new_process2.plot_automatas([M1,M2,buffer,repair], 1, False)
 
 
-new_process.charge_automata([sup,sup2,sup3,sup4,sup5])
-new_process.charge_automata([plant,plant2,plant3,plant4,plant5])
-'''
-ag.DEStoADS(sup)
-ag.DEStoADS(sup2)
-ag.DEStoADS(sup3)
-ag.DEStoADS(sup4)
-ag.DEStoADS(sup5)
-ag.DEStoADS(plant)
-ag.DEStoADS(plant2)
-ag.DEStoADS(plant3)
-ag.DEStoADS(plant4)
-ag.DEStoADS(plant5)
-'''
-'''new_process.read_ADS(sup)
-new_process.read_ADS(sup2)
-new_process.read_ADS(sup3)
-new_process.read_ADS(sup4)
-new_process.read_ADS(sup5)
-new_process.read_ADS(plant)
-new_process.read_ADS(plant2)
-new_process.read_ADS(plant3)
-new_process.read_ADS(plant4)
-new_process.read_ADS(plant5)'''
+new_process.load_automata([sup, sup2, sup3, sup4, sup5])
+new_process.load_automata([plant, plant2, plant3, plant4, plant5])
 
-#new_process.plot_automatas([sup2, spec2, all2, plant2, simsup2, buffer_arm, z_axis, Grab,x_axis], 1, False)
-#new_process.print_events(actuators)
-#ag.DEStoADS(sup2)
-#new_process.read_ADS(sup2)
 
 print(new_process.get_automata('sup'))
 print(new_process.get_automata('sup2'))
 print(new_process.get_automata('sup3'))
 print(new_process.get_automata('sup4'))
 print(new_process.get_automata('sup5'))
-new_process.generate_ST_OPENPLC([sup, sup2, sup3, sup4, sup5],[plant, plant2, plant3, plant4, plant5], actuators)
+new_process.generate_ST_OPENPLC([sup, sup2, sup3, sup4, sup5],[plant, plant2, plant3, plant4, plant5], actuators,'sera')
 
-#new_process.plot_automatas([sup2, spec2, all2, plant2, simsup2, buffer_arm, z_axis, Grab, TESTcoor], 1, False)
+
 

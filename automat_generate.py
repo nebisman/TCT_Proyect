@@ -4,8 +4,7 @@ import os
 from PIL import Image
 import matplotlib.pyplot as plt
 
-compilador_autoit = "AutoIt3\AutoIt3.exe"
-user_route = "TCTX64_20210701/USER"
+user_route = "TCTX64_20210701/"
 
 state_size = """State size (State set will be (0,1....,size-1)):
 # <-- Enter state size, in range 0 to 2000000, on line below."""
@@ -30,7 +29,7 @@ transitions = "\n\n" + """Transitions:
 
 
 class process:
-    def __init__(self):
+    def __init__(self,route):
         self.automatas = dict([])
         self.componed = []
         self.dict_events = dict([])
@@ -38,8 +37,21 @@ class process:
         self.dict_states = dict([])
         self.c_events = []
         self.uc_events = []
+        directorio = user_route + route
+        if not os.path.exists(directorio):
+            os.makedirs(directorio)
+            print(f"La carpeta '{directorio}' ha sido creada.")
+        else:
+            print(f"La carpeta '{directorio}' ya existe.")
+        self.init = route + '\n' + 'CLOCK 0\n'
+        self.route = directorio
+        self.update_route()
+    def update_route(self):
+        with open('TCTX64_20210701/ctct.ini', 'w') as archivo:
+            archivo.write(self.init)
 
-    def charge_automata(self,names:list, save_txt = False):
+    def load_automata(self,names:list, save_txt = False):
+        self.update_route()
         for name in names:
             self.aux_auto2txt(name)
             self.aux_read_TXT(name)
@@ -47,13 +59,15 @@ class process:
         return self.automatas[name]
 
     def aux_auto2txt(self, name: str):
-        ruta_carpeta = "TCTX64_20210701/USER/"
+        ruta_carpeta = self.route + "/"
         generate_command = "0\n1\n33\n"
         generate_command += name + "\n" + name + "\n"
 
         with open(ruta_carpeta + "ctct.prm", "w") as archivo:
             archivo.write(generate_command)
-        command = 'TCTX64_20210701\TCTX64_20210701.exe -cmdline'
+
+        command = "cd TCTX64_20210701"
+        command += " & TCTX64_20210701.exe -cmdline"
         a = os.system(command)
         return a
 
@@ -66,6 +80,7 @@ class process:
                 print(self.dict_events[n] + " -> " + n + " : " + actuators[n])
 
     def plot_automatas(self, nameList: list, numcolumns: int = 1, show=True):
+        self.update_route()
         self.generate_image(nameList)
         num_filas = math.ceil(len(nameList) / numcolumns)
         if show:
@@ -75,7 +90,7 @@ class process:
             else:
                 axs = axs.flatten()
             for i in range(len(nameList)):
-                ruta = 'TCTX64_20210701/USER/' + nameList[i] + ".GIF"
+                ruta = self.route + '/' + nameList[i] + ".GIF"
                 imagen = Image.open(ruta)
                 # Mostrar la imagen
                 axs[i].imshow(imagen)
@@ -83,17 +98,19 @@ class process:
             plt.show()
 
     def generate_image(self, name_list: list):
+        self.update_route()
         for name in name_list:
             self.aux_generate_image(name)
 
     def aux_generate_image(self, name):
-        ruta_carpeta = "TCTX64_20210701/USER/"
+        ruta_carpeta = self.route + "/"
         generate_command = "0\n1\n30\n"
         generate_command += name + "\n" + name + "\n"
 
         with open(ruta_carpeta + "ctct.prm", "w") as archivo:
             archivo.write(generate_command)
-        command = 'TCTX64_20210701\TCTX64_20210701.exe -cmdline'
+        command = "cd TCTX64_20210701"
+        command += " & TCTX64_20210701.exe -cmdline"
         a = os.system(command)
         return a
 
@@ -120,68 +137,79 @@ class process:
         return noncoor, TESTcoor, AEcoor
 
     def all_events(self, name, alleventsname):
-        ruta_carpeta = "TCTX64_20210701/USER/"
+        self.update_route()
+        ruta_carpeta = self.route + "/"
         generate_command = "0\n1\n19\n"
         generate_command += name + "\n" + alleventsname + "\n" + "1\n"
 
         with open(ruta_carpeta + "ctct.prm", "w") as archivo:
             archivo.write(generate_command)
-        command = '.\TCTX64_20210701\TCTX64_20210701.exe -cmdline'
+        command = "cd TCTX64_20210701"
+        command += " & TCTX64_20210701.exe -cmdline"
         a = os.system(command)
         return alleventsname
 
     def supreduce(self, plant, sup, sup_dat, simsup):
-        ruta_carpeta = "TCTX64_20210701/USER/"
+        self.update_route()
+        ruta_carpeta = self.route + "/"
         generate_command = "0\n1\n8\n"
         generate_command += plant + "\n" + sup + "\n" + sup_dat + "\n" + simsup + "\n"
 
         with open(ruta_carpeta + "ctct.prm", "w") as archivo:
             archivo.write(generate_command)
-        command = '.\TCTX64_20210701\TCTX64_20210701.exe -cmdline'
+        command = "cd TCTX64_20210701"
+        command += " & TCTX64_20210701.exe -cmdline"
         a = os.system(command)
         return simsup
 
     def condat(self, plant, sup, sup_dat):
-        ruta_carpeta = "TCTX64_20210701/USER/"
+        self.update_route()
+        ruta_carpeta = self.route + "/"
         generate_command = "0\n1\n7\n"
         generate_command += plant + "\n" + sup + "\n" + sup_dat + "\n"
 
         with open(ruta_carpeta + "ctct.prm", "w") as archivo:
             archivo.write(generate_command)
-        command = '.\TCTX64_20210701\TCTX64_20210701.exe -cmdline'
+        command = "cd TCTX64_20210701"
+        command += " & TCTX64_20210701.exe -cmdline"
         a = os.system(command)
         return sup_dat
 
     def supcon(self, test, all, name: str = ""):
+        self.update_route()
         if name == "":
             name = "sc_" + test[0]
-        ruta_carpeta = "TCTX64_20210701/USER/"
+        ruta_carpeta = self.route + "/"
         generate_command = "0\n1\n5\n"
         generate_command += test + "\n" + all + "\n" + name + "\n"
 
         with open(ruta_carpeta + "ctct.prm", "w") as archivo:
             archivo.write(generate_command)
-        command = '.\TCTX64_20210701\TCTX64_20210701.exe -cmdline'
+        command = "cd TCTX64_20210701"
+        command += " & TCTX64_20210701.exe -cmdline"
         a = os.system(command)
         return name
 
     def nonconflictcomponed(self, name):
+        self.update_route()
         return self.nonconflict_aux(name, self.componed)
 
     def nonconflict(self, name_1, name_2):
+        self.update_route()
         return len(self.nonconflict_aux(name_1, [name_2])) == 0
 
     def nonconflict_aux(self, name, names: list):
         conflicting = []
         for n in names:
             if not n == name:
-                ruta_carpeta = "TCTX64_20210701/USER/"
+                ruta_carpeta = self.route + "/"
                 generate_command = "0\n1\n25\n"
                 generate_command += name + '\n'
                 generate_command += n + '\n'
                 with open(ruta_carpeta + "ctct.prm", "w") as archivo:
                     archivo.write(generate_command)
-                command = '.\TCTX64_20210701\TCTX64_20210701.exe -cmdline'
+                command = "cd TCTX64_20210701"
+                command += " & TCTX64_20210701.exe -cmdline"
                 a = os.system(command)
                 with open(ruta_carpeta + "ctct.rst", "r") as archivo:
                     error = archivo.readline()
@@ -194,6 +222,7 @@ class process:
         return conflicting
 
     def automata_to_ADS(self, name: str):
+        self.update_route()
         if name not in self.automatas:
             return
         to_Print = "# CTCT ADS Template\n\n"
@@ -213,6 +242,7 @@ class process:
         return to_Print
 
     def to_ADS(self):
+        self.update_route()
         for automata in self.automatas.values():
             self.automata_to_ADS(automata.name)
 
@@ -231,11 +261,12 @@ class process:
                                             self.dict_events, self.dict_events_name)
 
     def generate_all_automata(self):
+        self.update_route()
         for name in self.automatas.keys():
             self.generate_automata(name)
 
     def generate_automata(self, name):
-        ruta_carpeta = "TCTX64_20210701/USER/"
+        ruta_carpeta = self.route + "/"
         generate_command = "0\n1\n0\n"
 
         if name in self.automatas.keys():
@@ -247,13 +278,15 @@ class process:
                 generate_command += str(transition[0]) + ' ' + str(transition[1]) + ' ' + str(transition[2]) + "\n"
         with open(ruta_carpeta + "ctct.prm", "w") as archivo:
             archivo.write(generate_command)
-        command = '.\TCTX64_20210701\TCTX64_20210701.exe -cmdline'
+        command = "cd TCTX64_20210701"
+        command += " & TCTX64_20210701.exe -cmdline"
         a = os.system(command)
         return a
         # Lista de comandos que deseas enviar
 
     def automata_syncronize(self, names: list, name_sync: str = ""):
-        ruta_carpeta = "TCTX64_20210701/USER/"
+        self.update_route()
+        ruta_carpeta = self.route + "/"
         to_sync = ""
         num_sync = 0
         if name_sync == "":
@@ -270,18 +303,15 @@ class process:
         generate_command += name_sync + "\n" + str(num_sync) + "\n" + to_sync
         with open(ruta_carpeta + "ctct.prm", "w") as archivo:
             archivo.write(generate_command)
-        command = '.\TCTX64_20210701\TCTX64_20210701.exe -cmdline'
+        command = "cd TCTX64_20210701"
+        command += " & TCTX64_20210701.exe -cmdline"
         a = os.system(command)
         self.componed.append(name_sync)
         return name_sync
 
     def aux_read_TXT(self, name):
-        aux = ""
-        marker = []
-        transitions = []
-        events = []
-        uc_events = []
-        with open(user_route + "/" + name + ".TXT", "r") as archivo:
+        self.update_route()
+        with open(self.route + "/" + name + ".TXT", "r") as archivo:
             marked = -1
             transitions = []
             uc_events = []
@@ -326,12 +356,13 @@ class process:
         return name
 
     def read_ADS(self, name):
+        self.update_route()
         aux = ""
         marker = []
         transitions = []
         events = []
         uc_events = []
-        with open(user_route + "/" + name + ".ADS", "r") as archivo:
+        with open(self.route + "/" + name + ".ADS", "r") as archivo:
             # Recorre el archivo línea por línea
             for linea in archivo:
                 # Verifica si la línea contiene la palabra "Python"
@@ -375,7 +406,7 @@ class process:
         self.add_transition(name, transitions, events, uc_events)
         return name
 
-    def generate_ST_OPENPLC(self, supervisors: list, plants: list, actuators: dict):
+    def generate_ST_OPENPLC(self, supervisors: list, plants: list, actuators: dict, namest = 'codigo_st'):
         RANDOM = "FUNCTION_BLOCK random_number\n\tVAR_INPUT\n\t\tIN : BOOL;\n\tEND_VAR\n\tVAR\n\t\tM : BOOL;"
         RANDOM += "\n\t\tINIT : BOOL;\n\tEND_VAR\n\tVAR_OUTPUT\n\t\tOUT : DINT;\n\tEND_VAR\n"
         RANDOM += "\n\tIF INIT = 0 THEN\n\t\t{#include <stdio.h>}\n\t\t{#include <stdlib.h>}\n\t\tIN := 1;\n\tEND_IF;"
@@ -399,8 +430,7 @@ class process:
                     TESTSUP_dat = self.condat(TESTcoor, TESTSUP, 'TESTSUPdat')
                     CO = self.supreduce(TESTcoor, TESTSUP, TESTSUP_dat, "CO_" + str(i) + "_" + str(j))
                     self.plot_automatas([CO, TESTcoor, alltest, TESTSUP], 1, False)
-                    #DEStoADS(CO)
-                    self.read_ADS(CO)
+                    self.load_automata(CO)
                     Coordinators.append(CO)
                 a = set(self.automatas[supervisors[i]].c_events)
                 b = set(self.automatas[supervisors[j]].c_events)
@@ -444,11 +474,11 @@ class process:
         out = RANDOM + HEADER
         out += declaration + if_uncontrollable + COu + COsw + sc + intersection + COc + if_controllable
         out += END
-        with open('ST_Generated/codigo_st.st', 'w') as archivo:
+        with open('ST_Generated/'+ namest +".st", 'w') as archivo:
             archivo.write(out)
         return out
 
-    def aux_generate_ST_OPENPLC(self, name: list = [], actuators: dict = dict([]), CO=""):
+    def aux_generate_ST_OPENPLC(self, name: list = [], actuators: dict = dict([]), CO="",namest='codigo_st'):
         COsw = ""
         COc = ""
         COu = ""
@@ -494,7 +524,7 @@ class process:
         declaration = self.declaration_OPENPLC(actuators, st, len(name), Intersections, CO)
         intersection = self.intersection(Intersections, CO != "")
         out = HEADER + declaration + if_uncontrollable + COu + COsw + sc + intersection + COc + if_controllable + END
-        with open('ST_Generated/codigo_st.st', 'w') as archivo:
+        with open('ST_Generated/'+ namest + ".st", 'w') as archivo:
             archivo.write(out)
         return out
 
