@@ -43,14 +43,6 @@ class process:
         for name in names:
             self.aux_auto2txt(name)
             self.aux_read_TXT(name)
-            if not save_txt:
-                try:
-                    repo.index.remove([file_to_delete])
-                    print(f"Archivo '{file_to_delete}' eliminado del repositorio.")
-                except Exception as e:
-                    print(f"No se pudo eliminar el archivo: {e}")
-
-
     def get_automata(self, name):
         return self.automatas[name]
 
@@ -294,15 +286,23 @@ class process:
             transitions = []
             uc_events = []
             events = []
+            aux=0
             for linea in archivo:
                 if '# states: ' in linea:
                     aux = linea.split()
                     name = aux[0]
                     num_state = int(aux[3])
                     self.new_automata(name)
-                if len(linea.split()) == 1 and marked == -1:
-                    marked = int(linea.split()[0])
-                    self.add_state(name, num_state, [], [[x == marked for x in range(0, num_state)]])
+                if "marker" in linea:
+                    aux=1
+                    continue
+                if aux == 1:
+                    if "\n" == linea:
+                        continue
+                    marked = [int(x) for x in linea.split()]
+                    self.add_state(name, num_state, [], [[x in marked for x in range(0, num_state)]])
+                    aux=2
+
                     continue
                 if "[" not in linea:
                     continue
@@ -399,8 +399,7 @@ class process:
                     TESTSUP_dat = self.condat(TESTcoor, TESTSUP, 'TESTSUPdat')
                     CO = self.supreduce(TESTcoor, TESTSUP, TESTSUP_dat, "CO_" + str(i) + "_" + str(j))
                     self.plot_automatas([CO, TESTcoor, alltest, TESTSUP], 1, False)
-                    self.auto2txt(CO)
-                    DEStoADS(CO)
+                    #DEStoADS(CO)
                     self.read_ADS(CO)
                     Coordinators.append(CO)
                 a = set(self.automatas[supervisors[i]].c_events)

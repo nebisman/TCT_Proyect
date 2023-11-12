@@ -232,7 +232,8 @@ simsup5 = new_process.supreduce(plant5, sup5, supdat5, 'simsup45')
 #new_process.plot_automatas([Grab, blade, spec5, sup5, plant5, all5], 1, False)
 
 
-new_process.auto2txt([sup,sup2,sup3,sup4])
+new_process.charge_automata([sup,sup2,sup3,sup4,sup5])
+new_process.charge_automata([plant,plant2,plant3,plant4,plant5])
 '''
 ag.DEStoADS(sup)
 ag.DEStoADS(sup2)
@@ -261,9 +262,12 @@ new_process.read_ADS(plant5)'''
 #ag.DEStoADS(sup2)
 #new_process.read_ADS(sup2)
 
-new_process.aux_read_TXT(sup)
 print(new_process.get_automata('sup'))
-#new_process.generate_ST_OPENPLC([sup, sup2, sup3, sup4, sup5],[plant, plant2, plant3, plant4, plant5], actuators)
+print(new_process.get_automata('sup2'))
+print(new_process.get_automata('sup3'))
+print(new_process.get_automata('sup4'))
+print(new_process.get_automata('sup5'))
+new_process.generate_ST_OPENPLC([sup, sup2, sup3, sup4, sup5],[plant, plant2, plant3, plant4, plant5], actuators)
 
 #new_process.plot_automatas([sup2, spec2, all2, plant2, simsup2, buffer_arm, z_axis, Grab, TESTcoor], 1, False)
 
