@@ -39,6 +39,24 @@ class process:
         self.c_events = []
         self.uc_events = []
 
+    def get_automata(self, name):
+        return self.automatas[name]
+
+    def auto2txt(self, names: list):
+        for name in names:
+            self.aux_auto2txt(name)
+
+    def aux_auto2txt(self, name: str):
+        ruta_carpeta = "TCTX64_20210701/USER/"
+        generate_command = "0\n1\n33\n"
+        generate_command += name + "\n" + name + "\n"
+
+        with open(ruta_carpeta + "ctct.prm", "w") as archivo:
+            archivo.write(generate_command)
+        command = 'TCTX64_20210701\TCTX64_20210701.exe -cmdline'
+        a = os.system(command)
+        return a
+
     def print_events(self, actuators=[]):
         if len(actuators) == 0:
             for n in self.dict_events.keys():
@@ -198,7 +216,7 @@ class process:
         for automata in self.automatas.values():
             self.automata_to_ADS(automata.name)
 
-    def automata(self, name: str):
+    def new_automata(self, name: str):
         self.automatas[name] = Automata(name)
         return name
 
@@ -299,6 +317,52 @@ class process:
         self.read_ADS(out.upper())
         return out.upper()
 
+    def read_TXT(self, names: list):
+        for name in names:
+            self.aux_read_TXT(name)
+
+    def aux_read_TXT(self, name):
+        aux = ""
+        marker = []
+        transitions = []
+        events = []
+        uc_events = []
+        with open(user_route + "/" + name + ".TXT", "r") as archivo:
+            marked = -1
+            transitions = []
+            uc_events = []
+            events = []
+            for linea in archivo:
+                if '# states: ' in linea:
+                    aux = linea.split()
+                    name = aux[0]
+                    num_state = int(aux[3])
+                    self.new_automata(name)
+                if len(linea.split()) == 1 and marked == -1:
+                    marked = int(linea.split()[0])
+                    self.add_state(name, num_state, [], [[x == marked for x in range(0, num_state)]])
+                    continue
+                if "[" not in linea:
+                    continue
+                if marked == -1:
+                    self.add_state(name, num_state, [], [])
+                    marked = 0
+                aux_transitions = linea.replace(" ", "").replace("[", "").replace("\n", "").split("]")
+                aux_transitions.pop()
+                for transition in aux_transitions:
+                    aux = transition.split(',')
+                    transitions.append((int(aux[0]), int(aux[2])))
+                    if aux[1] in self.dict_events_name.keys():
+                        event = self.dict_events_name[aux[1]]
+                    else:
+                        event = aux[1]
+                    if event not in events:
+                        if int(aux[1]) % 2 == 0:
+                            uc_events.append(event)
+                    events.append(event)
+        self.add_transition(name, transitions, events, uc_events)
+        return name
+
     def read_ADS(self, name):
         aux = ""
         marker = []
@@ -336,7 +400,7 @@ class process:
                     num_state = int(linea)
                 if "State" in linea:
                     aux = "State"
-        self.automata(name)
+        self.new_automata(name)
         names = list(range(0, num_state))
         marked = []
         for i in names:
@@ -351,14 +415,13 @@ class process:
 
     def generate_ST_OPENPLC(self, supervisors: list, plants: list, actuators: dict):
         RANDOM = "FUNCTION_BLOCK random_number\n\tVAR_INPUT\n\t\tIN : BOOL;\n\tEND_VAR\n\tVAR\n\t\tM : BOOL;"
-        RANDOM +="\n\t\tINIT : BOOL;\n\tEND_VAR\n\tVAR_OUTPUT\n\t\tOUT : DINT;\n\tEND_VAR\n"
+        RANDOM += "\n\t\tINIT : BOOL;\n\tEND_VAR\n\tVAR_OUTPUT\n\t\tOUT : DINT;\n\tEND_VAR\n"
         RANDOM += "\n\tIF INIT = 0 THEN\n\t\t{#include <stdio.h>}\n\t\t{#include <stdlib.h>}\n\t\tIN := 1;\n\tEND_IF;"
         RANDOM += "\n\tIF M = 0 and IN = 1 THEN\n\t\t{SetFbVar(OUT,rand())}\n\tEND_IF;\nEND_FUNCTION_BLOCK\n"
         HEADER = "PROGRAM tesis0\n"
         END = "\nEND_PROGRAM\n\n"
         END += "CONFIGURATION Config0\n\n\tRESOURCE Res0 ON PLC\n\t\tTASK task0(INTERVAL := T#20ms,PRIORITY := 0);"
         END += "\n\t\tPROGRAM instance0 WITH task0 : tesis0;" + "\n\tEND_RESOURCE\nEND_CONFIGURATION"
-
 
         if len(supervisors) == 1:
             return self.aux_generate_ST_OPENPLC(supervisors, actuators)
@@ -369,11 +432,11 @@ class process:
                 nonconflict, TESTcoor, alltest = self.coordinator([supervisors[i], supervisors[j]],
                                                                   [plants[i], plants[j]])  # revisa si son conflictivos
                 if not nonconflict:
-                    print('conflict',i,j)
+                    print('conflict', i, j)
                     TESTSUP = self.supcon(TESTcoor, alltest, "TESTSUP")
                     TESTSUP_dat = self.condat(TESTcoor, TESTSUP, 'TESTSUPdat')
                     CO = self.supreduce(TESTcoor, TESTSUP, TESTSUP_dat, "CO_" + str(i) + "_" + str(j))
-                    self.plot_automatas([CO,TESTcoor,alltest,TESTSUP], 1, False)
+                    self.plot_automatas([CO, TESTcoor, alltest, TESTSUP], 1, False)
                     DEStoADS(CO)
                     self.read_ADS(CO)
                     Coordinators.append(CO)
@@ -397,12 +460,12 @@ class process:
         if_controllable = ""
         if_uncontrollable = ""
         sc = ""
-        j=0
+        j = 0
         if len(actuators) != 0:
             for i in range(len(supervisors)):
                 if_c, if_u = self.ifs(supervisors[i], actuators, i)
                 s, n_r = self.sw_case(supervisors[i], actuators, i, i, Intersections)
-                j+=1
+                j += 1
                 if_controllable += if_c + "\n"
                 if_uncontrollable += if_u + '\n'
                 sc += "\n" + s + "\n"
@@ -414,7 +477,7 @@ class process:
             j += 1
             COc += a
             COu += b
-        intersection= self.intersection(Intersections, len(Coordinators)!=0 )
+        intersection = self.intersection(Intersections, len(Coordinators) != 0)
         declaration = self.declaration_OPENPLC(actuators, st, j, Intersections, Coordinators)
         out = RANDOM + HEADER
         out += declaration + if_uncontrollable + COu + COsw + sc + intersection + COc + if_controllable
@@ -473,7 +536,7 @@ class process:
             archivo.write(out)
         return out
 
-    def intersection(self, intersection: dict, CO=False, addG="_G[", addC = "_C[", name_intersection="aux"):
+    def intersection(self, intersection: dict, CO=False, addG="_G[", addC="_C[", name_intersection="aux"):
         out = ""
         for inter in intersection.keys():
             aux = ""
@@ -508,7 +571,7 @@ class process:
                 coor += inter + " := 1;"
                 coor += "\n\t\tEND_IF;"
                 coor += "\n\tEND_IF;\n"
-            out += aux+'\n'
+            out += aux + '\n'
             out += "\tEND_IF;\n\t"
             out += bandera + " := " + guesses[0] + ";\n"
             out += coor
@@ -521,7 +584,7 @@ class process:
         start += '\t\trandom : random_number;\n'
         start += '\t\trandom_numer : DINT;\n'
         start += "\t\tstate : ARRAY [0.." + str(n_automata) + "] OF DINT;\n"
-        if len(CO)!=0:
+        if len(CO) != 0:
             declared = []
             start += "\t\taux : BOOL := 0;\n"
             for coor in CO:
@@ -536,7 +599,7 @@ class process:
             start += "\t\tslt" + str(i) + " : ARRAY [0.." + str(n_state[i]) + "] OF DINT;\n"
         if len(intersetion.keys()) > 0:
             for inter in intersetion.keys():
-                start += "\t\t" + inter + "_G : ARRAY [0.." + str(len(intersetion[inter]))+"] OF BOOL;\n"
+                start += "\t\t" + inter + "_G : ARRAY [0.." + str(len(intersetion[inter])) + "] OF BOOL;\n"
 
         declared = []
         for act in actuators.values():
@@ -565,7 +628,7 @@ class process:
                     start += "R_TRIG;\n"
 
                 clocks += "\t" + aux[0] + '(CLK:= ' + aux[1] + ');\n'
-                ran ="\trandom(\n\t\tIN := True,\n\t\tOUT => random_numer);\n"
+                ran = "\trandom(\n\t\tIN := True,\n\t\tOUT => random_numer);\n"
         start += "\tEND_VAR\n"
         declaration += "\tEND_VAR\n"
         return start + declaration + clocks + ran
@@ -611,10 +674,10 @@ class process:
         for inter in intersection.keys():
             for i in range(len(intersection[inter])):
                 if intersection[inter][i] == n_aut:
-                        if i in act_guess.keys():
-                            act_guess[i].append(inter)
-                        else:
-                            act_guess[i] = [inter]
+                    if i in act_guess.keys():
+                        act_guess[i].append(inter)
+                    else:
+                        act_guess[i] = [inter]
         n_r = 0
         state_list = self.automatas[name].states
         case = "\tCASE state[" + str(n_aut) + "] OF\n  "
@@ -632,7 +695,7 @@ class process:
                         guess = ""
                         for i in act_guess.keys():
                             if aux[0] in act_guess[i]:
-                                guess = "_G["+ str(i) + "]"
+                                guess = "_G[" + str(i) + "]"
                         if "OFF" in name_event:
                             case += "\t\t\t\t\t" + aux[0]
                             case += guess
@@ -643,8 +706,9 @@ class process:
                             case += " := 1;\n  "
                     case += "\t\t\tEND_CASE;\n  "
                     case += ("\t\t\t" + "slt" + str(n_state) + "[" + str(n_r) + "] := " + "(random_numer + " + "slt" +
-                             str(n_state) + "[" + str(n_r) + "]" + ") MOD "+ str(num_event)+";\n  ")
-                    case += "\t\t\t" + "random_numer := " + "random_numer - " + "slt" + str(n_state) + "[" + str(n_r) + "];\n "
+                             str(n_state) + "[" + str(n_r) + "]" + ") MOD " + str(num_event) + ";\n  ")
+                    case += "\t\t\t" + "random_numer := " + "random_numer - " + "slt" + str(n_state) + "[" + str(
+                        n_r) + "];\n "
                     n_r += 1
 
                 elif num_event == 1:
@@ -679,10 +743,10 @@ class process:
                     aux = name_event.split(":")
                     if "OFF" in name_event:
                         case += "\t\t\t" + aux[0]
-                        case += "_C"+"[0]"
+                        case += "_C" + "[0]"
                     else:
                         case += "\t\t\t" + aux[0]
-                        case += "_C"+"[1]"
+                        case += "_C" + "[1]"
                     if all_events[i] in events:
                         case += " := 1;\n"
                     else:
@@ -753,6 +817,10 @@ class Automata:
         self.dict_events = dict([])
         self.dict_states = dict([])
         self.states_marked = []
+
+    def __str__(self):
+        return "name: " + str(self.name) + ", # states: " + str(len(self.states)) + ", # transitions: " + str(
+            len(self.transitions))
 
     def add_state(self, number_of_states: int, names: list, marked: list):
         dif_mark = number_of_states - len(marked)

@@ -27,8 +27,8 @@ PROGRAM tesis0
 		slt1 : ARRAY [0..8] OF DINT;
 		slt2 : ARRAY [0..15] OF DINT;
 		GD_OUT_4_G : ARRAY [0..2] OF BOOL;
-		GD_OUT_7_G : ARRAY [0..2] OF BOOL;
 		GD_OUT_8_G : ARRAY [0..2] OF BOOL;
+		GD_OUT_7_G : ARRAY [0..2] OF BOOL;
 		GD_OUT_5_G : ARRAY [0..3] OF BOOL;
 		FE_LaP : F_TRIG;
 		FE_BaP : F_TRIG;
@@ -195,7 +195,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_6 := 1;
   			END_CASE;
-  			slt1[0] := (random_numer +slt1[0])MOD 2;
+  			slt1[0] := (random_numer + slt1[0]) MOD 2;
   			random_numer := random_numer - slt1[0];
  		3:
   			GD_OUT_6 := 1;
@@ -208,7 +208,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_7_G[0] := 1;
   			END_CASE;
-  			slt1[1] := (random_numer +slt1[1])MOD 2;
+  			slt1[1] := (random_numer + slt1[1]) MOD 2;
   			random_numer := random_numer - slt1[1];
  		7:
   			GD_OUT_7_G[0] := 1;
@@ -223,7 +223,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_6 := 0;
   			END_CASE;
-  			slt1[2] := (random_numer +slt1[2])MOD 2;
+  			slt1[2] := (random_numer + slt1[2]) MOD 2;
   			random_numer := random_numer - slt1[2];
  		11:
   			GD_OUT_6 := 0;
@@ -236,7 +236,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_8_G[0] := 1;
   			END_CASE;
-  			slt1[3] := (random_numer +slt1[3])MOD 2;
+  			slt1[3] := (random_numer + slt1[3]) MOD 2;
   			random_numer := random_numer - slt1[3];
  		15:
   			GD_OUT_8_G[0] := 1;
@@ -249,7 +249,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_6 := 1;
   			END_CASE;
-  			slt1[4] := (random_numer +slt1[4])MOD 2;
+  			slt1[4] := (random_numer + slt1[4]) MOD 2;
   			random_numer := random_numer - slt1[4];
  		19:
   			GD_OUT_6 := 1;
@@ -262,7 +262,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_7_G[0] := 0;
   			END_CASE;
-  			slt1[5] := (random_numer +slt1[5])MOD 2;
+  			slt1[5] := (random_numer + slt1[5]) MOD 2;
   			random_numer := random_numer - slt1[5];
  		23:
   			GD_OUT_7_G[0] := 0;
@@ -273,7 +273,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_6 := 0;
   			END_CASE;
-  			slt1[6] := (random_numer +slt1[6])MOD 2;
+  			slt1[6] := (random_numer + slt1[6]) MOD 2;
   			random_numer := random_numer - slt1[6];
  		25:
   			GD_OUT_6 := 0;
@@ -286,7 +286,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_8_G[0] := 0;
   			END_CASE;
-  			slt1[7] := (random_numer +slt1[7])MOD 2;
+  			slt1[7] := (random_numer + slt1[7]) MOD 2;
   			random_numer := random_numer - slt1[7];
  		29:
   			GD_OUT_8_G[0] := 0;
@@ -302,7 +302,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_5_G[0] := 1;
   			END_CASE;
-  			slt2[0] := (random_numer +slt2[0])MOD 2;
+  			slt2[0] := (random_numer + slt2[0]) MOD 2;
   			random_numer := random_numer - slt2[0];
  		1:
   			GD_OUT_5_G[0] := 1;
@@ -315,7 +315,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_8_G[1] := 1;
   			END_CASE;
-  			slt2[1] := (random_numer +slt2[1])MOD 2;
+  			slt2[1] := (random_numer + slt2[1]) MOD 2;
   			random_numer := random_numer - slt2[1];
  		5:
   			GD_OUT_8_G[1] := 1;
@@ -330,7 +330,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_8_G[1] := 0;
   			END_CASE;
-  			slt2[2] := (random_numer +slt2[2])MOD 2;
+  			slt2[2] := (random_numer + slt2[2]) MOD 2;
   			random_numer := random_numer - slt2[2];
  		9:
   			CASE slt2[3] OF
@@ -339,7 +339,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_8_G[1] := 0;
   			END_CASE;
-  			slt2[3] := (random_numer +slt2[3])MOD 2;
+  			slt2[3] := (random_numer + slt2[3]) MOD 2;
   			random_numer := random_numer - slt2[3];
  		10:
   			CASE slt2[4] OF
@@ -348,7 +348,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_5_G[0] := 0;
   			END_CASE;
-  			slt2[4] := (random_numer +slt2[4])MOD 2;
+  			slt2[4] := (random_numer + slt2[4]) MOD 2;
   			random_numer := random_numer - slt2[4];
  		11:
   			GD_OUT_7_G[1] := 1;
@@ -361,7 +361,7 @@ PROGRAM tesis0
   				2:
   					GD_OUT_5_G[0] := 0;
   			END_CASE;
-  			slt2[5] := (random_numer +slt2[5])MOD 3;
+  			slt2[5] := (random_numer + slt2[5]) MOD 3;
   			random_numer := random_numer - slt2[5];
  		13:
   			GD_OUT_7_G[1] := 0;
@@ -374,7 +374,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_5_G[0] := 1;
   			END_CASE;
-  			slt2[6] := (random_numer +slt2[6])MOD 2;
+  			slt2[6] := (random_numer + slt2[6]) MOD 2;
   			random_numer := random_numer - slt2[6];
  		16:
   			GD_OUT_7_G[1] := 1;
@@ -385,7 +385,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_5_G[0] := 0;
   			END_CASE;
-  			slt2[7] := (random_numer +slt2[7])MOD 2;
+  			slt2[7] := (random_numer + slt2[7]) MOD 2;
   			random_numer := random_numer - slt2[7];
  		18:
   			CASE slt2[8] OF
@@ -394,7 +394,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_5_G[0] := 0;
   			END_CASE;
-  			slt2[8] := (random_numer +slt2[8])MOD 2;
+  			slt2[8] := (random_numer + slt2[8]) MOD 2;
   			random_numer := random_numer - slt2[8];
  		19:
   			CASE slt2[9] OF
@@ -405,7 +405,7 @@ PROGRAM tesis0
   				2:
   					GD_OUT_5_G[0] := 1;
   			END_CASE;
-  			slt2[9] := (random_numer +slt2[9])MOD 3;
+  			slt2[9] := (random_numer + slt2[9]) MOD 3;
   			random_numer := random_numer - slt2[9];
  		20:
   			GD_OUT_7_G[1] := 0;
@@ -422,7 +422,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_5_G[0] := 1;
   			END_CASE;
-  			slt2[10] := (random_numer +slt2[10])MOD 2;
+  			slt2[10] := (random_numer + slt2[10]) MOD 2;
   			random_numer := random_numer - slt2[10];
  		25:
   			CASE slt2[11] OF
@@ -431,7 +431,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_5_G[0] := 0;
   			END_CASE;
-  			slt2[11] := (random_numer +slt2[11])MOD 2;
+  			slt2[11] := (random_numer + slt2[11]) MOD 2;
   			random_numer := random_numer - slt2[11];
  		26:
   			CASE slt2[12] OF
@@ -440,7 +440,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_5_G[0] := 1;
   			END_CASE;
-  			slt2[12] := (random_numer +slt2[12])MOD 2;
+  			slt2[12] := (random_numer + slt2[12]) MOD 2;
   			random_numer := random_numer - slt2[12];
  		27:
   			CASE slt2[13] OF
@@ -449,7 +449,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_8_G[1] := 0;
   			END_CASE;
-  			slt2[13] := (random_numer +slt2[13])MOD 2;
+  			slt2[13] := (random_numer + slt2[13]) MOD 2;
   			random_numer := random_numer - slt2[13];
  		29:
   			GD_OUT_7_G[1] := 1;
@@ -468,7 +468,7 @@ PROGRAM tesis0
   				1:
   					GD_OUT_8_G[1] := 0;
   			END_CASE;
-  			slt2[14] := (random_numer +slt2[14])MOD 2;
+  			slt2[14] := (random_numer + slt2[14]) MOD 2;
   			random_numer := random_numer - slt2[14];
  		37:
   			GD_OUT_8_G[1] := 0;
@@ -502,16 +502,16 @@ PROGRAM tesis0
 		GD_OUT_4_G[1] := GD_OUT_4;
 	END_IF;
 	GD_OUT_4 := GD_OUT_4_G[0];
-	IF GD_OUT_7_G[0] <> GD_OUT_7_G[1] THEN
-		GD_OUT_7_G[0] := GD_OUT_7;
-		GD_OUT_7_G[1] := GD_OUT_7;
-	END_IF;
-	GD_OUT_7 := GD_OUT_7_G[0];
 	IF GD_OUT_8_G[0] <> GD_OUT_8_G[1] THEN
 		GD_OUT_8_G[0] := GD_OUT_8;
 		GD_OUT_8_G[1] := GD_OUT_8;
 	END_IF;
 	GD_OUT_8 := GD_OUT_8_G[0];
+	IF GD_OUT_7_G[0] <> GD_OUT_7_G[1] THEN
+		GD_OUT_7_G[0] := GD_OUT_7;
+		GD_OUT_7_G[1] := GD_OUT_7;
+	END_IF;
+	GD_OUT_7 := GD_OUT_7_G[0];
 	IF (GD_OUT_5_G[0] <> GD_OUT_5_G[1]) OR (GD_OUT_5_G[1] <> GD_OUT_5_G[2]) THEN
 		GD_OUT_5_G[0] := GD_OUT_5;
 		GD_OUT_5_G[1] := GD_OUT_5;

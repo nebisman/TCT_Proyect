@@ -5,7 +5,7 @@ clear all; close all; fclose all;
 setup;
 
 % Set working folder
-init('..');
+init('machine2');
 
 % Supervisor design procedure
 % Step 1
