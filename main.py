@@ -29,52 +29,52 @@ actuators['blade_pos_limit'] = 'GD_IN_8:ON:%IX100.8'
 
 new_process = ag.process('PLANTA1')
 new_process2 = ag.process('EJEMPLO1')
-M1 = new_process2.new_automata('M1_join')
+M1 = new_process2.new_automaton('M1_join')
 new_process2.add_state(M1, 3, ['I1', 'D1', 'P1'], [True])
 new_process2.add_transition(M1, [(0, 2), (2, 0), (2, 1), (1, 0)],
                            ['start1', 'end1', 'breakdown1', 'repair1'], uncontrollable=['end1', 'breakdown1'])
 
-M2 = new_process2.new_automata('M2')
+M2 = new_process2.new_automaton('M2')
 new_process2.add_state(M2, 3, ['I2', 'D2', 'P2'], [True])
 new_process2.add_transition(M2, [(0, 2), (2, 0), (2, 1), (1, 0)],
                            ['start2', 'end2', 'breakdown2', 'repair2'], uncontrollable=['end2', 'breakdown2'])
-buffer = new_process2.new_automata('buffer')
+buffer = new_process2.new_automaton('buffer')
 new_process2.add_state(buffer, 3, ['empty', 'inter', 'full'], [True, True, True])
 new_process2.add_transition(buffer, [(0, 1), (1, 2), (2, 1), (1, 0)],
                            ['end1', 'end1', 'start2', 'start2'], uncontrollable=['end1'])
 
-repair = new_process2.new_automata('repair')
+repair = new_process2.new_automaton('repair')
 new_process2.add_state(repair, 2, ['2ok', '2down'], [True, True])
 new_process2.add_transition(repair, [(0, 0), (0, 1), (1, 0)],
                            ['repair1', 'breakdown2', 'repair2'], uncontrollable=['breakdown2'])
 new_process2.generate_all_automata()
 
-Lids_conveyor = new_process.new_automata('lids_conveyor')
+Lids_conveyor = new_process.new_automaton('lids_conveyor')
 new_process.add_state(Lids_conveyor, 2, ['lids_on', 'lids_off'], marked=[True, True])
 new_process.add_transition(Lids_conveyor, [(0, 1), (1, 0)],
                            ['lids_conveyor_on', 'lids_conveyor_off'],
                            uncontrollable=[])
-start = new_process.new_automata('start')
+start = new_process.new_automaton('start')
 new_process.add_state(start, 2, ["waiting", 'start'], [False, True])
 new_process.add_transition(start, [(0, 1), (1, 1)],
                            ['start', 'lids_conveyor_on'], ['start'])
 new_process.add_self_event(Lids_conveyor, 'start')
 
-Clamp_lid = new_process.new_automata('clamp_lid')
+Clamp_lid = new_process.new_automaton('clamp_lid')
 new_process.add_state(Clamp_lid, 2, names=["clamp_lid_off", "clamp_lid_on"],
                       marked=[True, True])
 new_process.add_transition(Clamp_lid, [(0, 1), (1, 0)],
                            ["clamp_lid_on", "clamp_lid_off"],
                            uncontrollable=[])
 
-Clamp_lid_REQ = new_process.new_automata('clamp_lid_REQ')
+Clamp_lid_REQ = new_process.new_automaton('clamp_lid_REQ')
 new_process.add_state(Clamp_lid_REQ, 3, names=["Encendido", "esperando", "apagado"], marked=[True,False,False])
 new_process.add_transition(Clamp_lid_REQ, [(0, 1), (1, 2), (2, 0)],
                            ["clamp_lid_on", "lid_clampled", "clamp_lid_off"],
                            uncontrollable=['lid_clampled'])
 new_process.add_self_event(Clamp_lid, 'lid_clampled')
 
-buffer_lid = new_process.new_automata('buffer_lid')
+buffer_lid = new_process.new_automaton('buffer_lid')
 new_process.add_state(buffer_lid, 5, ["enciende", "esperando", " llega_lids", "parar_banda", "encender_garra"],
                       [True])
 new_process.add_transition(buffer_lid, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0)],
@@ -84,27 +84,27 @@ new_process.add_transition(buffer_lid, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0)],
 new_process.add_self_event(Clamp_lid, 'lid_at_place_FE')
 new_process.add_self_event(Lids_conveyor, 'lid_at_place_FE')
 
-Grab = new_process.new_automata('grab')
+Grab = new_process.new_automaton('grab')
 new_process.add_state(Grab, 2, names=["grab_off", "grab_on"], marked=[True, True])
 new_process.add_transition(Grab, [(0, 1), (1, 0)],
                            ["grab_on", "grab_off"],
                            uncontrollable=[])
 
-z_axis = new_process.new_automata('z_axis')
+z_axis = new_process.new_automaton('z_axis')
 new_process.add_state(z_axis, 4, names=["recogido", '1', "extendido", '0'],
                       marked=[True, True, True, True])
 new_process.add_transition(z_axis, [(0, 1), (1, 2), (2, 3), (3, 0)],
                            ["z_axis_on", 'z_movement_finish', "z_axis_off", 'z_movement_finish'],
                            uncontrollable=['z_movement_finish'])
 
-x_axis = new_process.new_automata('x_axis')
+x_axis = new_process.new_automaton('x_axis')
 new_process.add_state(x_axis, 4, names=["recogido", '1', "extendido", '0'],
                       marked=[True, True, True, True])
 new_process.add_transition(x_axis, [(0, 1), (1, 2), (2, 3), (3, 0)],
                            ["x_axis_on", 'x_movement_finish', "x_axis_off", 'x_movement_finish'],
                            uncontrollable=['x_movement_finish'])
 
-buffer_arm = new_process.new_automata('buffer_arm')
+buffer_arm = new_process.new_automaton('buffer_arm')
 new_process.add_state(buffer_arm, 16, list(range(0, 16)),
                       [True, False, False, False, False, False, False])
 new_process.add_transition(buffer_arm, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9),
@@ -114,33 +114,33 @@ new_process.add_transition(buffer_arm, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), 
                             'grab_off', 'z_axis_off', 'z_movement_finish', 'x_axis_off', 'x_movement_finish'],
                            ['lid_clampled', 'z_movement_finish', 'x_movement_finish'])
 
-Base_conveyor = new_process.new_automata('base_conveyor')
+Base_conveyor = new_process.new_automaton('base_conveyor')
 new_process.add_state(Base_conveyor, 2, ['lids_on', 'lids_off'], marked=[True, True])
 new_process.add_transition(Base_conveyor, [(0, 1), (1, 0)],
                            ['bases_conveyor_on', 'bases_conveyor_off'],
                            uncontrollable=[])
 
-Clamp_base = new_process.new_automata('clamp_base')
+Clamp_base = new_process.new_automaton('clamp_base')
 new_process.add_state(Clamp_base, 2, names=["clamp_base_off", "clamp_base_on"],
                       marked=[True, True])
 new_process.add_transition(Clamp_base, [(0, 1), (1, 0)],
                            ["clamp_base_on", "clamp_base_off"],
                            uncontrollable=[])
 
-Clamp_base_REQ = new_process.new_automata('clamp_base_REQ')
+Clamp_base_REQ = new_process.new_automaton('clamp_base_REQ')
 new_process.add_state(Clamp_base_REQ, 3, names=["Encendido", "esperando", "apagado"], marked=[True,False,False])
 new_process.add_transition(Clamp_base_REQ, [(0, 1), (1, 2), (2, 0)],
                            ["clamp_base_on", "base_clampled", "clamp_base_off"],
                            uncontrollable=['base_clampled'])
 new_process.add_self_event(Clamp_base, 'base_clampled')
 
-start_2 = new_process.new_automata('start_2')
+start_2 = new_process.new_automaton('start_2')
 new_process.add_state(start_2, 2, ["waiting", 'start'], [False, True])
 new_process.add_transition(start_2, [(0, 1), (1, 1)],
                            ['start', 'bases_conveyor_on'], ['start'])
 new_process.add_self_event(Base_conveyor, 'start')
 
-buffer_base = new_process.new_automata('buffer_base')
+buffer_base = new_process.new_automaton('buffer_base')
 new_process.add_state(buffer_base, 5, ["enciende", "esperando", " llega_lids", "parar_banda", "encender_garra"],
                       [True])
 new_process.add_transition(buffer_base, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0)],
@@ -150,20 +150,20 @@ new_process.add_transition(buffer_base, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0)]
 new_process.add_self_event(Clamp_base, 'base_at_place_FE')
 new_process.add_self_event(Base_conveyor, 'base_at_place_FE')
 
-blade = new_process.new_automata('Blade')
+blade = new_process.new_automaton('Blade')
 new_process.add_state(blade, 2, names=["knife_off", "knife_on"],
                       marked=[True, True])
 new_process.add_transition(blade, [(0, 1), (1, 0)],
                            ["blade_on", "blade_off"],
                            uncontrollable=[])
 
-complete_piece = new_process.new_automata('complete_piece')
+complete_piece = new_process.new_automaton('complete_piece')
 new_process.add_state(complete_piece,5,[],marked=[True, False, False, False])
 new_process.add_transition(complete_piece,[(0, 1), (1, 2), (2, 3), (3, 4), (4,0)],
                            ['clamp_base_on', 'base_clampled', 'x_axis_on', 'grab_off', 'clamp_base_off'],
                            ['base_clampled'])
 
-leave = new_process.new_automata('leave')
+leave = new_process.new_automaton('leave')
 new_process.add_state(leave,6,[],marked=[True, False, False, False])
 new_process.add_transition(leave,[(0, 1), (1, 2), (2, 3), (3, 4), (4,5), (5,0)],
                            ['clamp_base_on','clamp_base_off', 'blade_on', 'blade_pos_limit', 'part_leaving_FE', 'blade_off', 'blade_pos_limit'],

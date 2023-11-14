@@ -62,7 +62,7 @@ new_process = ag.process('TRANSFER_LINE')
 
 # sup_M1
 
-Banda_M1 = new_process.new_automata('Banda_M1')
+Banda_M1 = new_process.new_automaton('Banda_M1')
 new_process.add_state(Banda_M1, 2, [], [True, True])
 new_process.add_transition(Banda_M1, [(0, 1), (1, 0)], ['M1_BAND_ON', 'M1_BAND_OFF'],
                            [])
@@ -81,7 +81,7 @@ new_process.add_state(ARM_M1_SPEED, 2, [], [True, True])
 new_process.add_transition(ARM_M1_SPEED, [(0, 1), (1, 0)], ['M1_ARM_SPEED_ON', 'M1_ARM_SPEED_OFF'],
                            [])'''
 
-event_1 = new_process.new_automata('1')
+event_1 = new_process.new_automaton('1')
 new_process.add_state(event_1, 3, [], [True, True, True])
 new_process.add_transition(event_1, [(0, 1), (1, 2), (2, 0)], ['1', 'M1_BAND_ON', 'M1_BAND_OFF'],
                            ['1'])
@@ -93,37 +93,37 @@ new_process.add_transition(M1_join, [(0, 1), (1, 0), (0, 0), (0, 0), (0, 0), (1,
                            ['M1_BAND_ON', 'M1_BAND_OFF', 'M1_EMITER_OFF', 'M1_ARM_SPEED_OFF', 'M1_ARM_OFF',
                             'M1_EMITER_ON', 'M1_ARM_ON', 'M1_ARM_SPEED_ON'], [])
 '''
-M1_piece = new_process.new_automata('M1_piece')
+M1_piece = new_process.new_automaton('M1_piece')
 new_process.add_state(M1_piece, 2, [], [True, True])
 new_process.add_transition(M1_piece, [(0, 1), (1, 0)], ['M1_arrived', 'M1_BAND_OFF'], ['M1_arrived'])
 new_process.add_self_event(Banda_M1, 'M1_arrived')
 
 # BUFFER
 
-Clamp = new_process.new_automata('Clamp')
+Clamp = new_process.new_automaton('Clamp')
 new_process.add_state(Clamp, 2, [], [True, True])
 new_process.add_transition(Clamp, [(0, 1), (1, 0)],
                            ["Clamp_on", "Clamp_off"],
                            [])
 
-Blade = new_process.new_automata('Blade')
+Blade = new_process.new_automaton('Blade')
 new_process.add_state(Blade, 2, [], [True, True])
 new_process.add_transition(Blade, [(0, 1), (1, 0)],
                            ["BLADE_ON", "BLADE_OFF"], [])
 
-Clamp_REQ = new_process.new_automata('Camp_REQ')
+Clamp_REQ = new_process.new_automaton('Camp_REQ')
 new_process.add_state(Clamp_REQ, 3, ["Encendido", "esperando", "apagado"], [True, True, True])
 new_process.add_transition(Clamp_REQ, [(0, 1), (1, 2), (2, 0)],
                            ["Clamp_on", "Clamped", "Clamp_off"],
                            ['Clamped'])
 new_process.add_self_event(Clamp, 'Clamped')
 
-Banda_buffer = new_process.new_automata('Banda_buffer')
+Banda_buffer = new_process.new_automaton('Banda_buffer')
 new_process.add_state(Banda_buffer, 2, [], [True, True])
 new_process.add_transition(Banda_buffer, [(0, 1), (1, 0)], ['BUFFER_BAND_ON', 'BUFFER_BAND_OFF'],
                            [])
 
-Buffer_join = new_process.new_automata('Buffer_join')
+Buffer_join = new_process.new_automaton('Buffer_join')
 new_process.add_state(Buffer_join, 12, [],
                       [True, True, True, True, True, True, True, True, True, True, True, True])
 new_process.add_transition(Buffer_join, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9),
@@ -136,7 +136,7 @@ new_process.add_self_event(Banda_buffer, 'Piece_at_buffer')
 new_process.add_self_event(Banda_buffer, 'Buffer_out')
 new_process.add_self_event(Blade, 'BLADE_LIMIT')
 
-event_2 = new_process.new_automata('event_2')
+event_2 = new_process.new_automaton('event_2')
 new_process.add_state(event_2, 3, [], [True, True, True])
 new_process.add_transition(event_2, [(0, 1), (1, 2), (2, 0), (2, 2)], ['2', 'BUFFER_BAND_ON', 'Buffer_out',
                                                                        'BUFFER_BAND_ON'],
@@ -146,23 +146,23 @@ new_process.add_self_event(Banda_buffer, '2')
 
 
 
-M2 = new_process.new_automata('M2')
+M2 = new_process.new_automaton('M2')
 new_process.add_state(M2, 4, [], [True, True, True, True])
 new_process.add_transition(M2, [(0, 1), (1, 2), (2, 3), (3, 0)], ['M2_ON', 'M2_Bussy', 'M2_OFF', 'M2_END'],
                            ['M2_Bussy', 'M2_END'])
 
-M2_ON = new_process.new_automata('M2_ON')
+M2_ON = new_process.new_automaton('M2_ON')
 new_process.add_state(M2_ON, 2, [], [True, True])
 new_process.add_transition(M2_ON, [(0, 1), (1, 0)], ['Buffer_out', 'M2_ON'], ['Buffer_out'])  ##Buffer_out
 new_process.add_self_event(M2, 'Buffer_out')
 
 # B2
 
-Banda_buffer2 = new_process.new_automata('Banda_buffer2')
+Banda_buffer2 = new_process.new_automaton('Banda_buffer2')
 new_process.add_state(Banda_buffer2, 2, [], [True, True])
 new_process.add_transition(Banda_buffer2, [(0, 1), (1, 0)], ['BUFFER2_BAND_ON', 'BUFFER2_BAND_OFF'],
                            [])
-Buffer2_join = new_process.new_automata('Buffer2_join')
+Buffer2_join = new_process.new_automaton('Buffer2_join')
 new_process.add_state(Buffer2_join, 4, [], [True, True, True, True])
 new_process.add_transition(Buffer2_join, [(0, 1), (1, 2), (2, 3), (3, 4)],
                            ['M2_END', 'BUFFER2_BAND_ON', 'Piece_at_TU', 'BUFFER2_BAND_OFF']
@@ -173,22 +173,22 @@ new_process.add_self_event(Banda_buffer2, 'Piece_at_TU')
 # TU
 
 
-Banda_TU = new_process.new_automata('Banda_TU')
+Banda_TU = new_process.new_automaton('Banda_TU')
 new_process.add_state(Banda_TU, 2, [], [True, True])
 new_process.add_transition(Banda_TU, [(0, 1), (1, 0)], ['TU_BAND_ON', 'TU_BAND_OFF'],
                            [])
 
-ARM_TU = new_process.new_automata('ARM_TU')
+ARM_TU = new_process.new_automaton('ARM_TU')
 new_process.add_state(ARM_TU, 2, [], [True, True])
 new_process.add_transition(ARM_TU, [(0, 1), (1, 0)], ['TU_ARM_ON', 'TU_ARM_OFF'],
                            [])
 
-ARM_TU_SPEED = new_process.new_automata('ARM_TU_SPEED')
+ARM_TU_SPEED = new_process.new_automaton('ARM_TU_SPEED')
 new_process.add_state(ARM_TU_SPEED, 2, [], [True, True])
 new_process.add_transition(ARM_TU_SPEED, [(0, 1), (1, 0)], ['TU_ARM_SPEED_ON', 'TU_ARM_SPEED_OFF', ],
                            [])
 
-TU_Function = new_process.new_automata('TU_Function')
+TU_Function = new_process.new_automaton('TU_Function')
 new_process.add_state(TU_Function, 12, [], [True,True,True,True,True,True,True,True,True,True,True,True])
 new_process.add_transition(TU_Function, [(0, 1), (1, 2), (2, 3),
                                          (3, 4), (4, 5), (5, 0),

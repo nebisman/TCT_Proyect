@@ -249,7 +249,7 @@ class process:
         for automata in self.automatas.values():
             self.automata_to_ADS(automata.name)
 
-    def new_automata(self, name: str):
+    def new_automaton(self, name: str):
         self.automatas[name] = Automata(name)
         return name
 
@@ -325,7 +325,7 @@ class process:
                     aux = linea.split()
                     name = aux[0]
                     num_state = int(aux[3])
-                    self.new_automata(name)
+                    self.new_automaton(name)
                 if "marker" in linea and not 'none' in linea:
                     aux=1
                     continue
@@ -396,7 +396,7 @@ class process:
                     num_state = int(linea)
                 if "State" in linea:
                     aux = "State"
-        self.new_automata(name)
+        self.new_automaton(name)
         names = list(range(0, num_state))
         marked = []
         for i in names:
