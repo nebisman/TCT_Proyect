@@ -29,7 +29,7 @@ actuators['blade_pos_limit'] = 'GD_IN_8:ON:%IX100.8'
 
 new_process = ag.process('PLANTA1')
 new_process2 = ag.process('EJEMPLO1')
-M1 = new_process2.new_automata('M1')
+M1 = new_process2.new_automata('M1_join')
 new_process2.add_state(M1, 3, ['I1', 'D1', 'P1'], [True])
 new_process2.add_transition(M1, [(0, 2), (2, 0), (2, 1), (1, 0)],
                            ['start1', 'end1', 'breakdown1', 'repair1'], uncontrollable=['end1', 'breakdown1'])
@@ -150,7 +150,7 @@ new_process.add_transition(buffer_base, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0)]
 new_process.add_self_event(Clamp_base, 'base_at_place_FE')
 new_process.add_self_event(Base_conveyor, 'base_at_place_FE')
 
-blade = new_process.new_automata('blade')
+blade = new_process.new_automata('Blade')
 new_process.add_state(blade, 2, names=["knife_off", "knife_on"],
                       marked=[True, True])
 new_process.add_transition(blade, [(0, 1), (1, 0)],
@@ -185,14 +185,14 @@ new_process.complete_spec(leave)
 
 new_process.generate_all_automata()
 
-plant = new_process.automata_syncronize([Lids_conveyor, Clamp_lid], name_sync='plant')
+plant = new_process.automata_syncronize([Lids_conveyor, Clamp_lid], name_sync='Plant_M1')
 all = new_process.all_events(plant, 'all')
 spec = new_process.automata_syncronize([buffer_lid, Clamp_lid_REQ, start, all], name_sync='spec')
 sup = new_process.supcon(plant, spec, 'sup')
 supdat = new_process.condat(plant, sup, 'supdat')
 simsup = new_process.supreduce(plant, sup, supdat, 'simsup')
 
-#new_process.plot_automatas([Lids_conveyor, Clamp_lid, buffer_lid, Clamp_lid_REQ, start, all, sup, plant], 1, False)
+#new_process.plot_automatas([Lids_conveyor, Clamp, buffer_lid, Clamp_REQ, start, all, sup_M1, Plant_M1], 1, False)
 
 
 plant2 = new_process.automata_syncronize([Clamp_lid, Grab, z_axis, x_axis], name_sync='plant2')
@@ -202,7 +202,7 @@ sup2 = new_process.supcon(plant2, spec2, 'sup2')
 supdat2 = new_process.condat(plant2, sup2, 'supdat2')
 simsup2 = new_process.supreduce(plant2, sup2, supdat2, 'simsup2')
 
-#new_process.plot_automatas([Clamp_lid, Grab, z_axis, x_axis, spec2, plant2, sup2], 1, True)
+#new_process.plot_automatas([Clamp, Grab, z_axis, x_axis, spec2, plant2, sup2], 1, True)
 
 plant3 = new_process.automata_syncronize([Clamp_base, Grab, x_axis], name_sync='plant3')
 all3 = new_process.all_events(plant3, 'all3')
@@ -238,7 +238,7 @@ new_process.load_automata([sup, sup2, sup3, sup4, sup5])
 new_process.load_automata([plant, plant2, plant3, plant4, plant5])
 
 
-print(new_process.get_automata('sup'))
+print(new_process.get_automata('sup_M1'))
 print(new_process.get_automata('sup2'))
 print(new_process.get_automata('sup3'))
 print(new_process.get_automata('sup4'))

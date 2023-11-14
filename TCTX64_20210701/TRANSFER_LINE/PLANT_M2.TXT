@@ -1,0 +1,16 @@
+PLANT_M2    # states: 4    state set: 0 ... 3    initial state: 0
+
+marker states:       
+
+      0       1       2       3 
+
+vocal states: none
+
+
+# transitions: 8
+
+transitions: 
+
+[    0,  8,    0]  [    0, 19,    1]  [    1,  8,    1]  [    1, 12,    2]  
+[    2,  8,    2]  [    2, 21,    3]  [    3,  8,    3]  [    3, 14,    0]  
+

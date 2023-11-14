@@ -122,6 +122,9 @@ class process:
                     self.add_transition(name, [(s.get_id(), s.get_id())], [e], [e])
                 # print(s.get_id(),e)
 
+    def add_self_events(self, name, events:list):
+        for e in events:
+            self.add_self_event(name,e)
     def add_self_event(self, name, event):
         for s in self.automatas[name].states:
             active_events = s.get_active_events()
@@ -323,7 +326,7 @@ class process:
                     name = aux[0]
                     num_state = int(aux[3])
                     self.new_automata(name)
-                if "marker" in linea:
+                if "marker" in linea and not 'none' in linea:
                     aux=1
                     continue
                 if aux == 1:
@@ -406,7 +409,7 @@ class process:
         self.add_transition(name, transitions, events, uc_events)
         return name
 
-    def generate_ST_OPENPLC(self, supervisors: list, plants: list, actuators: dict, namest = 'codigo_st'):
+    def generate_ST_OPENPLC(self, supervisors: list, plants: list, actuators: dict, namest='codigo_st', Mascaras:dict=dict([])):
         RANDOM = "FUNCTION_BLOCK random_number\n\tVAR_INPUT\n\t\tIN : BOOL;\n\tEND_VAR\n\tVAR\n\t\tM : BOOL;"
         RANDOM += "\n\t\tINIT : BOOL;\n\tEND_VAR\n\tVAR_OUTPUT\n\t\tOUT : DINT;\n\tEND_VAR\n"
         RANDOM += "\n\tIF INIT = 0 THEN\n\t\t{#include <stdio.h>}\n\t\t{#include <stdlib.h>}\n\t\tIN := 1;\n\tEND_IF;"
@@ -417,7 +420,7 @@ class process:
         END += "\n\t\tPROGRAM instance0 WITH task0 : tesis0;" + "\n\tEND_RESOURCE\nEND_CONFIGURATION"
 
         if len(supervisors) == 1:
-            return self.aux_generate_ST_OPENPLC(supervisors, actuators)
+            return self.aux_generate_ST_OPENPLC(supervisors[0], actuators, namest, RANDOM, Mascaras=Mascaras)
         Coordinators = []
         Intersections = dict([])
         for i in range(len(supervisors)):
@@ -430,7 +433,8 @@ class process:
                     TESTSUP_dat = self.condat(TESTcoor, TESTSUP, 'TESTSUPdat')
                     CO = self.supreduce(TESTcoor, TESTSUP, TESTSUP_dat, "CO_" + str(i) + "_" + str(j))
                     self.plot_automatas([CO, TESTcoor, alltest, TESTSUP], 1, False)
-                    self.load_automata(CO)
+                    # DEStoADS(CO)
+                    self.read_ADS(CO)
                     Coordinators.append(CO)
                 a = set(self.automatas[supervisors[i]].c_events)
                 b = set(self.automatas[supervisors[j]].c_events)
@@ -452,6 +456,7 @@ class process:
         if_controllable = ""
         if_uncontrollable = ""
         sc = ""
+        mask =""
         j = 0
         if len(actuators) != 0:
             for i in range(len(supervisors)):
@@ -470,39 +475,18 @@ class process:
             COc += a
             COu += b
         intersection = self.intersection(Intersections, len(Coordinators) != 0)
-        declaration = self.declaration_OPENPLC(actuators, st, j, Intersections, Coordinators)
+        declaration = self.declaration_OPENPLC(actuators, st, j, Intersections, Coordinators, Mascaras)
+        for msk in Mascaras.keys():
+            for e in Mascaras[msk]:
+                mask += "\t" + e[0] + " := " + msk +";\n "
         out = RANDOM + HEADER
-        out += declaration + if_uncontrollable + COu + COsw + sc + intersection + COc + if_controllable
+        out += declaration + if_uncontrollable + COu + sc + COsw + intersection + COc + if_controllable + mask
         out += END
-        with open('ST_Generated/'+ namest +".st", 'w') as archivo:
+        with open('ST_Generated/' + namest + ".st", 'w') as archivo:
             archivo.write(out)
         return out
 
-    def aux_generate_ST_OPENPLC(self, name: list = [], actuators: dict = dict([]), CO="",namest='codigo_st'):
-        COsw = ""
-        COc = ""
-        COu = ""
-        if CO != "":
-            COsw = self.coordinator_sc(CO, actuators=actuators)
-            COc, Cou = self.ifs(CO, actuators, 2)
-        Intersections = dict([])
-        if len(name) > 1:
-            for i in range(len(name)):
-                for j in range(i + 1, len(name)):
-                    a = set(self.automatas[name[i]].c_events)
-                    b = set(self.automatas[name[j]].c_events)
-                    intersect = list(a & b)
-                    intersect = set([actuators[act].split(':')[0] for act in intersect])
-                    if len(intersect) != 0:
-                        for inter in intersect:
-                            if inter in Intersections.keys():
-                                if i not in Intersections[inter]:
-                                    Intersections[inter].append(i)
-                                if j not in Intersections[inter]:
-                                    Intersections[inter].append(j)
-                            else:
-                                Intersections[inter] = [i, j]
-
+    def aux_generate_ST_OPENPLC(self, name: str="", actuators: dict = dict([]), namest="codigo_st", RANDOM ="", Mascaras:dict=dict([])):
         HEADER = "PROGRAM tesis0\n"
         END = "\nEND_PROGRAM\n\n"
         END += "CONFIGURATION Config0\n\n\tRESOURCE Res0 ON PLC\n\t\tTASK task0(INTERVAL := T#20ms,PRIORITY := 0);"
@@ -512,19 +496,21 @@ class process:
         if_controllable = ""
         if_uncontrollable = ""
         sc = ""
-        if len(actuators) != 0:
-            for i in range(len(name)):
-                if_c, if_u = self.ifs(name[i], actuators, i)
-                s, n_r = self.sw_case(name[i], actuators, i, intersection=Intersections)
-                if_controllable += if_c + "\n"
-                if_uncontrollable += if_u + '\n'
-                sc += "\n" + s + "\n"
-                st.append(n_r)
-        print(if_uncontrollable + sc + if_controllable)
-        declaration = self.declaration_OPENPLC(actuators, st, len(name), Intersections, CO)
-        intersection = self.intersection(Intersections, CO != "")
-        out = HEADER + declaration + if_uncontrollable + COu + COsw + sc + intersection + COc + if_controllable + END
-        with open('ST_Generated/'+ namest + ".st", 'w') as archivo:
+        mask = ""
+        if_c, if_u = self.ifs(name, actuators)
+        s, n_r = self.sw_case(name, actuators)
+        if_controllable += if_c + "\n"
+        if_uncontrollable += if_u + '\n'
+        sc += "\n" + s + "\n"
+        st.append(n_r)
+        declaration = self.declaration_OPENPLC(actuators, st, mascara=Mascaras)
+        for msk in Mascaras.keys():
+            for e in Mascaras[msk]:
+                mask += "\t" + e[0] + " := " + msk +";\n "
+
+        out = RANDOM + HEADER + declaration + if_uncontrollable  + s +'\n'+ if_controllable + mask
+        out += END
+        with open('ST_Generated/' + namest + ".st", 'w') as archivo:
             archivo.write(out)
         return out
 
@@ -569,13 +555,17 @@ class process:
             out += coor
         return out
 
-    def declaration_OPENPLC(self, actuators, n_state: list, n_automata=0, intersetion: dict = dict([]), CO=list):
+    def declaration_OPENPLC(self, actuators, n_state: list, n_automata=-1, intersetion: dict = dict([]), CO:list=[] , mascara:dict=dict([])):
+
         declaration = "\tVAR\n"
         clocks = ""
         start = "\tVAR\n"
         start += '\t\trandom : random_number;\n'
         start += '\t\trandom_numer : DINT;\n'
-        start += "\t\tstate : ARRAY [0.." + str(n_automata) + "] OF DINT;\n"
+        if n_automata == -1:
+            start += "\t\tstate :ARRAY [0..1] OF DINT;\n"
+        else:
+            start += "\t\tstate : ARRAY [0.." + str(n_automata) + "] OF DINT;\n"
         if len(CO) != 0:
             declared = []
             start += "\t\taux : BOOL := 0;\n"
@@ -585,17 +575,29 @@ class process:
                     if aux not in declared:
                         start += "\t\t" + aux + "_C : ARRAY [0..1] OF BOOL;\n"
                         declared.append(aux)
+        if n_automata == -1 and n_state[0] !=0 :
+            start += "\t\tslt0" + " : ARRAY [0.." + str(n_state[0]) + "] OF DINT;\n"
+
         for i in range(0, n_automata):
             if n_state[i] == 0:
                 continue
             start += "\t\tslt" + str(i) + " : ARRAY [0.." + str(n_state[i]) + "] OF DINT;\n"
+
         if len(intersetion.keys()) > 0:
             for inter in intersetion.keys():
                 start += "\t\t" + inter + "_G : ARRAY [0.." + str(len(intersetion[inter])) + "] OF BOOL;\n"
 
         declared = []
+        for msk in mascara.keys():
+            for e in mascara[msk]:
+                declaration+= "\t\t" + e[0] + " AT " +e[1]+ " : BOOL;\n "
         for act in actuators.values():
             aux = act.split(':')
+            if 'INTERN' in aux[0]:
+                if aux[0] not in declared:
+                    start += "\t\t" + aux[0] + " : BOOL;\n"
+                    declared.append(aux[0])
+                    continue
             if aux[1] == 'ON' or aux[1] == 'OFF':
                 if aux[0] in declared:
                     continue
@@ -614,6 +616,7 @@ class process:
                     elif "OUT" in aux[1]:
                         declaration += aux[2] + " : BOOL;\n"
                 start += "\t\t" + aux[0] + " : "
+
                 if "FE" in aux[0]:
                     start += "F_TRIG;\n"
                 if "RE" in aux[0]:
@@ -628,7 +631,10 @@ class process:
     def ifs(self, name: str, actuators=dict([]), n_state=0):
         if_uncontrollable = "\t"
         if_controllable = "\t"
-        for i in range(0, len(self.automatas[name].transitions)):
+        if name not in self.automatas.keys():
+            return "ERROR"
+        transit = self.automatas[name].transitions
+        for i in range(0, len(transit)):
             origin = self.automatas[name].transitions[i][0]
             destination = self.automatas[name].transitions[i][2]
             event = self.automatas[name].transitions[i][1]
@@ -637,6 +643,7 @@ class process:
             else:
                 name_event = actuators[self.dict_events_name[event]]
             name_event = name_event.split(':')
+
             if name_event[1] == 'OFF':
                 name_event = 'NOT ' + name_event[0]
             else:

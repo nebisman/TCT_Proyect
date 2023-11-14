@@ -228,6 +228,13 @@ void RAN_body__(RAN *data__) {
   #undef SetFbVar
 ;
   if ((__GET_VAR(data__->INIT,) == 0)) {
+    #define GetFbVar(var,...) __GET_VAR(data__->var,__VA_ARGS__)
+    #define SetFbVar(var,val,...) __SET_VAR(data__->,var,__VA_ARGS__,val)
+time_t t;
+    srand((unsigned) time(&t))
+    #undef GetFbVar
+    #undef SetFbVar
+;
     __SET_VAR(data__->,IN,,1);
   };
   if (((__GET_VAR(data__->M,) == 0) && (__GET_VAR(data__->IN,) == 1))) {
@@ -250,50 +257,236 @@ __end:
 
 
 void TESIS0_init__(TESIS0 *data__, BOOL retain) {
-  __INIT_VAR(data__->INITIAL,1,retain)
-  __INIT_VAR(data__->STATE,0,retain)
-  __INIT_VAR(data__->STATE0,0,retain)
-  __INIT_VAR(data__->STATE1,0,retain)
+  __INIT_VAR(data__->INTERN_1,__BOOL_LITERAL(FALSE),retain)
+  __INIT_VAR(data__->INTERN_0,__BOOL_LITERAL(FALSE),retain)
   {
     static const __ARRAY_OF_DINT_201 temp = {{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}};
     __SET_VAR(data__->,SLT,,temp);
   }
+  {
+    static const __ARRAY_OF_DINT_201 temp = {{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}};
+    __SET_VAR(data__->,STATE,,temp);
+  }
+  {
+    static const __ARRAY_OF_DINT_201 temp = {{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}};
+    __SET_VAR(data__->,SLT0,,temp);
+  }
   F_TRIG_init__(&data__->FE_LAP,retain);
+  F_TRIG_init__(&data__->FE_PO,retain);
+  F_TRIG_init__(&data__->FE_PR,retain);
+  F_TRIG_init__(&data__->FE_M2E,retain);
+  F_TRIG_init__(&data__->FE_CP,retain);
+  F_TRIG_init__(&data__->FE_M1,retain);
+  F_TRIG_init__(&data__->FE_B1,retain);
+  F_TRIG_init__(&data__->FE_B1O,retain);
+  R_TRIG_init__(&data__->RE_M1,retain);
+  R_TRIG_init__(&data__->RE_CP,retain);
   F_TRIG_init__(&data__->FE_ZAG,retain);
   __INIT_VAR(data__->GD_IN_2,__BOOL_LITERAL(FALSE),retain)
+  __INIT_VAR(data__->GD_IN_1,__BOOL_LITERAL(FALSE),retain)
+  __INIT_VAR(data__->GD_IN_3,__BOOL_LITERAL(FALSE),retain)
   __INIT_VAR(data__->GD_IN_4,__BOOL_LITERAL(FALSE),retain)
   __INIT_VAR(data__->GD_IN_5,__BOOL_LITERAL(FALSE),retain)
   __INIT_VAR(data__->GD_IN_6,__BOOL_LITERAL(FALSE),retain)
   __INIT_VAR(data__->GD_IN_7,__BOOL_LITERAL(FALSE),retain)
   __INIT_VAR(data__->GD_IN_8,__BOOL_LITERAL(FALSE),retain)
+  __INIT_VAR(data__->GD_IN_9,__BOOL_LITERAL(FALSE),retain)
+  __INIT_VAR(data__->GD_IN_10,__BOOL_LITERAL(FALSE),retain)
+  __INIT_VAR(data__->GD_IN_11,__BOOL_LITERAL(FALSE),retain)
+  __INIT_VAR(data__->GD_IN_12,__BOOL_LITERAL(FALSE),retain)
   __INIT_VAR(data__->GD_IN_15,__BOOL_LITERAL(FALSE),retain)
   __INIT_VAR(data__->GD_OUT_2,0,retain)
+  __INIT_VAR(data__->GD_OUT_1,0,retain)
+  __INIT_VAR(data__->GD_OUT_0,0,retain)
   __INIT_VAR(data__->GD_OUT_3,0,retain)
   __INIT_VAR(data__->GD_OUT_5,0,retain)
   __INIT_VAR(data__->GD_OUT_4,0,retain)
   __INIT_VAR(data__->GD_OUT_6,0,retain)
   __INIT_VAR(data__->GD_OUT_7,0,retain)
+  __INIT_VAR(data__->GD_OUT_8,0,retain)
+  __INIT_VAR(data__->GD_OUT_9,0,retain)
+  __INIT_VAR(data__->GD_OUT_10,0,retain)
+  __INIT_VAR(data__->GD_OUT_11,0,retain)
+  __INIT_VAR(data__->GD_OUT_12,0,retain)
   RAN_init__(&data__->RANDOM,retain);
+  __INIT_VAR(data__->RANDOM_NUMER,0,retain)
 }
 
 // Code part
 void TESIS0_body__(TESIS0 *data__) {
   // Initialise TEMP variables
 
-  __SET_VAR(data__->FE_LAP.,CLK,,__GET_VAR(data__->GD_IN_2,));
-  F_TRIG_body__(&data__->FE_LAP);
-  __SET_VAR(data__->FE_ZAG.,CLK,,__GET_VAR(data__->GD_IN_6,));
-  F_TRIG_body__(&data__->FE_ZAG);
+  __SET_VAR(data__->RE_M1.,CLK,,__GET_VAR(data__->GD_IN_1,));
+  R_TRIG_body__(&data__->RE_M1);
+  __SET_VAR(data__->FE_M2E.,CLK,,__GET_VAR(data__->GD_IN_6,));
+  F_TRIG_body__(&data__->FE_M2E);
+  __SET_VAR(data__->FE_PO.,CLK,,__GET_VAR(data__->GD_IN_9,));
+  F_TRIG_body__(&data__->FE_PO);
+  __SET_VAR(data__->FE_PR.,CLK,,__GET_VAR(data__->GD_IN_10,));
+  F_TRIG_body__(&data__->FE_PR);
+  __SET_VAR(data__->FE_CP.,CLK,,__GET_VAR(data__->GD_IN_7,));
+  F_TRIG_body__(&data__->FE_CP);
+  __SET_VAR(data__->RE_CP.,CLK,,__GET_VAR(data__->GD_IN_7,));
+  R_TRIG_body__(&data__->RE_CP);
+  __SET_VAR(data__->FE_M1.,CLK,,__GET_VAR(data__->GD_IN_1,));
+  F_TRIG_body__(&data__->FE_M1);
+  __SET_VAR(data__->FE_B1.,CLK,,__GET_VAR(data__->GD_IN_3,));
+  F_TRIG_body__(&data__->FE_B1);
+  __SET_VAR(data__->FE_B1O.,CLK,,__GET_VAR(data__->GD_IN_5,));
+  F_TRIG_body__(&data__->FE_B1O);
   __SET_VAR(data__->RANDOM.,IN,,__BOOL_LITERAL(TRUE));
   RAN_body__(&data__->RANDOM);
-  __SET_VAR(data__->,STATE,,__GET_VAR(data__->RANDOM.OUT));
-  if ((__GET_VAR(data__->STATE,) != __GET_VAR(data__->STATE0,))) {
-    __SET_VAR(data__->,STATE0,,((2 == 0)?0:(__GET_VAR(data__->STATE,) % 2)));
+  __SET_VAR(data__->,RANDOM_NUMER,,__GET_VAR(data__->RANDOM.OUT));
+  if (((__GET_VAR(data__->STATE,.table[(0) - (0)]) == 2) && __GET_VAR(data__->FE_CP.Q,))) {
+    __SET_VAR(data__->,STATE,.table[(0) - (0)],3);
+  } else if (((__GET_VAR(data__->STATE,.table[(0) - (0)]) == 3) && __GET_VAR(data__->GD_IN_8,))) {
+    __SET_VAR(data__->,STATE,.table[(0) - (0)],4);
+  } else if (((__GET_VAR(data__->STATE,.table[(0) - (0)]) == 3) && !(__GET_VAR(data__->GD_IN_8,)))) {
+    __SET_VAR(data__->,STATE,.table[(0) - (0)],5);
+  } else if (((__GET_VAR(data__->STATE,.table[(0) - (0)]) == 4) && __GET_VAR(data__->FE_PO.Q,))) {
+    __SET_VAR(data__->,STATE,.table[(0) - (0)],6);
+  } else if (((__GET_VAR(data__->STATE,.table[(0) - (0)]) == 8) && __GET_VAR(data__->FE_PR.Q,))) {
+    __SET_VAR(data__->,STATE,.table[(0) - (0)],9);
   };
-  __SET_VAR(data__->,STATE1,,DINT_TO_INT(
-    (BOOL)__BOOL_LITERAL(TRUE),
-    NULL,
-    (DINT)1));
+  {
+    DINT __case_expression = __GET_VAR(data__->STATE,.table[(0) - (0)]);
+    if ((__case_expression == 0)) {
+      {
+        DINT __case_expression = __GET_VAR(data__->SLT0,.table[(0) - (0)]);
+        if ((__case_expression == 0)) {
+          __SET_VAR(data__->,INTERN_1,,1);
+        }
+        else if ((__case_expression == 1)) {
+          __SET_VAR(data__->,INTERN_1,,0);
+        }
+      };
+      __SET_VAR(data__->,SLT0,.table[(0) - (0)],((2 == 0)?0:((__GET_VAR(data__->RANDOM_NUMER,) + __GET_VAR(data__->SLT0,.table[(0) - (0)])) % 2)));
+      __SET_VAR(data__->,RANDOM_NUMER,,(__GET_VAR(data__->RANDOM_NUMER,) - __GET_VAR(data__->SLT0,.table[(0) - (0)])));
+    }
+    else if ((__case_expression == 1)) {
+      {
+        DINT __case_expression = __GET_VAR(data__->SLT0,.table[(1) - (0)]);
+        if ((__case_expression == 0)) {
+          __SET_VAR(data__->,GD_OUT_9,,1);
+        }
+        else if ((__case_expression == 1)) {
+          __SET_VAR(data__->,INTERN_1,,0);
+        }
+      };
+      __SET_VAR(data__->,SLT0,.table[(1) - (0)],((2 == 0)?0:((__GET_VAR(data__->RANDOM_NUMER,) + __GET_VAR(data__->SLT0,.table[(1) - (0)])) % 2)));
+      __SET_VAR(data__->,RANDOM_NUMER,,(__GET_VAR(data__->RANDOM_NUMER,) - __GET_VAR(data__->SLT0,.table[(1) - (0)])));
+    }
+    else if ((__case_expression == 2)) {
+      __SET_VAR(data__->,INTERN_1,,0);
+    }
+    else if ((__case_expression == 3)) {
+      __SET_VAR(data__->,INTERN_1,,0);
+    }
+    else if ((__case_expression == 4)) {
+      __SET_VAR(data__->,INTERN_1,,0);
+    }
+    else if ((__case_expression == 5)) {
+      {
+        DINT __case_expression = __GET_VAR(data__->SLT0,.table[(2) - (0)]);
+        if ((__case_expression == 0)) {
+          __SET_VAR(data__->,GD_OUT_10,,1);
+        }
+        else if ((__case_expression == 1)) {
+          __SET_VAR(data__->,INTERN_1,,0);
+        }
+      };
+      __SET_VAR(data__->,SLT0,.table[(2) - (0)],((2 == 0)?0:((__GET_VAR(data__->RANDOM_NUMER,) + __GET_VAR(data__->SLT0,.table[(2) - (0)])) % 2)));
+      __SET_VAR(data__->,RANDOM_NUMER,,(__GET_VAR(data__->RANDOM_NUMER,) - __GET_VAR(data__->SLT0,.table[(2) - (0)])));
+    }
+    else if ((__case_expression == 6)) {
+      {
+        DINT __case_expression = __GET_VAR(data__->SLT0,.table[(3) - (0)]);
+        if ((__case_expression == 0)) {
+          __SET_VAR(data__->,GD_OUT_9,,0);
+        }
+        else if ((__case_expression == 1)) {
+          __SET_VAR(data__->,INTERN_1,,0);
+        }
+      };
+      __SET_VAR(data__->,SLT0,.table[(3) - (0)],((2 == 0)?0:((__GET_VAR(data__->RANDOM_NUMER,) + __GET_VAR(data__->SLT0,.table[(3) - (0)])) % 2)));
+      __SET_VAR(data__->,RANDOM_NUMER,,(__GET_VAR(data__->RANDOM_NUMER,) - __GET_VAR(data__->SLT0,.table[(3) - (0)])));
+    }
+    else if ((__case_expression == 7)) {
+      {
+        DINT __case_expression = __GET_VAR(data__->SLT0,.table[(4) - (0)]);
+        if ((__case_expression == 0)) {
+          __SET_VAR(data__->,GD_OUT_11,,1);
+        }
+        else if ((__case_expression == 1)) {
+          __SET_VAR(data__->,INTERN_1,,0);
+        }
+      };
+      __SET_VAR(data__->,SLT0,.table[(4) - (0)],((2 == 0)?0:((__GET_VAR(data__->RANDOM_NUMER,) + __GET_VAR(data__->SLT0,.table[(4) - (0)])) % 2)));
+      __SET_VAR(data__->,RANDOM_NUMER,,(__GET_VAR(data__->RANDOM_NUMER,) - __GET_VAR(data__->SLT0,.table[(4) - (0)])));
+    }
+    else if ((__case_expression == 8)) {
+      __SET_VAR(data__->,INTERN_1,,0);
+    }
+    else if ((__case_expression == 9)) {
+      {
+        DINT __case_expression = __GET_VAR(data__->SLT0,.table[(5) - (0)]);
+        if ((__case_expression == 0)) {
+          __SET_VAR(data__->,GD_OUT_11,,0);
+        }
+        else if ((__case_expression == 1)) {
+          __SET_VAR(data__->,INTERN_1,,0);
+        }
+      };
+      __SET_VAR(data__->,SLT0,.table[(5) - (0)],((2 == 0)?0:((__GET_VAR(data__->RANDOM_NUMER,) + __GET_VAR(data__->SLT0,.table[(5) - (0)])) % 2)));
+      __SET_VAR(data__->,RANDOM_NUMER,,(__GET_VAR(data__->RANDOM_NUMER,) - __GET_VAR(data__->SLT0,.table[(5) - (0)])));
+    }
+    else if ((__case_expression == 10)) {
+      {
+        DINT __case_expression = __GET_VAR(data__->SLT0,.table[(6) - (0)]);
+        if ((__case_expression == 0)) {
+          __SET_VAR(data__->,GD_OUT_10,,0);
+        }
+        else if ((__case_expression == 1)) {
+          __SET_VAR(data__->,INTERN_1,,0);
+        }
+      };
+      __SET_VAR(data__->,SLT0,.table[(6) - (0)],((2 == 0)?0:((__GET_VAR(data__->RANDOM_NUMER,) + __GET_VAR(data__->SLT0,.table[(6) - (0)])) % 2)));
+      __SET_VAR(data__->,RANDOM_NUMER,,(__GET_VAR(data__->RANDOM_NUMER,) - __GET_VAR(data__->SLT0,.table[(6) - (0)])));
+    }
+    else if ((__case_expression == 11)) {
+      {
+        DINT __case_expression = __GET_VAR(data__->SLT0,.table[(7) - (0)]);
+        if ((__case_expression == 0)) {
+          __SET_VAR(data__->,GD_OUT_9,,0);
+        }
+        else if ((__case_expression == 1)) {
+          __SET_VAR(data__->,INTERN_1,,0);
+        }
+      };
+      __SET_VAR(data__->,SLT0,.table[(7) - (0)],((2 == 0)?0:((__GET_VAR(data__->RANDOM_NUMER,) + __GET_VAR(data__->SLT0,.table[(7) - (0)])) % 2)));
+      __SET_VAR(data__->,RANDOM_NUMER,,(__GET_VAR(data__->RANDOM_NUMER,) - __GET_VAR(data__->SLT0,.table[(7) - (0)])));
+    }
+  };
+  if (((__GET_VAR(data__->STATE,.table[(0) - (0)]) == 0) && __GET_VAR(data__->INTERN_1,))) {
+    __SET_VAR(data__->,STATE,.table[(0) - (0)],1);
+  } else if (((__GET_VAR(data__->STATE,.table[(0) - (0)]) == 1) && __GET_VAR(data__->GD_OUT_9,))) {
+    __SET_VAR(data__->,STATE,.table[(0) - (0)],2);
+  } else if (((__GET_VAR(data__->STATE,.table[(0) - (0)]) == 5) && __GET_VAR(data__->GD_OUT_10,))) {
+    __SET_VAR(data__->,STATE,.table[(0) - (0)],7);
+  } else if (((__GET_VAR(data__->STATE,.table[(0) - (0)]) == 6) && !(__GET_VAR(data__->GD_OUT_9,)))) {
+    __SET_VAR(data__->,STATE,.table[(0) - (0)],0);
+  } else if (((__GET_VAR(data__->STATE,.table[(0) - (0)]) == 7) && __GET_VAR(data__->GD_OUT_11,))) {
+    __SET_VAR(data__->,STATE,.table[(0) - (0)],8);
+  } else if (((__GET_VAR(data__->STATE,.table[(0) - (0)]) == 9) && !(__GET_VAR(data__->GD_OUT_11,)))) {
+    __SET_VAR(data__->,STATE,.table[(0) - (0)],10);
+  } else if (((__GET_VAR(data__->STATE,.table[(0) - (0)]) == 10) && !(__GET_VAR(data__->GD_OUT_10,)))) {
+    __SET_VAR(data__->,STATE,.table[(0) - (0)],11);
+  } else if (((__GET_VAR(data__->STATE,.table[(0) - (0)]) == 11) && !(__GET_VAR(data__->GD_OUT_9,)))) {
+    __SET_VAR(data__->,STATE,.table[(0) - (0)],0);
+  };
+  __SET_VAR(data__->,GD_OUT_1,,__GET_VAR(data__->GD_OUT_0,));
+  __SET_VAR(data__->,GD_OUT_2,,__GET_VAR(data__->GD_OUT_0,));
+  __SET_VAR(data__->,GD_OUT_3,,__GET_VAR(data__->GD_OUT_0,));
 
   goto __end;
 

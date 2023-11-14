@@ -1,219 +1,214 @@
+FUNCTION_BLOCK ran
+  VAR_INPUT
+    IN : BOOL;
+  END_VAR
+  VAR
+    M : BOOL;
+    INIT : BOOL;
+  END_VAR
+  VAR_OUTPUT
+    OUT : DINT;
+  END_VAR
+
+  {//#include <time.h>}
+
+
+  (* Initialize our random generator *)
+  (* This IF is called only the first time this *)
+  (* block executes *)
+  IF INIT = 0 THEN
+    {time_t t;
+    srand((unsigned) time(&t))}
+    IN := 1;
+  END_IF;
+
+  IF M = 0 and IN = 1 THEN
+    (* Using pragma to write code directly M C. *)
+    (* You can access your PLC program variables using *)
+    (* GetFbVar(var,...) and SetFbVar(var,val,...) calls *)
+    {SetFbVar(OUT,rand())}
+  END_IF;
+END_FUNCTION_BLOCK
+
 PROGRAM tesis0
   VAR
-    initial : BOOL := 0;
-    slt0 : ARRAY [0..200] OF DINT;
+    INTERN_1 : BOOL;
+    INTERN_0 : BOOL;
+    slt : ARRAY [0..200] OF DINT;
     state : ARRAY [0..200] OF DINT;
-    slt1 : ARRAY [0..200] OF DINT;
+    slt0 : ARRAY [0..200] OF DINT;
     FE_LaP : F_TRIG;
+    FE_PO : F_TRIG;
+    FE_PR : F_TRIG;
+    FE_M2E : F_TRIG;
+    FE_CP : F_TRIG;
+    FE_M1 : F_TRIG;
+    FE_B1 : F_TRIG;
+    FE_B1O : F_TRIG;
+    RE_M1 : R_TRIG;
+    RE_CP : R_TRIG;
     FE_Zag : F_TRIG;
-    FE_Xag : F_TRIG;
   END_VAR
   VAR
     GD_IN_2 AT %IX100.2 : BOOL;
+    GD_IN_1 AT %IX100.1 : BOOL;
+    GD_IN_3 AT %IX100.3 : BOOL;
     GD_IN_4 AT %IX100.4 : BOOL;
     GD_IN_5 AT %IX100.5 : BOOL;
     GD_IN_6 AT %IX100.6 : BOOL;
     GD_IN_7 AT %IX100.7 : BOOL;
     GD_IN_8 AT %IX100.8 : BOOL;
+    GD_IN_9 AT %IX100.9 : BOOL;
+    GD_IN_10 AT %IX100.10 : BOOL;
+    GD_IN_11 AT %IX100.11 : BOOL;
+    GD_IN_12 AT %IX100.12 : BOOL;
     GD_IN_15 AT %IX100.15 : BOOL;
     GD_OUT_2 AT %QX100.2 : BOOL := 0;
+    GD_OUT_1 AT %QX100.3 : BOOL := 0;
+    GD_OUT_0 AT %QX100.4 : BOOL := 0;
     GD_OUT_3 AT %QX100.3 : BOOL := 0;
     GD_OUT_5 AT %QX100.5 : BOOL := 0;
     GD_OUT_4 AT %QX100.4 : BOOL := 0;
     GD_OUT_6 AT %QX100.6 : BOOL := 0;
     GD_OUT_7 AT %QX100.7 : BOOL := 0;
     GD_OUT_8 AT %QX100.8 : BOOL := 0;
+    GD_OUT_9 AT %QX100.9 : BOOL := 0;
+    GD_OUT_10 AT %QX100.10 : BOOL := 0;
+    GD_OUT_11 AT %QX100.11 : BOOL := 0;
+    GD_OUT_12 AT %QX100.12 : BOOL := 0;
   END_VAR
   VAR
-    GD_OUT_4_G : ARRAY [0..2] OF BOOL;
-    GD_OUT_4_C : ARRAY [0..2] OF BOOL;
-  END_VAR
-  VAR
-    aux AT %QX100.11 : BOOL := 0;
+    random : ran;
+    random_numer : DINT;
   END_VAR
 
-  FE_LaP(CLK:= GD_IN_2);
-  	FE_Zag(CLK:= GD_IN_6);
-  	FE_Xag(CLK:= GD_IN_7);
-  	IF state[0] = 0 & GD_IN_15 THEN
-    		state[0] := 1;
-    	ELSIF state[0] = 2 & FE_LaP.Q THEN
+  	RE_M1(CLK:= GD_IN_1);
+  	FE_M2E(CLK:= GD_IN_6);
+  	FE_PO(CLK:= GD_IN_9);
+  	FE_PR(CLK:= GD_IN_10);
+  	FE_CP(CLK:= GD_IN_7);
+  	RE_CP(CLK:= GD_IN_7);
+  	FE_M1(CLK:= GD_IN_1);
+  	FE_B1(CLK:= GD_IN_3);
+  	FE_B1O(CLK:= GD_IN_5);  
+  	random(
+  		IN := True,
+  		OUT => random_numer);
+  	IF state[0] = 2 & FE_CP.Q THEN
     		state[0] := 3;
-    	ELSIF state[0] = 5 & GD_IN_4 THEN
+    	ELSIF state[0] = 3 & GD_IN_8 THEN
+    		state[0] := 4;
+    	ELSIF state[0] = 3 & NOT GD_IN_8 THEN
+    		state[0] := 5;
+    	ELSIF state[0] = 4 & FE_PO.Q THEN
     		state[0] := 6;
+    	ELSIF state[0] = 8 & FE_PR.Q THEN
+    		state[0] := 9;
     	END_IF;
-
-  	IF state[1] = 0 & GD_IN_4 THEN
-    		state[1] := 1;
-    	ELSIF state[1] = 2 & GD_IN_4 THEN
-    		state[1] := 3;
-    	ELSIF state[1] = 4 & FE_Zag.Q THEN
-    		state[1] := 6;
-    	ELSIF state[1] = 5 & FE_Zag.Q THEN
-    		state[1] := 7;
-    	ELSIF state[1] = 12 & FE_Zag.Q THEN
-    		state[1] := 14;
-    	ELSIF state[1] = 13 & FE_Zag.Q THEN
-    		state[1] := 15;
-    	ELSIF state[1] = 16 & FE_Xag.Q THEN
-    		state[1] := 18;
-    	ELSIF state[1] = 17 & FE_Xag.Q THEN
-    		state[1] := 19;
-    	ELSIF state[1] = 20 & FE_Zag.Q THEN
-    		state[1] := 22;
-    	ELSIF state[1] = 21 & FE_Zag.Q THEN
-    		state[1] := 23;
-    	ELSIF state[1] = 26 & FE_Zag.Q THEN
-    		state[1] := 28;
-    	ELSIF state[1] = 27 & FE_Zag.Q THEN
-    		state[1] := 29;
-    	ELSIF state[1] = 30 & FE_Xag.Q THEN
-    		state[1] := 0;
-    	ELSIF state[1] = 31 & FE_Xag.Q THEN
-    		state[1] := 2;
-    	END_IF;
-
 
   	CASE state[0] OF
-    		1:
-    			GD_OUT_2 := 1;
-  		3:
-    			GD_OUT_2 := 0;
-    		4:
-    			GD_OUT_4_G[0] := 1;
-  		6:
-    			GD_OUT_4_G[0] := 0;
-    	END_CASE;
-
-  	CASE state[1] OF
     		0:
-    			GD_OUT_4_G[1] := 1;
-  		1:
-    			CASE slt1[0] OF
+    			CASE slt0[0] OF
     				0:
-    					GD_OUT_4_G[1] := 1;
+    					INTERN_1 := 1;
     				1:
-    					GD_OUT_6 := 1;
+    					INTERN_1 := 0;
     			END_CASE;
-    			slt1[0] := slt1[0] + 1;
-    			IF slt1[0] = 2 THEN
-    				slt1[0] := 0;
-    			END_IF;
+    			slt0[0] := (random_numer + slt0[0]) MOD 2;
+    			random_numer := random_numer - slt0[0];
+   		1:
+    			CASE slt0[1] OF
+    				0:
+    					GD_OUT_9 := 1;
+    				1:
+    					INTERN_1 := 0;
+    			END_CASE;
+    			slt0[1] := (random_numer + slt0[1]) MOD 2;
+    			random_numer := random_numer - slt0[1];
+   		2:
+    			INTERN_1 := 0;
     		3:
-    			GD_OUT_6 := 1;
-  		4:
-    			GD_OUT_4_G[1] := 1;
-  		6:
-    			CASE slt1[1] OF
+    			INTERN_1 := 0;
+    		4:
+    			INTERN_1 := 0;
+    		5:
+    			CASE slt0[2] OF
     				0:
-    					GD_OUT_4_G[1] := 1;
+    					GD_OUT_10 := 1;
     				1:
-    					GD_OUT_7 := 1;
+    					INTERN_1 := 0;
     			END_CASE;
-    			slt1[1] := slt1[1] + 1;
-    			IF slt1[1] = 2 THEN
-    				slt1[1] := 0;
-    			END_IF;
-    		7:
-    			GD_OUT_7 := 1;
-  		8:
-    			GD_OUT_4_G[1] := 1;
-  		9:
-    			GD_OUT_4_G[1] := 0;
-    		10:
-    			CASE slt1[2] OF
+    			slt0[2] := (random_numer + slt0[2]) MOD 2;
+    			random_numer := random_numer - slt0[2];
+   		6:
+    			CASE slt0[3] OF
     				0:
-    					GD_OUT_4_G[1] := 1;
+    					GD_OUT_9 := 0;
     				1:
-    					GD_OUT_6 := 0;
+    					INTERN_1 := 0;
     			END_CASE;
-    			slt1[2] := slt1[2] + 1;
-    			IF slt1[2] = 2 THEN
-    				slt1[2] := 0;
-    			END_IF;
-    		11:
-    			GD_OUT_6 := 0;
-    		12:
-    			GD_OUT_4_G[1] := 1;
-  		14:
-    			CASE slt1[3] OF
+    			slt0[3] := (random_numer + slt0[3]) MOD 2;
+    			random_numer := random_numer - slt0[3];
+   		7:
+    			CASE slt0[4] OF
     				0:
-    					GD_OUT_4_G[1] := 1;
+    					GD_OUT_11 := 1;
     				1:
-    					GD_OUT_8 := 1;
+    					INTERN_1 := 0;
     			END_CASE;
-    			slt1[3] := slt1[3] + 1;
-    			IF slt1[3] = 2 THEN
-    				slt1[3] := 0;
-    			END_IF;
-    		15:
-    			GD_OUT_8 := 1;
-  		16:
-    			GD_OUT_4_G[1] := 1;
-  		18:
-    			CASE slt1[4] OF
+    			slt0[4] := (random_numer + slt0[4]) MOD 2;
+    			random_numer := random_numer - slt0[4];
+   		8:
+    			INTERN_1 := 0;
+    		9:
+    			CASE slt0[5] OF
     				0:
-    					GD_OUT_4_G[1] := 1;
+    					GD_OUT_11 := 0;
     				1:
-    					GD_OUT_6 := 1;
+    					INTERN_1 := 0;
     			END_CASE;
-    			slt1[4] := slt1[4] + 1;
-    			IF slt1[4] = 2 THEN
-    				slt1[4] := 0;
-    			END_IF;
-    		19:
-    			GD_OUT_6 := 1;
-  		20:
-    			GD_OUT_4_G[1] := 1;
-  		22:
-    			CASE slt1[5] OF
+    			slt0[5] := (random_numer + slt0[5]) MOD 2;
+    			random_numer := random_numer - slt0[5];
+   		10:
+    			CASE slt0[6] OF
     				0:
-    					GD_OUT_4_G[1] := 1;
+    					GD_OUT_10 := 0;
     				1:
-    					GD_OUT_7 := 0;
+    					INTERN_1 := 0;
     			END_CASE;
-    			slt1[5] := slt1[5] + 1;
-    			IF slt1[5] = 2 THEN
-    				slt1[5] := 0;
-    			END_IF;
-    		23:
-    			GD_OUT_7 := 0;
-    		24:
-    			CASE slt1[6] OF
+    			slt0[6] := (random_numer + slt0[6]) MOD 2;
+    			random_numer := random_numer - slt0[6];
+   		11:
+    			CASE slt0[7] OF
     				0:
-    					GD_OUT_4_G[1] := 1;
+    					GD_OUT_9 := 0;
     				1:
-    					GD_OUT_6 := 0;
+    					INTERN_1 := 0;
     			END_CASE;
-    			slt1[6] := slt1[6] + 1;
-    			IF slt1[6] = 2 THEN
-    				slt1[6] := 0;
-    			END_IF;
-    		25:
-    			GD_OUT_6 := 0;
-    		26:
-    			GD_OUT_4_G[1] := 1;
-  		28:
-    			CASE slt1[7] OF
-    				0:
-    					GD_OUT_4_G[1] := 1;
-    				1:
-    					GD_OUT_8 := 0;
-    			END_CASE;
-    			slt1[7] := slt1[7] + 1;
-    			IF slt1[7] = 2 THEN
-    				slt1[7] := 0;
-    			END_IF;
-    		29:
-    			GD_OUT_8 := 0;
-    		30:
-    			GD_OUT_4_G[1] := 1;
-  	END_CASE;
-  	IF GD_OUT_4_G[0] <> GD_OUT_4_G[1] THEN
-  		GD_OUT_4_G[0] := GD_OUT_4;
-  		GD_OUT_4_G[1] := GD_OUT_4;
-  	END_IF;
-  	aux := GD_OUT_4_G[0];
+    			slt0[7] := (random_numer + slt0[7]) MOD 2;
+    			random_numer := random_numer - slt0[7];
+   	END_CASE;
+  	IF state[0] = 0 & INTERN_1 THEN
+    		state[0] := 1;
+    	ELSIF state[0] = 1 & GD_OUT_9 THEN
+    		state[0] := 2;
+    	ELSIF state[0] = 5 & GD_OUT_10 THEN
+    		state[0] := 7;
+    	ELSIF state[0] = 6 & NOT GD_OUT_9 THEN
+    		state[0] := 0;
+    	ELSIF state[0] = 7 & GD_OUT_11 THEN
+    		state[0] := 8;
+    	ELSIF state[0] = 9 & NOT GD_OUT_11 THEN
+    		state[0] := 10;
+    	ELSIF state[0] = 10 & NOT GD_OUT_10 THEN
+    		state[0] := 11;
+    	ELSIF state[0] = 11 & NOT GD_OUT_9 THEN
+    		state[0] := 0;
+    	END_IF;
+  	GD_OUT_1 := GD_OUT_0;
+   	GD_OUT_2 := GD_OUT_0;
+   	GD_OUT_3 := GD_OUT_0;
+   
 END_PROGRAM
 
 
