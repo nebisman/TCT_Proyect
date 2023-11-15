@@ -33,12 +33,12 @@ PROGRAM tesis0
 		FE_M1 : F_TRIG;
 		FE_B1 : F_TRIG;
 		FE_B1O : F_TRIG;
+		INTERN_1 : BOOL;
+		INTERN_3 : BOOL;
+		INTERN_5 : BOOL;
 	END_VAR
 	VAR
-		GD_OUT_1 AT %QX100.1 : BOOL;
- 		GD_OUT_2 AT %QX100.2 : BOOL;
- 		GD_OUT_3 AT %QX100.3 : BOOL;
- 		GD_IN_0 AT %IX100.0 : BOOL;
+		GD_IN_0 AT %IX100.0 : BOOL;
 		GD_IN_1 AT %IX100.1 : BOOL;
 		GD_IN_6 AT %IX100.6 : BOOL;
 		GD_IN_9 AT %IX100.9 : BOOL;
@@ -56,7 +56,6 @@ PROGRAM tesis0
 		GD_OUT_8 AT %QX100.8 : BOOL;
 		GD_OUT_9 AT %QX100.9 : BOOL;
 		GD_OUT_10 AT %QX100.10 : BOOL;
-		GD_OUT_11 AT %QX100.11 : BOOL;
 		GD_IN_8 AT %IX100.8 : BOOL;
 	END_VAR
 	RE_M1(CLK:= GD_IN_1);
@@ -73,53 +72,24 @@ PROGRAM tesis0
 		OUT => random_numer);
 	IF state[0] = 0 & RE_CP.Q THEN
   		state[0] := 1;
-  	ELSIF state[0] = 2 & FE_CP.Q THEN
+  		GD_OUT_9 := 1;
+  	ELSIF state[0] = 2 & RE_CP.Q THEN
   		state[0] := 3;
-  	ELSIF state[0] = 3 & GD_IN_8 THEN
-  		state[0] := 4;
-  	ELSIF state[0] = 3 & NOT GD_IN_8 THEN
-  		state[0] := 5;
-  	ELSIF state[0] = 4 & FE_PO.Q THEN
-  		state[0] := 6;
-  	ELSIF state[0] = 8 & FE_PR.Q THEN
-  		state[0] := 9;
   	END_IF;
 
 	CASE state[0] OF
   		1:
-  			GD_OUT_9 := 1;
-		5:
-  			GD_OUT_10 := 1;
-		6:
-  			GD_OUT_9 := 0;
-  		7:
-  			GD_OUT_11 := 1;
-		9:
-  			GD_OUT_11 := 0;
-  		10:
-  			GD_OUT_10 := 0;
-  		11:
-  			GD_OUT_9 := 0;
+  			GD_OUT_8 := 1;
+		3:
+  			GD_OUT_8 := 0;
   	END_CASE;
-	IF state[0] = 1 & GD_OUT_9 THEN
+	IF state[0] = 1 & GD_OUT_8 THEN
   		state[0] := 2;
-  	ELSIF state[0] = 5 & GD_OUT_10 THEN
-  		state[0] := 7;
-  	ELSIF state[0] = 6 & NOT GD_OUT_9 THEN
-  		state[0] := 0;
-  	ELSIF state[0] = 7 & GD_OUT_11 THEN
-  		state[0] := 8;
-  	ELSIF state[0] = 9 & NOT GD_OUT_11 THEN
-  		state[0] := 10;
-  	ELSIF state[0] = 10 & NOT GD_OUT_10 THEN
-  		state[0] := 11;
-  	ELSIF state[0] = 11 & NOT GD_OUT_9 THEN
+  	ELSIF state[0] = 3 & NOT GD_OUT_8 THEN
   		state[0] := 0;
   	END_IF;
-	GD_OUT_1 := GD_OUT_0;
- 	GD_OUT_2 := GD_OUT_0;
- 	GD_OUT_3 := GD_OUT_0;
- 
+
+
 END_PROGRAM
 
 CONFIGURATION Config0

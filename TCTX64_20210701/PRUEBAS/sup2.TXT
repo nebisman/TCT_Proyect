@@ -1,0 +1,16 @@
+sup2    # states: 6    state set: 0 ... 5    initial state: 0
+
+marker states:       
+
+      0 
+
+vocal states: none
+
+
+# transitions: 11
+
+transitions: 
+
+[    0,  3,    1]  [    1,  2,    2]  [    2,  5,    3]  [    3,  3,    4]  
+[    3,  4,    0]  [    3,  6,    0]  [    4,  2,    5]  [    4,  4,    1]  
+[    4,  6,    1]  [    5,  4,    2]  [    5,  6,    2]  

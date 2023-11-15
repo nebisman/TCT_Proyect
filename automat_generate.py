@@ -409,7 +409,18 @@ class process:
         self.add_transition(name, transitions, events, uc_events)
         return name
 
-    def generate_ST_OPENPLC(self, supervisors: list, plants: list, actuators: dict, namest='codigo_st', Mascaras:dict=dict([])):
+    def aislated(self,aislated:list=[],actuators:list=[]):
+        out =""
+        for a in aislated:
+            out += "\tIF NOT " + actuators[a[1]].split(':')[0] + " & " + actuators[a[0]].split(':')[0] +  " THEN\n\t\t"
+            out +=  actuators[a[1]].split(':')[0] + " := 1;\n"
+            out += "\tELSIF " + actuators[a[1]].split(':')[0] + " & " + actuators[a[0]].split(':')[0] + " THEN\n\t\t"
+            out +=  actuators[a[0]].split(':')[0] + " := 0;\n\t"
+            out += "END_IF;\n"
+        return out
+
+    def generate_ST_OPENPLC(self, supervisors: list, plants: list, actuators: dict, namest='codigo_st',
+                            Mascaras:dict=dict([]), Aislados:list=[]):
         RANDOM = "FUNCTION_BLOCK random_number\n\tVAR_INPUT\n\t\tIN : BOOL;\n\tEND_VAR\n\tVAR\n\t\tM : BOOL;"
         RANDOM += "\n\t\tINIT : BOOL;\n\tEND_VAR\n\tVAR_OUTPUT\n\t\tOUT : DINT;\n\tEND_VAR\n"
         RANDOM += "\n\tIF INIT = 0 THEN\n\t\t{#include <stdio.h>}\n\t\t{#include <stdlib.h>}\n\t\tIN := 1;\n\tEND_IF;"
@@ -434,7 +445,7 @@ class process:
                     CO = self.supreduce(TESTcoor, TESTSUP, TESTSUP_dat, "CO_" + str(i) + "_" + str(j))
                     self.plot_automatas([CO, TESTcoor, alltest, TESTSUP], 1, False)
                     # DEStoADS(CO)
-                    self.read_ADS(CO)
+                    self.load_automata([CO])
                     Coordinators.append(CO)
                 a = set(self.automatas[supervisors[i]].c_events)
                 b = set(self.automatas[supervisors[j]].c_events)
@@ -458,6 +469,8 @@ class process:
         sc = ""
         mask =""
         j = 0
+
+        aislated =""
         if len(actuators) != 0:
             for i in range(len(supervisors)):
                 if_c, if_u = self.ifs(supervisors[i], actuators, i)
@@ -467,20 +480,41 @@ class process:
                 if_uncontrollable += if_u + '\n'
                 sc += "\n" + s + "\n"
                 st.append(n_r)
+        if len(Aislados) != 0:
+            aislated = self.aislated(Aislados[1],actuators)
+            for ais in range(len(Aislados[0])):
+                if_c, if_u = self.ifs(Aislados[0][ais], actuators, j)
+                s, n_r = self.sw_case(Aislados[0][ais], actuators, j, j)
+                j += 1
+                if_controllable += if_c + "\n"
+                if_uncontrollable += if_u + '\n'
+                sc += "\n" + s + "\n"
+                st.append(n_r)
         for c in Coordinators:
+            for cont in self.automatas[c].c_events:
+                if actuators[cont].split(':')[0] not in Intersections.keys():
+                    event = actuators[cont]
+                    Intersections[event.split(':')[0]]=[]
+                    sup= c.split('_')
+                    if cont in self.automatas[supervisors[int(sup[1])]].c_events:
+                        Intersections[event.split(':')[0]].append(int(sup[1]))
+                    if cont in self.automatas[supervisors[int(sup[2])]].c_events:
+                        Intersections[event.split(':')[0]].append(int(sup[2]))
+
             COsw += self.coordinator_sc(c, actuators=actuators, state_it=j)
             a, b = self.ifs(c, actuators, j)
             st.append(0)
             j += 1
             COc += a
             COu += b
+
         intersection = self.intersection(Intersections, len(Coordinators) != 0)
         declaration = self.declaration_OPENPLC(actuators, st, j, Intersections, Coordinators, Mascaras)
         for msk in Mascaras.keys():
             for e in Mascaras[msk]:
                 mask += "\t" + e[0] + " := " + msk +";\n "
         out = RANDOM + HEADER
-        out += declaration + if_uncontrollable + COu + sc + COsw + intersection + COc + if_controllable + mask
+        out += declaration + if_uncontrollable + COu + sc + COsw + intersection + COc + if_controllable + aislated +mask
         out += END
         with open('ST_Generated/' + namest + ".st", 'w') as archivo:
             archivo.write(out)
@@ -516,31 +550,35 @@ class process:
 
     def intersection(self, intersection: dict, CO=False, addG="_G[", addC="_C[", name_intersection="aux"):
         out = ""
+
         for inter in intersection.keys():
             aux = ""
             coor = ""
             bandera = inter if not CO else name_intersection
-            out += "\tIF "
             guesses = []
             for act in range(len(intersection[inter])):
                 guesses.append(inter + addG + str(act) + "]")
-            if len(guesses) == 2:
-                out += guesses[0] + " <> " + guesses[1] + " THEN\n"
-                out += "\t\t" + guesses[0] + " := " + inter + ";\n"
-                out += "\t\t" + guesses[1] + " := " + inter + ";"
-            else:
-                i = 0
-                j = 1
-                while j < len(guesses):
-                    aux += "\t\t" + guesses[i] + " := " + inter + ";\n"
-                    out += "(" + guesses[i] + " <> " + guesses[j] + ")"
-                    i += 1
-                    j += 1
-                    if j != len(guesses):
-                        out += " OR "
-                    else:
-                        out += " THEN\n"
-                aux += "\t\t" + guesses[j - 1] + " := " + inter + ";\t\t\t"
+
+            if len(guesses) != 1:
+                if len(guesses) == 2:
+                    out += "\tIF "
+                    out += guesses[0] + " <> " + guesses[1] + " THEN\n"
+                    out += "\t\t" + guesses[0] + " := " + inter + ";\n"
+                    out += "\t\t" + guesses[1] + " := " + inter + ";"
+                else:
+                    out += "\tIF "
+                    i = 0
+                    j = 1
+                    while j < len(guesses):
+                        aux += "\t\t" + guesses[i] + " := " + inter + ";\n"
+                        out += "(" + guesses[i] + " <> " + guesses[j] + ")"
+                        i += 1
+                        j += 1
+                        if j != len(guesses):
+                            out += " OR "
+                        else:
+                            out += " THEN\n"
+                    aux += "\t\t" + guesses[j - 1] + " := " + inter + ";\t\t\t"
             if CO:
                 coor += "\tIF " + bandera + " XOR " + inter + " THEN\n\t\t"
                 coor += "IF NOT " + bandera + " & " + inter + addC + "0] THEN\n\t\t\t"
@@ -550,8 +588,10 @@ class process:
                 coor += "\n\t\tEND_IF;"
                 coor += "\n\tEND_IF;\n"
             out += aux + '\n'
-            out += "\tEND_IF;\n\t"
-            out += bandera + " := " + guesses[0] + ";\n"
+            if len(guesses)!=1:
+                out += "\tEND_IF;\n"
+
+            out += "\t" +bandera + " := " + guesses[0] + ";\n"
             out += coor
         return out
 
@@ -663,7 +703,7 @@ class process:
         if if_controllable == "\t": if_controllable = ""
         if if_uncontrollable == "\t": if_uncontrollable = ""
         if not if_controllable == "":
-            if_controllable = if_controllable.rstrip("ELS") + "END_IF;"
+            if_controllable = if_controllable.rstrip("ELS") + "END_IF;\n"
         if not if_uncontrollable == "":
             if_uncontrollable = if_uncontrollable.rstrip("ELS") + "END_IF;\n"
         return if_controllable, if_uncontrollable

@@ -1,18 +1,8 @@
-sup_M2    # states: 8    state set: 0 ... 7    initial state: 0
+sup_M2    # states: 0    state set: empty     initial state: none
 
-marker states:       
-
-      0       1       2       3       4       5       6       7 
+marker states: none
 
 
 vocal states: none
 
-
-# transitions: 15
-
-transitions: 
-
-[    0,  8,    1]  [    1,  8,    1]  [    1, 19,    2]  [    2,  8,    3]  
-[    2, 12,    4]  [    3,  8,    3]  [    3, 12,    5]  [    4,  8,    5]  
-[    4, 21,    6]  [    5,  8,    5]  [    5, 21,    7]  [    6,  8,    7]  
-[    6, 14,    0]  [    7,  8,    7]  [    7, 14,    1]  
+transition table : empty

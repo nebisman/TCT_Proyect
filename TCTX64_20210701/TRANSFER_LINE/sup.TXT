@@ -1,0 +1,17 @@
+sup    # states: 8    state set: 0 ... 7    initial state: 0
+
+marker states:       
+
+      0 
+
+vocal states: none
+
+
+# transitions: 15
+
+transitions: 
+
+[    0, 29,    1]  [    0, 33,    2]  [    1, 10,    3]  [    2, 26,    0]  
+[    2, 30,    3]  [    3, 31,    4]  [    4, 18,    0]  [    4, 29,    5]  
+[    4, 33,    6]  [    5, 10,    7]  [    5, 18,    1]  [    6, 18,    2]  
+[    6, 26,    4]  [    6, 30,    7]  [    7, 18,    3]  
