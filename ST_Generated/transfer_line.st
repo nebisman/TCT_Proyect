@@ -23,7 +23,7 @@ PROGRAM tesis0
 	VAR
 		random : random_number;
 		random_numer : DINT;
-		state : ARRAY [0..8] OF DINT;
+		state : ARRAY [0..9] OF DINT;
 		aux : BOOL := 0;
 		INTERN_1_C : ARRAY [0..1] OF BOOL;
 		INTERN_3_C : ARRAY [0..1] OF BOOL;
@@ -41,6 +41,9 @@ PROGRAM tesis0
 		FE_B1O : F_TRIG;
 		FE_PO : F_TRIG;
 		FE_PR : F_TRIG;
+		FE_AT : F_TRIG;
+		FE_MZ : F_TRIG;
+		FE_RO : F_TRIG;
 		INTERN_1 : BOOL;
 		INTERN_3 : BOOL;
 		INTERN_5 : BOOL;
@@ -71,7 +74,14 @@ PROGRAM tesis0
 		GD_OUT_10 AT %QX100.10 : BOOL;
 		GD_IN_8 AT %IX100.8 : BOOL;
 		GD_IN_9 AT %IX100.9 : BOOL;
+		GD_IN_11 AT %IX100.11 : BOOL;
 		GD_IN_10 AT %IX100.10 : BOOL;
+		GD_IN_12 AT %IX100.12 : BOOL;
+		GD_IN_13 AT %IX100.13 : BOOL;
+		GD_OUT_15 AT %QX100.15 : BOOL;
+		GD_OUT_18 AT %QX100.18 : BOOL;
+		GD_OUT_16 AT %QX100.16 : BOOL;
+		GD_OUT_17 AT %QX100.17 : BOOL;
 	END_VAR
 	RE_M1(CLK:= GD_IN_1);
 	FE_M2E(CLK:= GD_IN_6);
@@ -81,7 +91,10 @@ PROGRAM tesis0
 	FE_B1(CLK:= GD_IN_3);
 	FE_B1O(CLK:= GD_IN_5);
 	FE_PO(CLK:= GD_IN_9);
-	FE_PR(CLK:= GD_IN_10);
+	FE_PR(CLK:= GD_IN_11);
+	FE_AT(CLK:= GD_IN_10);
+	FE_MZ(CLK:= GD_IN_12);
+	FE_RO(CLK:= GD_IN_13);
 	random(
 		IN := True,
 		OUT => random_numer);
@@ -245,8 +258,24 @@ PROGRAM tesis0
   		state[6] := 4;
   	ELSIF state[6] = 3 & FE_PO.Q THEN
   		state[6] := 5;
-  	ELSIF state[6] = 6 & FE_PR.Q THEN
+  	ELSIF state[6] = 6 & FE_AT.Q THEN
   		state[6] := 7;
+  	END_IF;
+
+	IF state[7] = 0 & FE_AT.Q THEN
+  		state[7] := 1;
+  	ELSIF state[7] = 2 & FE_MZ.Q THEN
+  		state[7] := 3;
+  	ELSIF state[7] = 5 & FE_MZ.Q THEN
+  		state[7] := 6;
+  	ELSIF state[7] = 7 & FE_RO.Q THEN
+  		state[7] := 8;
+  	ELSIF state[7] = 10 & FE_MZ.Q THEN
+  		state[7] := 11;
+  	ELSIF state[7] = 13 & FE_MZ.Q THEN
+  		state[7] := 14;
+  	ELSIF state[7] = 15 & FE_RO.Q THEN
+  		state[7] := 16;
   	END_IF;
 
 
@@ -360,7 +389,30 @@ PROGRAM tesis0
   		8:
   			GD_OUT_9 := 0;
   	END_CASE;
+
 	CASE state[7] OF
+  		1:
+  			GD_OUT_15 := 1;
+		3:
+  			GD_OUT_18 := 1;
+		4:
+  			GD_OUT_15 := 0;
+  		6:
+  			GD_OUT_16 := 1;
+		8:
+  			GD_OUT_16 := 0;
+  		9:
+  			GD_OUT_15 := 1;
+		11:
+  			GD_OUT_18 := 0;
+  		12:
+  			GD_OUT_15 := 0;
+  		14:
+  			GD_OUT_17 := 1;
+		16:
+  			GD_OUT_17 := 0;
+  	END_CASE;
+	CASE state[8] OF
   		0:
   			INTERN_1_C[1] := 1;
 			INTERN_3_C[1] := 1;
@@ -406,10 +458,10 @@ PROGRAM tesis0
 		END_IF;
 	END_IF;
 	INTERN_1_G[0] := INTERN_1;
-	IF state[7] = 0 & INTERN_3 THEN
-  		state[7] := 1;
-  	ELSIF state[7] = 1 & INTERN_5 THEN
-  		state[7] := 0;
+	IF state[8] = 0 & INTERN_3 THEN
+  		state[8] := 1;
+  	ELSIF state[8] = 1 & INTERN_5 THEN
+  		state[8] := 0;
   	END_IF;
 	IF state[0] = 1 & INTERN_1 THEN
   		state[0] := 2;
@@ -503,6 +555,28 @@ PROGRAM tesis0
   		state[6] := 8;
   	ELSIF state[6] = 8 & NOT GD_OUT_9 THEN
   		state[6] := 0;
+  	END_IF;
+
+	IF state[7] = 1 & GD_OUT_15 THEN
+  		state[7] := 2;
+  	ELSIF state[7] = 3 & GD_OUT_18 THEN
+  		state[7] := 4;
+  	ELSIF state[7] = 4 & NOT GD_OUT_15 THEN
+  		state[7] := 5;
+  	ELSIF state[7] = 6 & GD_OUT_16 THEN
+  		state[7] := 7;
+  	ELSIF state[7] = 8 & NOT GD_OUT_16 THEN
+  		state[7] := 9;
+  	ELSIF state[7] = 9 & GD_OUT_15 THEN
+  		state[7] := 10;
+  	ELSIF state[7] = 11 & NOT GD_OUT_18 THEN
+  		state[7] := 12;
+  	ELSIF state[7] = 12 & NOT GD_OUT_15 THEN
+  		state[7] := 13;
+  	ELSIF state[7] = 14 & GD_OUT_17 THEN
+  		state[7] := 15;
+  	ELSIF state[7] = 16 & NOT GD_OUT_17 THEN
+  		state[7] := 0;
   	END_IF;
 
 	IF NOT GD_OUT_0 & INTERN_1 THEN
