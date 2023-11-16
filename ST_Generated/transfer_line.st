@@ -29,18 +29,18 @@ PROGRAM tesis0
 		INTERN_3_C : ARRAY [0..1] OF BOOL;
 		INTERN_5_C : ARRAY [0..1] OF BOOL;
 		slt0 : ARRAY [0..2] OF DINT;
-		INTERN_3_G : ARRAY [0..2] OF BOOL;
 		INTERN_5_G : ARRAY [0..2] OF BOOL;
+		INTERN_3_G : ARRAY [0..2] OF BOOL;
 		INTERN_1_G : ARRAY [0..1] OF BOOL;
 		RE_M1 : R_TRIG;
 		FE_M2E : F_TRIG;
-		FE_PO : F_TRIG;
-		FE_PR : F_TRIG;
 		FE_CP : F_TRIG;
 		RE_CP : R_TRIG;
 		FE_M1 : F_TRIG;
 		FE_B1 : F_TRIG;
 		FE_B1O : F_TRIG;
+		FE_PO : F_TRIG;
+		FE_PR : F_TRIG;
 		INTERN_1 : BOOL;
 		INTERN_3 : BOOL;
 		INTERN_5 : BOOL;
@@ -50,11 +50,12 @@ PROGRAM tesis0
  		GD_OUT_2 AT %QX100.2 : BOOL;
  		GD_OUT_3 AT %QX100.3 : BOOL;
  		GD_OUT_11 AT %QX100.11 : BOOL;
+ 		GD_OUT_12 AT %QX100.12 : BOOL;
+ 		GD_OUT_13 AT %QX100.13 : BOOL;
+ 		GD_OUT_14 AT %QX100.14 : BOOL;
  		GD_IN_0 AT %IX100.0 : BOOL;
 		GD_IN_1 AT %IX100.1 : BOOL;
 		GD_IN_6 AT %IX100.6 : BOOL;
-		GD_IN_9 AT %IX100.9 : BOOL;
-		GD_IN_10 AT %IX100.10 : BOOL;
 		GD_OUT_7 AT %QX100.7 : BOOL;
 		GD_IN_7 AT %IX100.7 : BOOL;
 		GD_OUT_0 AT %QX100.0 : BOOL;
@@ -69,16 +70,18 @@ PROGRAM tesis0
 		GD_OUT_9 AT %QX100.9 : BOOL;
 		GD_OUT_10 AT %QX100.10 : BOOL;
 		GD_IN_8 AT %IX100.8 : BOOL;
+		GD_IN_9 AT %IX100.9 : BOOL;
+		GD_IN_10 AT %IX100.10 : BOOL;
 	END_VAR
 	RE_M1(CLK:= GD_IN_1);
 	FE_M2E(CLK:= GD_IN_6);
-	FE_PO(CLK:= GD_IN_9);
-	FE_PR(CLK:= GD_IN_10);
 	FE_CP(CLK:= GD_IN_7);
 	RE_CP(CLK:= GD_IN_7);
 	FE_M1(CLK:= GD_IN_1);
 	FE_B1(CLK:= GD_IN_3);
 	FE_B1O(CLK:= GD_IN_5);
+	FE_PO(CLK:= GD_IN_9);
+	FE_PR(CLK:= GD_IN_10);
 	random(
 		IN := True,
 		OUT => random_numer);
@@ -86,22 +89,22 @@ PROGRAM tesis0
   		state[0] := 1;
   	ELSIF state[0] = 2 & RE_M1.Q THEN
   		state[0] := 4;
-  	ELSIF state[0] = 3 & FE_PO.Q THEN
-  		state[0] := 1;
   	ELSIF state[0] = 3 & FE_PR.Q THEN
   		state[0] := 4;
+  	ELSIF state[0] = 3 & FE_PO.Q THEN
+  		state[0] := 1;
   	ELSIF state[0] = 5 & RE_CP.Q THEN
   		state[0] := 1;
   	ELSIF state[0] = 6 & RE_M1.Q THEN
   		state[0] := 8;
   	ELSIF state[0] = 6 & RE_CP.Q THEN
   		state[0] := 2;
+  	ELSIF state[0] = 7 & FE_PR.Q THEN
+  		state[0] := 8;
   	ELSIF state[0] = 7 & RE_CP.Q THEN
   		state[0] := 3;
   	ELSIF state[0] = 7 & FE_PO.Q THEN
   		state[0] := 5;
-  	ELSIF state[0] = 7 & FE_PR.Q THEN
-  		state[0] := 8;
   	ELSIF state[0] = 8 & RE_CP.Q THEN
   		state[0] := 4;
   	END_IF;
@@ -110,19 +113,19 @@ PROGRAM tesis0
   		state[1] := 1;
   	ELSIF state[1] = 2 & RE_CP.Q THEN
   		state[1] := 3;
-  	ELSIF state[1] = 4 & FE_PO.Q THEN
-  		state[1] := 1;
   	ELSIF state[1] = 4 & FE_PR.Q THEN
   		state[1] := 1;
+  	ELSIF state[1] = 4 & FE_PO.Q THEN
+  		state[1] := 1;
+  	ELSIF state[1] = 5 & FE_PR.Q THEN
+  		state[1] := 2;
   	ELSIF state[1] = 5 & RE_CP.Q THEN
   		state[1] := 6;
   	ELSIF state[1] = 5 & FE_PO.Q THEN
   		state[1] := 2;
-  	ELSIF state[1] = 5 & FE_PR.Q THEN
-  		state[1] := 2;
-  	ELSIF state[1] = 6 & FE_PO.Q THEN
-  		state[1] := 3;
   	ELSIF state[1] = 6 & FE_PR.Q THEN
+  		state[1] := 3;
+  	ELSIF state[1] = 6 & FE_PO.Q THEN
   		state[1] := 3;
   	END_IF;
 
@@ -138,6 +141,8 @@ PROGRAM tesis0
 
 	IF state[3] = 0 & RE_M1.Q THEN
   		state[3] := 1;
+  	ELSIF state[3] = 0 & FE_PR.Q THEN
+  		state[3] := 1;
   	ELSIF state[3] = 2 & FE_B1.Q THEN
   		state[3] := 3;
   	ELSIF state[3] = 2 & FE_B1O.Q THEN
@@ -148,13 +153,19 @@ PROGRAM tesis0
   		state[3] := 5;
   	ELSIF state[3] = 4 & RE_M1.Q THEN
   		state[3] := 7;
+  	ELSIF state[3] = 4 & FE_PR.Q THEN
+  		state[3] := 7;
   	ELSIF state[3] = 5 & RE_M1.Q THEN
+  		state[3] := 8;
+  	ELSIF state[3] = 5 & FE_PR.Q THEN
   		state[3] := 8;
   	ELSIF state[3] = 6 & FE_B1O.Q THEN
   		state[3] := 9;
   	ELSIF state[3] = 7 & FE_B1.Q THEN
   		state[3] := 8;
   	ELSIF state[3] = 9 & RE_M1.Q THEN
+  		state[3] := 11;
+  	ELSIF state[3] = 9 & FE_PR.Q THEN
   		state[3] := 11;
   	ELSIF state[3] = 10 & GD_IN_2 THEN
   		state[3] := 13;
@@ -164,31 +175,47 @@ PROGRAM tesis0
   		state[3] := 15;
   	ELSIF state[3] = 12 & RE_M1.Q THEN
   		state[3] := 14;
+  	ELSIF state[3] = 12 & FE_PR.Q THEN
+  		state[3] := 14;
   	ELSIF state[3] = 13 & FE_B1O.Q THEN
   		state[3] := 15;
   	ELSIF state[3] = 14 & GD_IN_2 THEN
   		state[3] := 17;
   	ELSIF state[3] = 15 & RE_M1.Q THEN
   		state[3] := 17;
+  	ELSIF state[3] = 15 & FE_PR.Q THEN
+  		state[3] := 17;
   	ELSIF state[3] = 16 & FE_B1O.Q THEN
   		state[3] := 18;
   	ELSIF state[3] = 18 & RE_M1.Q THEN
+  		state[3] := 20;
+  	ELSIF state[3] = 18 & FE_PR.Q THEN
   		state[3] := 20;
   	ELSIF state[3] = 19 & FE_B1O.Q THEN
   		state[3] := 21;
   	ELSIF state[3] = 21 & RE_M1.Q THEN
   		state[3] := 23;
+  	ELSIF state[3] = 21 & FE_PR.Q THEN
+  		state[3] := 23;
   	ELSIF state[3] = 22 & FE_B1O.Q THEN
   		state[3] := 24;
   	ELSIF state[3] = 24 & RE_M1.Q THEN
+  		state[3] := 26;
+  	ELSIF state[3] = 24 & FE_PR.Q THEN
   		state[3] := 26;
   	ELSIF state[3] = 25 & FE_B1O.Q THEN
   		state[3] := 27;
   	ELSIF state[3] = 27 & RE_M1.Q THEN
   		state[3] := 28;
+  	ELSIF state[3] = 27 & FE_PR.Q THEN
+  		state[3] := 28;
   	ELSIF state[3] = 29 & RE_M1.Q THEN
   		state[3] := 30;
+  	ELSIF state[3] = 29 & FE_PR.Q THEN
+  		state[3] := 30;
   	ELSIF state[3] = 31 & RE_M1.Q THEN
+  		state[3] := 32;
+  	ELSIF state[3] = 31 & FE_PR.Q THEN
   		state[3] := 32;
   	END_IF;
 
@@ -200,10 +227,12 @@ PROGRAM tesis0
   		state[4] := 0;
   	END_IF;
 
-	IF state[5] = 0 & FE_M2E.Q THEN
+	IF state[5] = 0 & GD_IN_6 THEN
   		state[5] := 1;
-  	ELSIF state[5] = 2 & RE_CP.Q THEN
-  		state[5] := 3;
+  	ELSIF state[5] = 1 & FE_M2E.Q THEN
+  		state[5] := 2;
+  	ELSIF state[5] = 3 & RE_CP.Q THEN
+  		state[5] := 4;
   	END_IF;
 
 	IF state[6] = 0 & GD_OUT_9 THEN
@@ -225,7 +254,7 @@ PROGRAM tesis0
   		1:
   			CASE slt0[0] OF
   				0:
-  					INTERN_1 := 1;
+  					INTERN_1_G[0] := 1;
   				1:
   					INTERN_5_G[0] := 1;
   			END_CASE;
@@ -236,7 +265,7 @@ PROGRAM tesis0
 		5:
   			CASE slt0[1] OF
   				0:
-  					INTERN_1 := 1;
+  					INTERN_1_G[0] := 1;
   				1:
   					INTERN_5_G[0] := 1;
   			END_CASE;
@@ -315,9 +344,9 @@ PROGRAM tesis0
   	END_CASE;
 
 	CASE state[5] OF
-  		1:
+  		2:
   			GD_OUT_8 := 1;
-		3:
+		4:
   			GD_OUT_8 := 0;
   	END_CASE;
 
@@ -341,19 +370,7 @@ PROGRAM tesis0
 			INTERN_3_C[1] := 0;
 			INTERN_5_C[1] := 1;
 	END_CASE;
-  	IF INTERN_3_G[0] <> INTERN_3_G[1] THEN
-		INTERN_3_G[0] := INTERN_3;
-		INTERN_3_G[1] := INTERN_3;
-	END_IF;
-	aux := INTERN_3_G[0];
-	IF aux XOR INTERN_3 THEN
-		IF NOT aux & INTERN_3_C[0] THEN
-			INTERN_3 := 0;
-		ELSIF aux & INTERN_3_C[1] THEN
-			INTERN_3 := 1;
-		END_IF;
-	END_IF;
-	IF INTERN_5_G[0] <> INTERN_5_G[1] THEN
+  	IF INTERN_5_G[0] <> INTERN_5_G[1] THEN
 		INTERN_5_G[0] := INTERN_5;
 		INTERN_5_G[1] := INTERN_5;
 	END_IF;
@@ -365,6 +382,20 @@ PROGRAM tesis0
 			INTERN_5 := 1;
 		END_IF;
 	END_IF;
+	INTERN_5_G[0] := INTERN_5;
+	IF INTERN_3_G[0] <> INTERN_3_G[1] THEN
+		INTERN_3_G[0] := INTERN_3;
+		INTERN_3_G[1] := INTERN_3;
+	END_IF;
+	aux := INTERN_3_G[0];
+	IF aux XOR INTERN_3 THEN
+		IF NOT aux & INTERN_3_C[0] THEN
+			INTERN_3 := 0;
+		ELSIF aux & INTERN_3_C[1] THEN
+			INTERN_3 := 1;
+		END_IF;
+	END_IF;
+	INTERN_3_G[0] := INTERN_3;
 
 	aux := INTERN_1_G[0];
 	IF aux XOR INTERN_1 THEN
@@ -374,6 +405,7 @@ PROGRAM tesis0
 			INTERN_1 := 1;
 		END_IF;
 	END_IF;
+	INTERN_1_G[0] := INTERN_1;
 	IF state[7] = 0 & INTERN_3 THEN
   		state[7] := 1;
   	ELSIF state[7] = 1 & INTERN_5 THEN
@@ -457,9 +489,9 @@ PROGRAM tesis0
   		state[4] := 3;
   	END_IF;
 
-	IF state[5] = 1 & GD_OUT_8 THEN
-  		state[5] := 2;
-  	ELSIF state[5] = 3 & NOT GD_OUT_8 THEN
+	IF state[5] = 2 & GD_OUT_8 THEN
+  		state[5] := 3;
+  	ELSIF state[5] = 4 & NOT GD_OUT_8 THEN
   		state[5] := 0;
   	END_IF;
 
@@ -477,21 +509,27 @@ PROGRAM tesis0
 		GD_OUT_0 := 1;
 	ELSIF GD_OUT_0 & INTERN_1 THEN
 		INTERN_1 := 0;
-	END_IF;
+		INTERN_1_G[0] := 0;
+END_IF;
 	IF NOT GD_OUT_7 & INTERN_3 THEN
 		GD_OUT_7 := 1;
 	ELSIF GD_OUT_7 & INTERN_3 THEN
 		INTERN_3 := 0;
-	END_IF;
+		INTERN_3_G[0] := 0;
+END_IF;
 	IF NOT GD_OUT_9 & INTERN_5 THEN
 		GD_OUT_9 := 1;
 	ELSIF GD_OUT_9 & INTERN_5 THEN
 		INTERN_5 := 0;
-	END_IF;
+		INTERN_5_G[0] := 0;
+END_IF;
 	GD_OUT_1 := GD_OUT_0;
  	GD_OUT_2 := GD_OUT_0;
  	GD_OUT_3 := GD_OUT_0;
  	GD_OUT_11 := GD_OUT_10;
+ 	GD_OUT_12 := GD_OUT_10;
+ 	GD_OUT_13 := GD_OUT_10;
+ 	GD_OUT_14 := GD_OUT_10;
  
 END_PROGRAM
 

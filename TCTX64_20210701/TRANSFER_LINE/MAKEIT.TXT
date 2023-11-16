@@ -1,0 +1,5 @@
+MONOLITICO = Sync(PLANT_2,PLANT2_2,CO_0_1)  (16,44)  Blocked_events = None
+               
+
+SUPALL = Sync(SUP_2,SUP2_2)  (11,24)  Blocked_events = None  
+

@@ -409,13 +409,16 @@ class process:
         self.add_transition(name, transitions, events, uc_events)
         return name
 
-    def aislated(self,aislated:list=[],actuators:list=[]):
+    def aislated(self,aislated:list=[],actuators:list=[],interseccion=dict([])):
         out =""
         for a in aislated:
             out += "\tIF NOT " + actuators[a[1]].split(':')[0] + " & " + actuators[a[0]].split(':')[0] +  " THEN\n\t\t"
             out +=  actuators[a[1]].split(':')[0] + " := 1;\n"
             out += "\tELSIF " + actuators[a[1]].split(':')[0] + " & " + actuators[a[0]].split(':')[0] + " THEN\n\t\t"
             out +=  actuators[a[0]].split(':')[0] + " := 0;\n\t"
+
+            if actuators[a[0]].split(':')[0] in interseccion.keys():
+                out+= "\t"+actuators[a[0]].split(':')[0] + "_G[0] := 0;\n"
             out += "END_IF;\n"
         return out
 
@@ -460,6 +463,16 @@ class process:
                                 Intersections[inter].append(j)
                         else:
                             Intersections[inter] = [i, j]
+        for c in Coordinators:
+            for cont in self.automatas[c].c_events:
+                if actuators[cont].split(':')[0] not in Intersections.keys():
+                    event = actuators[cont]
+                    Intersections[event.split(':')[0]]=[]
+                    sup = c.split('_')
+                    if cont in self.automatas[supervisors[int(sup[1])]].c_events:
+                        Intersections[event.split(':')[0]].append(int(sup[1]))
+                    if cont in self.automatas[supervisors[int(sup[2])]].c_events:
+                        Intersections[event.split(':')[0]].append(int(sup[2]))
         COsw = ""
         COc = ""
         COu = ""
@@ -481,7 +494,7 @@ class process:
                 sc += "\n" + s + "\n"
                 st.append(n_r)
         if len(Aislados) != 0:
-            aislated = self.aislated(Aislados[1],actuators)
+            aislated = self.aislated(Aislados[1],actuators,Intersections)
             for ais in range(len(Aislados[0])):
                 if_c, if_u = self.ifs(Aislados[0][ais], actuators, j)
                 s, n_r = self.sw_case(Aislados[0][ais], actuators, j, j)
@@ -491,16 +504,6 @@ class process:
                 sc += "\n" + s + "\n"
                 st.append(n_r)
         for c in Coordinators:
-            for cont in self.automatas[c].c_events:
-                if actuators[cont].split(':')[0] not in Intersections.keys():
-                    event = actuators[cont]
-                    Intersections[event.split(':')[0]]=[]
-                    sup= c.split('_')
-                    if cont in self.automatas[supervisors[int(sup[1])]].c_events:
-                        Intersections[event.split(':')[0]].append(int(sup[1]))
-                    if cont in self.automatas[supervisors[int(sup[2])]].c_events:
-                        Intersections[event.split(':')[0]].append(int(sup[2]))
-
             COsw += self.coordinator_sc(c, actuators=actuators, state_it=j)
             a, b = self.ifs(c, actuators, j)
             st.append(0)
@@ -587,6 +590,7 @@ class process:
                 coor += inter + " := 1;"
                 coor += "\n\t\tEND_IF;"
                 coor += "\n\tEND_IF;\n"
+                coor += "\t" + inter + addG + "0] := " + inter + ";\n"
             out += aux + '\n'
             if len(guesses)!=1:
                 out += "\tEND_IF;\n"

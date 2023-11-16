@@ -26,13 +26,13 @@ PROGRAM tesis0
 		state :ARRAY [0..1] OF DINT;
 		RE_M1 : R_TRIG;
 		FE_M2E : F_TRIG;
-		FE_PO : F_TRIG;
-		FE_PR : F_TRIG;
 		FE_CP : F_TRIG;
 		RE_CP : R_TRIG;
 		FE_M1 : F_TRIG;
 		FE_B1 : F_TRIG;
 		FE_B1O : F_TRIG;
+		FE_PO : F_TRIG;
+		FE_PR : F_TRIG;
 		INTERN_1 : BOOL;
 		INTERN_3 : BOOL;
 		INTERN_5 : BOOL;
@@ -41,8 +41,6 @@ PROGRAM tesis0
 		GD_IN_0 AT %IX100.0 : BOOL;
 		GD_IN_1 AT %IX100.1 : BOOL;
 		GD_IN_6 AT %IX100.6 : BOOL;
-		GD_IN_9 AT %IX100.9 : BOOL;
-		GD_IN_10 AT %IX100.10 : BOOL;
 		GD_OUT_7 AT %QX100.7 : BOOL;
 		GD_IN_7 AT %IX100.7 : BOOL;
 		GD_OUT_0 AT %QX100.0 : BOOL;
@@ -57,35 +55,38 @@ PROGRAM tesis0
 		GD_OUT_9 AT %QX100.9 : BOOL;
 		GD_OUT_10 AT %QX100.10 : BOOL;
 		GD_IN_8 AT %IX100.8 : BOOL;
+		GD_IN_9 AT %IX100.9 : BOOL;
+		GD_IN_10 AT %IX100.10 : BOOL;
 	END_VAR
 	RE_M1(CLK:= GD_IN_1);
 	FE_M2E(CLK:= GD_IN_6);
-	FE_PO(CLK:= GD_IN_9);
-	FE_PR(CLK:= GD_IN_10);
 	FE_CP(CLK:= GD_IN_7);
 	RE_CP(CLK:= GD_IN_7);
 	FE_M1(CLK:= GD_IN_1);
 	FE_B1(CLK:= GD_IN_3);
 	FE_B1O(CLK:= GD_IN_5);
+	FE_PO(CLK:= GD_IN_9);
+	FE_PR(CLK:= GD_IN_10);
 	random(
 		IN := True,
 		OUT => random_numer);
-	IF state[0] = 0 & RE_CP.Q THEN
+	IF state[0] = 0 & GD_IN_6 THEN
   		state[0] := 1;
-  		GD_OUT_9 := 1;
-  	ELSIF state[0] = 2 & RE_CP.Q THEN
-  		state[0] := 3;
+  	ELSIF state[0] = 1 & FE_M2E.Q THEN
+  		state[0] := 2;
+  	ELSIF state[0] = 3 & RE_CP.Q THEN
+  		state[0] := 4;
   	END_IF;
 
 	CASE state[0] OF
-  		1:
+  		2:
   			GD_OUT_8 := 1;
-		3:
+		4:
   			GD_OUT_8 := 0;
   	END_CASE;
-	IF state[0] = 1 & GD_OUT_8 THEN
-  		state[0] := 2;
-  	ELSIF state[0] = 3 & NOT GD_OUT_8 THEN
+	IF state[0] = 2 & GD_OUT_8 THEN
+  		state[0] := 3;
+  	ELSIF state[0] = 4 & NOT GD_OUT_8 THEN
   		state[0] := 0;
   	END_IF;
 

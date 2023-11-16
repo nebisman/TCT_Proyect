@@ -23,15 +23,12 @@ PROGRAM tesis0
 	VAR
 		random : random_number;
 		random_numer : DINT;
-		state : ARRAY [0..6] OF DINT;
-		aux : BOOL := 0;
-		GD_OUT_2_C : ARRAY [0..1] OF BOOL;
-		GD_OUT_4_C : ARRAY [0..1] OF BOOL;
+		state : ARRAY [0..5] OF DINT;
 		slt1 : ARRAY [0..8] OF DINT;
 		slt2 : ARRAY [0..15] OF DINT;
 		GD_OUT_4_G : ARRAY [0..2] OF BOOL;
-		GD_OUT_7_G : ARRAY [0..2] OF BOOL;
 		GD_OUT_8_G : ARRAY [0..2] OF BOOL;
+		GD_OUT_7_G : ARRAY [0..2] OF BOOL;
 		GD_OUT_5_G : ARRAY [0..3] OF BOOL;
 		FE_LaP : F_TRIG;
 		FE_BaP : F_TRIG;
@@ -176,13 +173,6 @@ PROGRAM tesis0
   		state[4] := 5;
   	END_IF;
 
-	IF state[5] = 0 & GD_IN_15 THEN
-  		state[5] := 1;
-  	ELSIF state[5] = 2 & FE_LaP.Q THEN
-  		state[5] := 3;
-  	ELSIF state[5] = 5 & GD_IN_4 THEN
-  		state[5] := 6;
-  	END_IF;
 
 	CASE state[0] OF
   		1:
@@ -507,86 +497,28 @@ PROGRAM tesis0
 		5:
   			GD_OUT_9 := 0;
   	END_CASE;
-	CASE state[5] OF
-  		1:
-  			GD_OUT_2_C[1] := 1;
-			GD_OUT_2_C[0] := 0;
-			GD_OUT_4_C[1] := 0;
-			GD_OUT_4_C[0] := 0;
-		3:
-  			GD_OUT_2_C[1] := 0;
-			GD_OUT_2_C[0] := 1;
-			GD_OUT_4_C[1] := 0;
-			GD_OUT_4_C[0] := 0;
-		4:
-  			GD_OUT_2_C[1] := 0;
-			GD_OUT_2_C[0] := 0;
-			GD_OUT_4_C[1] := 1;
-			GD_OUT_4_C[0] := 0;
-		6:
-  			GD_OUT_2_C[1] := 0;
-			GD_OUT_2_C[0] := 0;
-			GD_OUT_4_C[1] := 0;
-			GD_OUT_4_C[0] := 1;
-	END_CASE;
-  	IF GD_OUT_4_G[0] <> GD_OUT_4_G[1] THEN
+	IF GD_OUT_4_G[0] <> GD_OUT_4_G[1] THEN
 		GD_OUT_4_G[0] := GD_OUT_4;
 		GD_OUT_4_G[1] := GD_OUT_4;
 	END_IF;
-	aux := GD_OUT_4_G[0];
-	IF aux XOR GD_OUT_4 THEN
-		IF NOT aux & GD_OUT_4_C[0] THEN
-			GD_OUT_4 := 0;
-		ELSIF aux & GD_OUT_4_C[1] THEN
-			GD_OUT_4 := 1;
-		END_IF;
-	END_IF;
-	IF GD_OUT_7_G[0] <> GD_OUT_7_G[1] THEN
-		GD_OUT_7_G[0] := GD_OUT_7;
-		GD_OUT_7_G[1] := GD_OUT_7;
-	END_IF;
-	aux := GD_OUT_7_G[0];
-	IF aux XOR GD_OUT_7 THEN
-		IF NOT aux & GD_OUT_7_C[0] THEN
-			GD_OUT_7 := 0;
-		ELSIF aux & GD_OUT_7_C[1] THEN
-			GD_OUT_7 := 1;
-		END_IF;
-	END_IF;
+	GD_OUT_4 := GD_OUT_4_G[0];
 	IF GD_OUT_8_G[0] <> GD_OUT_8_G[1] THEN
 		GD_OUT_8_G[0] := GD_OUT_8;
 		GD_OUT_8_G[1] := GD_OUT_8;
 	END_IF;
-	aux := GD_OUT_8_G[0];
-	IF aux XOR GD_OUT_8 THEN
-		IF NOT aux & GD_OUT_8_C[0] THEN
-			GD_OUT_8 := 0;
-		ELSIF aux & GD_OUT_8_C[1] THEN
-			GD_OUT_8 := 1;
-		END_IF;
+	GD_OUT_8 := GD_OUT_8_G[0];
+	IF GD_OUT_7_G[0] <> GD_OUT_7_G[1] THEN
+		GD_OUT_7_G[0] := GD_OUT_7;
+		GD_OUT_7_G[1] := GD_OUT_7;
 	END_IF;
+	GD_OUT_7 := GD_OUT_7_G[0];
 	IF (GD_OUT_5_G[0] <> GD_OUT_5_G[1]) OR (GD_OUT_5_G[1] <> GD_OUT_5_G[2]) THEN
 		GD_OUT_5_G[0] := GD_OUT_5;
 		GD_OUT_5_G[1] := GD_OUT_5;
 		GD_OUT_5_G[2] := GD_OUT_5;			
 	END_IF;
-	aux := GD_OUT_5_G[0];
-	IF aux XOR GD_OUT_5 THEN
-		IF NOT aux & GD_OUT_5_C[0] THEN
-			GD_OUT_5 := 0;
-		ELSIF aux & GD_OUT_5_C[1] THEN
-			GD_OUT_5 := 1;
-		END_IF;
-	END_IF;
-	IF state[5] = 1 & GD_OUT_2 THEN
-  		state[5] := 2;
-  	ELSIF state[5] = 3 & NOT GD_OUT_2 THEN
-  		state[5] := 4;
-  	ELSIF state[5] = 4 & GD_OUT_4 THEN
-  		state[5] := 5;
-  	ELSIF state[5] = 6 & NOT GD_OUT_4 THEN
-  		state[5] := 1;
-  	END_IF;	IF state[0] = 1 & GD_OUT_2 THEN
+	GD_OUT_5 := GD_OUT_5_G[0];
+	IF state[0] = 1 & GD_OUT_2 THEN
   		state[0] := 2;
   	ELSIF state[0] = 3 & NOT GD_OUT_2 THEN
   		state[0] := 4;
@@ -595,6 +527,7 @@ PROGRAM tesis0
   	ELSIF state[0] = 6 & NOT GD_OUT_4 THEN
   		state[0] := 1;
   	END_IF;
+
 	IF state[1] = 0 & GD_OUT_4 THEN
   		state[1] := 2;
   	ELSIF state[1] = 1 & GD_OUT_4 THEN
@@ -662,6 +595,7 @@ PROGRAM tesis0
   	ELSIF state[1] = 30 & GD_OUT_4 THEN
   		state[1] := 31;
   	END_IF;
+
 	IF state[2] = 0 & GD_OUT_7 THEN
   		state[2] := 1;
   	ELSIF state[2] = 0 & GD_OUT_5 THEN
@@ -767,6 +701,7 @@ PROGRAM tesis0
   	ELSIF state[2] = 38 & GD_OUT_7 THEN
   		state[2] := 39;
   	END_IF;
+
 	IF state[3] = 1 & GD_OUT_3 THEN
   		state[3] := 2;
   	ELSIF state[3] = 3 & NOT GD_OUT_3 THEN
@@ -776,6 +711,7 @@ PROGRAM tesis0
   	ELSIF state[3] = 6 & NOT GD_OUT_5 THEN
   		state[3] := 1;
   	END_IF;
+
 	IF state[4] = 0 & GD_OUT_5 THEN
   		state[4] := 1;
   	ELSIF state[4] = 1 & NOT GD_OUT_5 THEN
@@ -785,6 +721,7 @@ PROGRAM tesis0
   	ELSIF state[4] = 5 & NOT GD_OUT_9 THEN
   		state[4] := 0;
   	END_IF;
+
 
 END_PROGRAM
 

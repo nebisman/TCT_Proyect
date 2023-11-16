@@ -238,7 +238,7 @@ new_process.load_automata([sup, sup2, sup3, sup4, sup5])
 new_process.load_automata([plant, plant2, plant3, plant4, plant5])
 
 
-print(new_process.get_automata('sup_M1'))
+print(new_process.get_automata('sup'))
 print(new_process.get_automata('sup2'))
 print(new_process.get_automata('sup3'))
 print(new_process.get_automata('sup4'))
