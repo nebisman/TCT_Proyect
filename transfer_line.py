@@ -32,8 +32,6 @@ actuators['TU_ARM_OFF'] = 'GD_OUT_10:OFF'
 actuators['Piece_right'] = 'GD_IN_8:ON:%IX100.8'
 actuators['Piece_wrong'] = 'GD_IN_8:OFF'
 actuators['Piece_out'] = 'FE_PO:GD_IN_9:%IX100.9'  # 6
-
-
 actuators['Piece_reprocessed'] = 'FE_PR:GD_IN_11:%IX100.11'  # 8
 actuators['Piece_at_ARM'] = 'FE_AT:GD_IN_10:%IX100.10'
 actuators['Moving_Z'] = 'FE_MZ:GD_IN_12:%IX100.12'
@@ -311,6 +309,8 @@ new_process.plot_automatas([Plant_Buffer_2, sup_B2, specb2], show=False)
 new_process.plot_automatas([Plant_TU, sup_TU, spectu], show=False)
 new_process.plot_automatas([plant, plant2, spec2, spec, sup, sup2, B2SP, B1SP], show=False)
 new_process.plot_automatas([plant_2, plant2_2, spec2_2, spec_2, sup_2, sup2_2], show=False)
+
+
 
 AISLATED = [[sup_M1, sup_B1, M2, sup_B2, sup_TU, Pyp], [('1', 'M1_BAND_ON'), ('3', 'M2_ON'), ('5', 'TU_BAND_ON')]]
 
