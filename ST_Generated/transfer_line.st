@@ -458,7 +458,6 @@ PROGRAM tesis0
 		END_IF;
 	END_IF;
 	INTERN_1_G[0] := INTERN_1;
-
 	IF state[8] = 0 & INTERN_3 THEN
   		state[8] := 1;
   	ELSIF state[8] = 1 & INTERN_5 THEN

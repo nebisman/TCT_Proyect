@@ -129,7 +129,10 @@ class process:
         for s in self.automatas[name].states:
             active_events = s.get_active_events()
             if event not in active_events:
-                self.add_transition(name, [(s.get_id(), s.get_id())], [event], [event])
+                if event in self.uc_events:
+                    self.add_transition(name, [(s.get_id(), s.get_id())], [event], [event])
+                else:
+                    self.add_transition(name, [(s.get_id(), s.get_id())], [event], [])
             # print(s.get_id(),e)
 
     def coordinator(self, supervisores, plantas):
@@ -416,7 +419,6 @@ class process:
             out +=  actuators[a[1]].split(':')[0] + " := 1;\n"
             out += "\tELSIF " + actuators[a[1]].split(':')[0] + " & " + actuators[a[0]].split(':')[0] + " THEN\n\t\t"
             out +=  actuators[a[0]].split(':')[0] + " := 0;\n\t"
-
             if actuators[a[0]].split(':')[0] in interseccion.keys():
                 out+= "\t"+actuators[a[0]].split(':')[0] + "_G[0] := 0;\n"
             out += "END_IF;\n"
@@ -434,96 +436,100 @@ class process:
         END += "\n\t\tPROGRAM instance0 WITH task0 : tesis0;" + "\n\tEND_RESOURCE\nEND_CONFIGURATION"
 
         if len(supervisors) == 1:
-            return self.aux_generate_ST_OPENPLC(supervisors[0], actuators, namest, RANDOM, Mascaras=Mascaras)
-        Coordinators = []
-        Intersections = dict([])
-        for i in range(len(supervisors)):
-            for j in range(i + 1, len(supervisors)):
-                nonconflict, TESTcoor, alltest = self.coordinator([supervisors[i], supervisors[j]],
-                                                                  [plants[i], plants[j]])  # revisa si son conflictivos
-                if not nonconflict:
-                    print('conflict', i, j)
-                    TESTSUP = self.supcon(TESTcoor, alltest, "TESTSUP")
-                    TESTSUP_dat = self.condat(TESTcoor, TESTSUP, 'TESTSUPdat')
-                    CO = self.supreduce(TESTcoor, TESTSUP, TESTSUP_dat, "CO_" + str(i) + "_" + str(j))
-                    self.plot_automatas([CO, TESTcoor, alltest, TESTSUP], 1, False)
-                    # DEStoADS(CO)
-                    self.load_automata([CO])
-                    Coordinators.append(CO)
-                a = set(self.automatas[supervisors[i]].c_events)
-                b = set(self.automatas[supervisors[j]].c_events)
-                intersect = list(a & b)
-                intersect = set([actuators[act].split(':')[0] for act in intersect])
-                if len(intersect) != 0:
-                    for inter in intersect:
-                        if inter in Intersections.keys():
-                            if i not in Intersections[inter]:
-                                Intersections[inter].append(i)
-                            if j not in Intersections[inter]:
-                                Intersections[inter].append(j)
-                        else:
-                            Intersections[inter] = [i, j]
-        for c in Coordinators:
-            for cont in self.automatas[c].c_events:
-                if actuators[cont].split(':')[0] not in Intersections.keys():
-                    event = actuators[cont]
-                    Intersections[event.split(':')[0]]=[]
-                    sup = c.split('_')
-                    if cont in self.automatas[supervisors[int(sup[1])]].c_events:
-                        Intersections[event.split(':')[0]].append(int(sup[1]))
-                    if cont in self.automatas[supervisors[int(sup[2])]].c_events:
-                        Intersections[event.split(':')[0]].append(int(sup[2]))
-        COsw = ""
-        COc = ""
-        COu = ""
-        st = []
-        if_controllable = ""
-        if_uncontrollable = ""
-        sc = ""
-        mask =""
-        j = 0
-
-        aislated =""
-        if len(actuators) != 0:
+            out =  self.aux_generate_ST_OPENPLC(supervisors[0], actuators, namest, RANDOM, Mascaras=Mascaras, Aislated = Aislados)
+        else:
+            Coordinators = []
+            Intersections = dict([])
             for i in range(len(supervisors)):
-                if_c, if_u = self.ifs(supervisors[i], actuators, i)
-                s, n_r = self.sw_case(supervisors[i], actuators, i, i, Intersections)
-                j += 1
-                if_controllable += if_c + "\n"
-                if_uncontrollable += if_u + '\n'
-                sc += "\n" + s + "\n"
-                st.append(n_r)
-        if len(Aislados) != 0:
-            aislated = self.aislated(Aislados[1],actuators,Intersections)
-            for ais in range(len(Aislados[0])):
-                if_c, if_u = self.ifs(Aislados[0][ais], actuators, j)
-                s, n_r = self.sw_case(Aislados[0][ais], actuators, j, j)
-                j += 1
-                if_controllable += if_c + "\n"
-                if_uncontrollable += if_u + '\n'
-                sc += "\n" + s + "\n"
-                st.append(n_r)
-        for c in Coordinators:
-            COsw += self.coordinator_sc(c, actuators=actuators, state_it=j)
-            a, b = self.ifs(c, actuators, j)
-            st.append(0)
-            j += 1
-            COc += a
-            COu += b
+                for j in range(i + 1, len(supervisors)):
+                    nonconflict, TESTcoor, alltest = self.coordinator([supervisors[i], supervisors[j]],
+                                                                      [plants[i], plants[j]])  # revisa si son conflictivos
+                    if not nonconflict:
+                        print('conflict', i, j)
+                        TESTSUP = self.supcon(TESTcoor, alltest, "TESTSUP")
+                        TESTSUP_dat = self.condat(TESTcoor, TESTSUP, 'TESTSUPdat')
+                        CO = self.supreduce(TESTcoor, TESTSUP, TESTSUP_dat, "CO_" + str(i) + "_" + str(j))
+                        self.plot_automatas([CO, TESTcoor, alltest, TESTSUP], 1, False)
+                        # DEStoADS(CO)
+                        self.load_automata([CO])
+                        Coordinators.append(CO)
+                    a = set(self.automatas[supervisors[i]].c_events)
+                    b = set(self.automatas[supervisors[j]].c_events)
+                    intersect = list(a & b)
+                    intersect = set([actuators[act].split(':')[0] for act in intersect])
+                    if len(intersect) != 0:
+                        for inter in intersect:
+                            if inter in Intersections.keys():
+                                if i not in Intersections[inter]:
+                                    Intersections[inter].append(i)
+                                if j not in Intersections[inter]:
+                                    Intersections[inter].append(j)
+                            else:
+                                Intersections[inter] = [i, j]
+            for c in Coordinators:
+                for cont in self.automatas[c].c_events:
+                    if actuators[cont].split(':')[0] not in Intersections.keys():
+                        event = actuators[cont]
+                        Intersections[event.split(':')[0]]=[]
+                        sup = c.split('_')
+                        if cont in self.automatas[supervisors[int(sup[1])]].c_events:
+                            Intersections[event.split(':')[0]].append(int(sup[1]))
+                        if cont in self.automatas[supervisors[int(sup[2])]].c_events:
+                            Intersections[event.split(':')[0]].append(int(sup[2]))
+            COsw = ""
+            COc = ""
+            COu = ""
+            st = []
+            if_controllable = ""
+            if_uncontrollable = ""
+            sc = ""
+            mask =""
+            j = 0
 
-        intersection = self.intersection(Intersections, len(Coordinators) != 0)
-        declaration = self.declaration_OPENPLC(actuators, st, j, Intersections, Coordinators, Mascaras)
-        for msk in Mascaras.keys():
-            for e in Mascaras[msk]:
-                mask += "\t" + e[0] + " := " + msk +";\n "
-        out = RANDOM + HEADER
-        out += declaration + if_uncontrollable + COu + sc + COsw + intersection + COc + if_controllable + aislated +mask
-        out += END
-        with open('ST_Generated/' + namest + ".st", 'w') as archivo:
-            archivo.write(out)
+            aislated =""
+            if len(actuators) != 0:
+                for i in range(len(supervisors)):
+                    if_c, if_u = self.ifs(supervisors[i], actuators, i)
+                    s, n_r = self.sw_case(supervisors[i], actuators, i, i, Intersections)
+                    j += 1
+                    if_controllable += if_c + "\n"
+                    if_uncontrollable += if_u + '\n'
+                    sc += "\n" + s + "\n"
+                    st.append(n_r)
+            if len(Aislados) != 0:
+                if len(Aislados[0]) != 0:
+                    for ais in range(len(Aislados[0])):
+                        if_c, if_u = self.ifs(Aislados[0][ais], actuators, j)
+                        s, n_r = self.sw_case(Aislados[0][ais], actuators, j, j)
+                        j += 1
+                        if_controllable += if_c + "\n"
+                        if_uncontrollable += if_u + '\n'
+                        sc += "\n" + s + "\n"
+                        st.append(n_r)
+                if len(Aislados[1]) != 0:
+                    aislated = self.aislated(Aislados[1],actuators,Intersections)
+                for c in Coordinators:
+                    COsw += self.coordinator_sc(c, actuators=actuators, state_it=j)
+                    a, b = self.ifs(c, actuators, j)
+                    st.append(0)
+                    j += 1
+                    COc += a
+                    COu += b
+
+            intersection = self.intersection(Intersections, len(Coordinators) != 0)
+            declaration = self.declaration_OPENPLC(actuators, st, j, Intersections, Coordinators, Mascaras)
+            for msk in Mascaras.keys():
+                for e in Mascaras[msk]:
+                    mask += "\t" + e[0] + " := " + msk +";\n "
+            out = RANDOM + HEADER
+            out += declaration + if_uncontrollable + COu + sc + COsw + intersection + COc + if_controllable + aislated +mask
+            out += END
+            with open('ST_Generated/' + namest + ".st", 'w') as archivo:
+                archivo.write(out)
         return out
 
-    def aux_generate_ST_OPENPLC(self, name: str="", actuators: dict = dict([]), namest="codigo_st", RANDOM ="", Mascaras:dict=dict([])):
+    def aux_generate_ST_OPENPLC(self, name: str="", actuators: dict = dict([]), namest="codigo_st", RANDOM ="",
+                                Mascaras:dict=dict([]), Aislated:list=[[],[]]):
         HEADER = "PROGRAM tesis0\n"
         END = "\nEND_PROGRAM\n\n"
         END += "CONFIGURATION Config0\n\n\tRESOURCE Res0 ON PLC\n\t\tTASK task0(INTERVAL := T#20ms,PRIORITY := 0);"
@@ -540,12 +546,26 @@ class process:
         if_uncontrollable += if_u + '\n'
         sc += "\n" + s + "\n"
         st.append(n_r)
-        declaration = self.declaration_OPENPLC(actuators, st, mascara=Mascaras)
+        j=1
+        aislated = ""
+        if len(Aislated)!=0:
+            if len(Aislated[0]) != 0:
+                for ais in range(len(Aislated[0])):
+                    if_c, if_u = self.ifs(Aislated[0][ais], actuators, j)
+                    s, n_r = self.sw_case(Aislated[0][ais], actuators, j, j)
+                    j += 1
+                    if_controllable += if_c + "\n"
+                    if_uncontrollable += if_u + '\n'
+                    sc += "\n" + s + "\n"
+                    st.append(n_r)
+            if len(Aislated[1]) != 0:
+                aislated = self.aislated(Aislated[1],actuators)
+        declaration = self.declaration_OPENPLC(actuators, st, j, mascara=Mascaras)
         for msk in Mascaras.keys():
             for e in Mascaras[msk]:
                 mask += "\t" + e[0] + " := " + msk +";\n "
 
-        out = RANDOM + HEADER + declaration + if_uncontrollable  + s +'\n'+ if_controllable + mask
+        out = RANDOM + HEADER + declaration + if_uncontrollable + sc + if_controllable + mask + aislated
         out += END
         with open('ST_Generated/' + namest + ".st", 'w') as archivo:
             archivo.write(out)
@@ -599,7 +619,8 @@ class process:
             out += coor
         return out
 
-    def declaration_OPENPLC(self, actuators, n_state: list, n_automata=-1, intersetion: dict = dict([]), CO:list=[] , mascara:dict=dict([])):
+    def declaration_OPENPLC(self, actuators, n_state: list, n_automata=-1, intersetion: dict = dict([]), CO:list=[] ,
+                            mascara:dict=dict([])):
 
         declaration = "\tVAR\n"
         clocks = ""

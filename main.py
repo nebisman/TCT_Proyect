@@ -243,7 +243,8 @@ print(new_process.get_automata('sup2'))
 print(new_process.get_automata('sup3'))
 print(new_process.get_automata('sup4'))
 print(new_process.get_automata('sup5'))
-new_process.generate_ST_OPENPLC([sup, sup2, sup3, sup4, sup5],[plant, plant2, plant3, plant4, plant5], actuators,'sera')
+new_process.generate_ST_OPENPLC([sup, sup2, sup3, sup4, sup5],[plant, plant2, plant3, plant4, plant5],
+                                actuators,'setter_line')
 
 
 

@@ -44,13 +44,15 @@ actuators['Rotate+_ON'] = 'GD_OUT_16:ON:%QX100.16'
 actuators['Rotate+_OFF'] = 'GD_OUT_16:OFF'
 actuators['Rotate-_ON'] = 'GD_OUT_17:ON:%QX100.17'
 actuators['Rotate-_OFF'] = 'GD_OUT_17:OFF'
-
-
+actuators['1'] = 'INTERN_1:ON'
+actuators['3'] = 'INTERN_3:ON'
+actuators['5'] = 'INTERN_5:ON'
 Mascaras = dict([])
 Mascaras['GD_OUT_0'] = [('GD_OUT_1', '%QX100.1'), ('GD_OUT_2', '%QX100.2'),
                         ('GD_OUT_3', '%QX100.3')]  # BANDM1 -> EMITER, ARM_M1, ARM_SPEED_M1
 Mascaras['GD_OUT_10'] = [('GD_OUT_11', '%QX100.11'), ('GD_OUT_12', '%QX100.12'),
-                         ('GD_OUT_13', '%QX100.13'), ('GD_OUT_14', '%QX100.14')] # ARM_TU -> ARMSPEED_TU, BAND_1REP, EMITREP,BAND2_REP
+                         ('GD_OUT_13', '%QX100.13'),
+                         ('GD_OUT_14', '%QX100.14')]  # ARM_TU -> ARMSPEED_TU, BAND_1REP, EMITREP,BAND2_REP
 
 new_process = ag.process('TRANSFER_LINE')
 
@@ -107,8 +109,8 @@ new_process.add_self_event(Blade, 'BLADE_LIMIT')
 event_2 = new_process.new_automaton('event_2')
 new_process.add_state(event_2, 3, [], [True, True, True])
 new_process.add_transition(event_2, [(0, 1), (1, 2), (2, 0), (2, 2), (0, 1)], ['2', 'BUFFER_BAND_ON', 'Buffer_out',
-                                                                       'BUFFER_BAND_ON', 'Piece_reprocessed'],
-                           ['2', 'Buffer_out','Piece_reprocessed'])
+                                                                               'BUFFER_BAND_ON', 'Piece_reprocessed'],
+                           ['2', 'Buffer_out', 'Piece_reprocessed'])
 new_process.add_self_event(Banda_buffer, '2')
 new_process.add_self_event(Banda_buffer, 'Piece_reprocessed')
 
@@ -129,23 +131,24 @@ Buffer2_join = new_process.new_automaton('Buffer2_join')
 new_process.add_state(Buffer2_join, 5, [], [True, True, True, True, True])
 new_process.add_transition(Buffer2_join, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0)],
                            ['M2_Bussy', 'M2_END', 'BUFFER2_BAND_ON', 'Piece_at_TU', 'BUFFER2_BAND_OFF']
-                           , ['M2_Bussy','M2_END', 'Piece_at_TU'])
+                           , ['M2_Bussy', 'M2_END', 'Piece_at_TU'])
 new_process.add_self_event(Banda_buffer2, 'M2_END')
 new_process.add_self_event(Banda_buffer2, 'M2_Bussy')
 new_process.add_self_event(Banda_buffer2, 'Piece_at_TU')
 
-
-#ROBOT_ARM
+# ROBOT_ARM
 Pyp = new_process.new_automaton('Pyp')
-new_process.add_state(Pyp,17,[],[True, True, True, True,True, True, True, True,True, True, True, True,True, True, True, True, True])
-new_process.add_transition(Pyp,[(0, 1), (1, 2), (2, 3), (3, 4),
-                                (4, 5), (5, 6), (6, 7), (7, 8), (8, 9), (9, 10), (10, 11), (11, 12),
-                                (12, 13), (13, 14), (14, 15), (15, 16), (16, 0)],
+new_process.add_state(Pyp, 17, [],
+                      [True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True,
+                       True])
+new_process.add_transition(Pyp, [(0, 1), (1, 2), (2, 3), (3, 4),
+                                 (4, 5), (5, 6), (6, 7), (7, 8), (8, 9), (9, 10), (10, 11), (11, 12),
+                                 (12, 13), (13, 14), (14, 15), (15, 16), (16, 0)],
                            ['Piece_at_ARM', 'Z_ON', 'Moving_Z', 'GRAB_ON',
-                                   'Z_OFF', 'Moving_Z','Rotate+_ON', 'Rotating','Rotate+_OFF', 'Z_ON', 'Moving_Z', 'GRAB_OFF',
-                                   'Z_OFF', 'Moving_Z', 'Rotate-_ON','Rotating','Rotate-_OFF'],
-                           ['Piece_at_ARM','Moving_Z','Rotating'])
-
+                            'Z_OFF', 'Moving_Z', 'Rotate+_ON', 'Rotating', 'Rotate+_OFF', 'Z_ON', 'Moving_Z',
+                            'GRAB_OFF',
+                            'Z_OFF', 'Moving_Z', 'Rotate-_ON', 'Rotating', 'Rotate-_OFF'],
+                           ['Piece_at_ARM', 'Moving_Z', 'Rotating'])
 
 # TU
 
@@ -173,9 +176,6 @@ new_process.add_transition(TU_Function, [(0, 1), (1, 2),
 new_process.add_self_events(Banda_TU,
                             ['Piece_at_review', 'Piece_right', 'Piece_out', 'Piece_at_ARM', 'Piece_wrong'])
 
-actuators['1'] = 'INTERN_1:ON'
-actuators['3'] = 'INTERN_3:ON'  # M1_arriving
-actuators['5'] = 'INTERN_5:ON'  # M1_arriving
 
 M1_REQ = new_process.new_automaton('M1_REQ')
 new_process.add_state(M1_REQ, 2, [], [True])
@@ -264,8 +264,9 @@ simsup2 = new_process.supreduce(plant2, sup2, supdat2, 'simsup2')
 
 new_process.load_automata([plant2, sup2])
 
-new_process.plot_automatas([plant, plant2, spec2, spec, sup, sup2, B2SP, B1SP, M1_REQ, M2_REQ, TU_REQ, Buffer2_join,Pyp],
-                           show=False)
+new_process.plot_automatas(
+    [plant, plant2, spec2, spec, sup, sup2, B2SP, B1SP, M1_REQ, M2_REQ, TU_REQ, Buffer2_join, Pyp],
+    show=False)
 
 start = new_process.new_automaton('start')
 new_process.add_state(start, 2, ["waiting", 'start'], [False, True])
@@ -293,9 +294,6 @@ simsup2_2 = new_process.supreduce(plant2_2, sup2_2, supdat2_2, 'simsup2_2')
 
 new_process.load_automata([plant2_2, sup2_2])
 
-
-
-
 # new_process.plot_automatas([plant,spec,sup, spec2, plant2, sup2], 2, True)
 
 # new_process.generate_ST_OPENPLC([sup,sup2],[plant,plant2],actuators,'gigante', Mascaras)
@@ -310,12 +308,7 @@ new_process.plot_automatas([Plant_TU, sup_TU, spectu], show=False)
 new_process.plot_automatas([plant, plant2, spec2, spec, sup, sup2, B2SP, B1SP], show=False)
 new_process.plot_automatas([plant_2, plant2_2, spec2_2, spec_2, sup_2, sup2_2], show=False)
 
-
-
 AISLATED = [[sup_M1, sup_B1, M2, sup_B2, sup_TU, Pyp], [('1', 'M1_BAND_ON'), ('3', 'M2_ON'), ('5', 'TU_BAND_ON')]]
-
-
-
 
 new_process.generate_ST_OPENPLC([sup_2, sup2_2],
                                 [plant_2, plant2_2],
