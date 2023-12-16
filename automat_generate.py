@@ -415,9 +415,12 @@ class process:
     def aislated(self,aislated:list=[],actuators:list=[],interseccion=dict([])):
         out =""
         for a in aislated:
-            out += "\tIF NOT " + actuators[a[1]].split(':')[0] + " & " + actuators[a[0]].split(':')[0] +  " THEN\n\t\t"
+            add = ""
+            if len(actuators[a[0]].split(':')) > 1:
+                add = "NOT " if actuators[a[0]].split(':')[1] == 'OFF' else ''
+            out += "\tIF NOT " + actuators[a[1]].split(':')[0] + " & " + add + actuators[a[0]].split(':')[0] +  " THEN\n\t\t"
             out +=  actuators[a[1]].split(':')[0] + " := 1;\n"
-            out += "\tELSIF " + actuators[a[1]].split(':')[0] + " & " + actuators[a[0]].split(':')[0] + " THEN\n\t\t"
+            out += "\tELSIF " + actuators[a[1]].split(':')[0] + " & " + add + actuators[a[0]].split(':')[0] + " THEN\n\t\t"
             out +=  actuators[a[0]].split(':')[0] + " := 0;\n\t"
             if actuators[a[0]].split(':')[0] in interseccion.keys():
                 out+= "\t"+actuators[a[0]].split(':')[0] + "_G[0] := 0;\n"

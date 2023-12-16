@@ -1,8 +1,0 @@
-sup_M2    # states: 0    state set: empty     initial state: none
-
-marker states: none
-
-
-vocal states: none
-
-transition table : empty

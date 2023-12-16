@@ -37,12 +37,6 @@ new_process.add_transition(M1, [(0, 1), (1, 2), (2, 3), (3, 0)],
                            ['M1_ON', 'M1_Bussy', 'M1_OFF', 'M1_END'],
                            ['M1_ON', 'M1_Bussy', 'M1_END'])  # 'M1_ON'
 
-'''Buffer = new_process.new_automaton('Buffer')
-new_process.add_state(Buffer, 4, [], [])
-new_process.add_transition(Buffer, [(0, 1), (1, 2), (2, 3), (3,0)],
-                           ['M1_END', 'Buffer_conveyor_ON', 'Piece_located'
-                               , 'Buffer_conveyor_OFF'],
-                           ['M1_Bussy', 'M1_END', 'Piece_located'])'''
 
 Buffer_llenado = new_process.new_automaton('Buffer_llenado')
 new_process.add_state(Buffer_llenado, 8, [], [True, True, True, True, True, True, True, True])
@@ -129,8 +123,8 @@ new_process.load_automata([plant, sup])
 
 
 
-#('21', 'M2_ON')
-AISLATED = [[M1, sup_BA, generate, Buffer_llenado, Blade], [('11', 'M1_ON')]]
+#('21', 'M2_ON'), ('11', 'M1_ON')
+AISLATED = [[M1, sup_BA, generate, Buffer_llenado, Blade], [('21', 'M2_ON'), ('11', 'M1_ON')]]
 
 new_process.generate_image([M1, M2, Buffer_alimentar, Blade, sup_BA, sup, plant, REQ_M1, Buffer_llenado,REQ_Buffer,REQ_M1])
 

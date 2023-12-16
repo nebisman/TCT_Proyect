@@ -10,8 +10,6 @@ actuators['M2_OFF'] = 'GD_OUT_7:OFF'
 actuators['M2_Bussy'] = 'GD_IN_6:ON:%IX100.6'
 actuators['Piece_at_review'] = 'FE_CP:GD_IN_7:%IX100.7'  # M1_arriving
 actuators['Piece_at_TU'] = 'RE_CP:GD_IN_7:%IX100.7'  # M1_arriving
-actuators['M1_BAND_ON'] = 'GD_OUT_0:ON:%QX100.0'  # 1
-actuators['M1_BAND_OFF'] = 'GD_OUT_0:OFF'
 actuators['M1_arrived'] = 'FE_M1:GD_IN_1:%IX100.1'
 actuators['Clamp_on'] = 'GD_OUT_4:ON:%QX100.4'
 actuators['Clamp_off'] = 'GD_OUT_4:OFF'
@@ -44,10 +42,17 @@ actuators['Rotate+_ON'] = 'GD_OUT_16:ON:%QX100.16'
 actuators['Rotate+_OFF'] = 'GD_OUT_16:OFF'
 actuators['Rotate-_ON'] = 'GD_OUT_17:ON:%QX100.17'
 actuators['Rotate-_OFF'] = 'GD_OUT_17:OFF'
+
+
 actuators['1'] = 'INTERN_1:ON'
 actuators['3'] = 'INTERN_3:ON'
 actuators['5'] = 'INTERN_5:ON'
+
+
+actuators['M1_BAND_ON'] = 'GD_OUT_0:ON:%QX100.0'  # 1
+actuators['M1_BAND_OFF'] = 'GD_OUT_0:OFF'
 Mascaras = dict([])
+
 Mascaras['GD_OUT_0'] = [('GD_OUT_1', '%QX100.1'), ('GD_OUT_2', '%QX100.2'),
                         ('GD_OUT_3', '%QX100.3')]  # BANDM1 -> EMITER, ARM_M1, ARM_SPEED_M1
 Mascaras['GD_OUT_10'] = [('GD_OUT_11', '%QX100.11'), ('GD_OUT_12', '%QX100.12'),
@@ -300,7 +305,7 @@ new_process.load_automata([plant2_2, sup2_2])
 
 
 new_process.plot_automatas(
-    [Banda_M1, sup_M1, Plant_M1, specm1, M1_piece], 2, False)  # , Emiter_M1, ARM_M1, ARM_M1_SPEED, M1_join
+    [Banda_M1, sup_M1, Plant_M1, specm1, M1_piece, start], 2, False)  # , Emiter_M1, ARM_M1, ARM_M1_SPEED, M1_join
 new_process.plot_automatas([Blade, Buffer_join, Banda_buffer, Clamp, specb1, sup_B1, Plant_Buffer_1], show=False)
 new_process.plot_automatas([M2], show=False)
 new_process.plot_automatas([Plant_Buffer_2, sup_B2, specb2], show=False)
