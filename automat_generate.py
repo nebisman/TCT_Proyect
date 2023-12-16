@@ -72,12 +72,15 @@ class process:
         return a
 
     def print_events(self, actuators=[]):
+        aux = list(map(int, self.dict_events.values()))
+        aux.sort()
+        aux = list(map(str, aux))
         if len(actuators) == 0:
-            for n in self.dict_events.keys():
-                print(self.dict_events[n] + " -> " + n)
+            for n in aux:
+                print(n + " -> " + self.dict_events_name[n])
         else:
-            for n in self.dict_events.keys():
-                print(self.dict_events[n] + " -> " + n + " : " + actuators[n])
+            for n in aux:
+                print(n + " -> " + self.dict_events_name[n] + " : " + actuators[self.dict_events_name[n]])
 
     def plot_automatas(self, nameList: list, numcolumns: int = 1, show=True):
         self.update_route()
