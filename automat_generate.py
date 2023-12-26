@@ -431,7 +431,11 @@ class process:
         return out
 
     def generate_ST_OPENPLC(self, supervisors: list, plants: list, actuators: dict, namest='codigo_st',
-                            Mascaras:dict=dict([]), Aislados:list=[]):
+                            Mascaras:dict=dict([]), Aislados:list=[], initial:str ="null"):
+
+
+
+
         RANDOM = "FUNCTION_BLOCK random_number\n\tVAR_INPUT\n\t\tIN : BOOL;\n\tEND_VAR\n\tVAR\n\t\tM : BOOL;"
         RANDOM += "\n\t\tINIT : BOOL;\n\tEND_VAR\n\tVAR_OUTPUT\n\t\tOUT : DINT;\n\tEND_VAR\n"
         RANDOM += "\n\tIF INIT = 0 THEN\n\t\t{#include <stdio.h>}\n\t\t{#include <stdlib.h>}\n\t\tIN := 1;\n\tEND_IF;"
@@ -442,7 +446,7 @@ class process:
         END += "\n\t\tPROGRAM instance0 WITH task0 : tesis0;" + "\n\tEND_RESOURCE\nEND_CONFIGURATION"
 
         if len(supervisors) == 1:
-            out =  self.aux_generate_ST_OPENPLC(supervisors[0], actuators, namest, RANDOM, Mascaras=Mascaras, Aislated = Aislados)
+            out =  self.aux_generate_ST_OPENPLC(supervisors[0], actuators, namest, RANDOM, Mascaras=Mascaras, Aislated = Aislados, initial = initial)
         else:
             Coordinators = []
             Intersections = dict([])
@@ -523,19 +527,29 @@ class process:
                     COu += b
 
             intersection = self.intersection(Intersections, len(Coordinators) != 0)
-            declaration = self.declaration_OPENPLC(actuators, st, j, Intersections, Coordinators, Mascaras)
+            declaration = self.declaration_OPENPLC(actuators, st, j, Intersections, Coordinators, Mascaras, initial = initial)
             for msk in Mascaras.keys():
                 for e in Mascaras[msk]:
                     mask += "\t" + e[0] + " := " + msk +";\n "
-            out = RANDOM + HEADER
-            out += declaration + if_uncontrollable + COu + sc + COsw + intersection + COc + if_controllable + aislated +mask
-            out += END
-            with open('ST_Generated/' + namest + ".st", 'w') as archivo:
-                archivo.write(out)
+            out = RANDOM + HEADER + declaration
+
+            out_aux = if_uncontrollable + COu + sc + COsw + intersection + COc + if_controllable + aislated + mask
+
+            if initial == 'null':
+                out += out_aux + END
+            else:
+                out_aux = out_aux.splitlines()
+                out_aux = [f"\t{linea}" for linea in out_aux]
+                out_aux = '\n'.join(out_aux)
+                out += ('\tIF NOT initial THEN\n\t\tIF ' + actuators[initial].split(':')[0] +' THEN\n\t\t\tinitial := 1;\n\t\tEND_IF;\n\tELSIF initial THEN\n'
+                        + out_aux + '\n\tEND_IF;' + END)
+
+        with open('ST_Generated/' + namest + ".st", 'w') as archivo:
+            archivo.write(out)
         return out
 
     def aux_generate_ST_OPENPLC(self, name: str="", actuators: dict = dict([]), namest="codigo_st", RANDOM ="",
-                                Mascaras:dict=dict([]), Aislated:list=[[],[]]):
+                                Mascaras:dict=dict([]), Aislated:list=[[],[]], initial:str = 'null'):
         HEADER = "PROGRAM tesis0\n"
         END = "\nEND_PROGRAM\n\n"
         END += "CONFIGURATION Config0\n\n\tRESOURCE Res0 ON PLC\n\t\tTASK task0(INTERVAL := T#20ms,PRIORITY := 0);"
@@ -566,15 +580,20 @@ class process:
                     st.append(n_r)
             if len(Aislated[1]) != 0:
                 aislated = self.aislated(Aislated[1],actuators)
-        declaration = self.declaration_OPENPLC(actuators, st, j, mascara=Mascaras)
+        declaration = self.declaration_OPENPLC(actuators, st, j, mascara=Mascaras, initial = initial)
         for msk in Mascaras.keys():
             for e in Mascaras[msk]:
                 mask += "\t" + e[0] + " := " + msk +";\n "
-
-        out = RANDOM + HEADER + declaration + if_uncontrollable + sc + if_controllable + mask + aislated
-        out += END
-        with open('ST_Generated/' + namest + ".st", 'w') as archivo:
-            archivo.write(out)
+        out = RANDOM + HEADER + declaration
+        out_aux = if_uncontrollable +sc + if_controllable + aislated + mask
+        if initial == 'null':
+            out += out_aux + END
+        else:
+            out_aux = out_aux.splitlines()
+            out_aux = [f"\t{linea}" for linea in out_aux]
+            out_aux = '\n'.join(out_aux)
+            out += ('\tIF NOT initial THEN\n\t\tIF ' + actuators[initial].split(':')[0] + ' THEN\n\t\t\tinitial := 1;\n\t\tEND_IF;\n\tELSIF initial THEN\n'
+                    + out_aux + '\n\tEND_IF;' + END)
         return out
 
     def intersection(self, intersection: dict, CO=False, addG="_G[", addC="_C[", name_intersection="aux"):
@@ -626,13 +645,15 @@ class process:
         return out
 
     def declaration_OPENPLC(self, actuators, n_state: list, n_automata=-1, intersetion: dict = dict([]), CO:list=[] ,
-                            mascara:dict=dict([])):
+                            mascara:dict=dict([]), initial:str ='null'):
 
         declaration = "\tVAR\n"
         clocks = ""
         start = "\tVAR\n"
         start += '\t\trandom : random_number;\n'
         start += '\t\trandom_numer : DINT;\n'
+        if initial != 'null':
+            start += '\t\tinitial : BOOL;\n'
         if n_automata == -1:
             start += "\t\tstate :ARRAY [0..1] OF DINT;\n"
         else:
