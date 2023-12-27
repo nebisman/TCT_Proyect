@@ -2,7 +2,8 @@ import automat_generate as ag
 
 actuators = dict([])
 
-actuators['start'] = 'GD_IN_0:ON:%IX100.0' #
+actuators['start'] = 'GD_IN_0:ON:%IX102.4' #%IX100.0 %IX102.4'
+actuators['Piece_right'] = 'GD_IN_8:ON:%IX103.1' #%IX101.0 %IX103.1
 actuators['2'] = 'RE_M1:GD_IN_1:%IX100.1'  # M1_arriving
 actuators['M2_END'] = 'FE_M2E:GD_IN_6:%IX100.6'  # 4
 actuators['M2_ON'] = 'GD_OUT_7:ON:%QX100.7'  # 3
@@ -21,26 +22,25 @@ actuators['BLADE_ON'] = 'GD_OUT_6:ON:%QX100.6'
 actuators['BLADE_OFF'] = 'GD_OUT_6:OFF'
 actuators['BLADE_LIMIT'] = 'GD_IN_4:ON:%IX100.4'
 actuators['Buffer_out'] = 'FE_B1O:GD_IN_5:%IX100.5'
-actuators['BUFFER2_BAND_ON'] = 'GD_OUT_8:ON:%QX100.8'
+actuators['BUFFER2_BAND_ON'] = 'GD_OUT_8:ON:%QX101.0'
 actuators['BUFFER2_BAND_OFF'] = 'GD_OUT_8:OFF'
-actuators['TU_BAND_ON'] = 'GD_OUT_9:ON:%QX100.9'  # 5
+actuators['TU_BAND_ON'] = 'GD_OUT_9:ON:%QX101.1'  # 5
 actuators['TU_BAND_OFF'] = 'GD_OUT_9:OFF'
-actuators['TU_ARM_ON'] = 'GD_OUT_10:ON:%QX100.10'
+actuators['TU_ARM_ON'] = 'GD_OUT_10:ON:%QX101.2'
 actuators['TU_ARM_OFF'] = 'GD_OUT_10:OFF'
-actuators['Piece_right'] = 'GD_IN_8:ON:%IX100.8'
 actuators['Piece_wrong'] = 'GD_IN_8:OFF'
-actuators['Piece_out'] = 'FE_PO:GD_IN_9:%IX100.9'  # 6
-actuators['Piece_reprocessed'] = 'FE_PR:GD_IN_11:%IX100.11'  # 8
-actuators['Piece_at_ARM'] = 'FE_AT:GD_IN_10:%IX100.10'
-actuators['Moving_Z'] = 'FE_MZ:GD_IN_12:%IX100.12'
-actuators['Rotating'] = 'FE_RO:GD_IN_13:%IX100.13'
-actuators['Z_ON'] = 'GD_OUT_15:ON:%QX100.15'
+actuators['Piece_out'] = 'FE_PO:GD_IN_9:%IX101.1'  # 6
+actuators['Piece_reprocessed'] = 'FE_PR:GD_IN_11:%IX101.3'  # 8
+actuators['Piece_at_ARM'] = 'FE_AT:GD_IN_10:%IX101.2'
+actuators['Moving_Z'] = 'FE_MZ:GD_IN_12:%IX101.4'
+actuators['Rotating'] = 'FE_RO:GD_IN_13:%IX101.5'
+actuators['Z_ON'] = 'GD_OUT_15:ON:%QX101.7'
 actuators['Z_OFF'] = 'GD_OUT_15:OFF'
-actuators['GRAB_ON'] = 'GD_OUT_18:ON:%QX100.18'
+actuators['GRAB_ON'] = 'GD_OUT_18:ON:%QX102.2'
 actuators['GRAB_OFF'] = 'GD_OUT_18:OFF'
-actuators['Rotate+_ON'] = 'GD_OUT_16:ON:%QX100.16'
+actuators['Rotate+_ON'] = 'GD_OUT_16:ON:%QX102.0'
 actuators['Rotate+_OFF'] = 'GD_OUT_16:OFF'
-actuators['Rotate-_ON'] = 'GD_OUT_17:ON:%QX100.17'
+actuators['Rotate-_ON'] = 'GD_OUT_17:ON:%QX102.1'
 actuators['Rotate-_OFF'] = 'GD_OUT_17:OFF'
 
 
@@ -55,9 +55,9 @@ Mascaras = dict([])
 
 Mascaras['GD_OUT_0'] = [('GD_OUT_1', '%QX100.1'), ('GD_OUT_2', '%QX100.2'),
                         ('GD_OUT_3', '%QX100.3')]  # BANDM1 -> EMITER, ARM_M1, ARM_SPEED_M1
-Mascaras['GD_OUT_10'] = [('GD_OUT_11', '%QX100.11'), ('GD_OUT_12', '%QX100.12'),
-                         ('GD_OUT_13', '%QX100.13'),
-                         ('GD_OUT_14', '%QX100.14')]  # ARM_TU -> ARMSPEED_TU, BAND_1REP, EMITREP,BAND2_REP
+Mascaras['GD_OUT_10'] = [('GD_OUT_11', '%QX101.3'), ('GD_OUT_12', '%QX101.4'),
+                         ('GD_OUT_13', '%QX101.5'),
+                         ('GD_OUT_14', '%QX101.6')]  # ARM_TU -> ARMSPEED_TU, BAND_1REP, EMITREP,BAND2_REP
 
 new_process = ag.process('TRANSFER_LINE')
 
@@ -317,7 +317,6 @@ AISLATED = [[sup_M1, sup_B1, M2, sup_B2, sup_TU, Pyp], [('1', 'M1_BAND_ON'), ('3
 
 new_process.generate_ST_OPENPLC([sup_2, sup2_2],
                                 [plant_2, plant2_2],
-                                actuators, 'transfer_line', Mascaras, AISLATED)
+                                actuators, 'transfer_line', Mascaras, AISLATED,initial='start')
 
-new_process.generate_ST_OPENPLC([Pyp], [Pyp], actuators, 'prueba2')
 new_process.print_events()
