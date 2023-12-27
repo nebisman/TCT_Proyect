@@ -2,7 +2,7 @@ import automat_generate as ag
 
 actuators = dict([])
 
-actuators['start'] = 'GD_IN_0:ON:%IX100.0'
+actuators['start'] = 'GD_IN_0:ON:%IX100.0' #
 actuators['2'] = 'RE_M1:GD_IN_1:%IX100.1'  # M1_arriving
 actuators['M2_END'] = 'FE_M2E:GD_IN_6:%IX100.6'  # 4
 actuators['M2_ON'] = 'GD_OUT_7:ON:%QX100.7'  # 3

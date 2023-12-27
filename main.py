@@ -13,41 +13,31 @@ actuators['z_axis_on'] = 'GD_OUT_6:ON:%QX100.6'
 actuators['z_axis_off'] = 'GD_OUT_6:OFF'
 actuators['grab_on'] = 'GD_OUT_7:ON:%QX100.7'
 actuators['grab_off'] = 'GD_OUT_7:OFF'
-actuators['x_axis_on'] = 'GD_OUT_8:ON:%QX100.8'
+actuators['x_axis_on'] = 'GD_OUT_8:ON:%QX101.0'
 actuators['x_axis_off'] = 'GD_OUT_8:OFF'
-actuators['blade_on'] = 'GD_OUT_9:ON:%QX100.9'
+actuators['blade_on'] = 'GD_OUT_9:ON:%QX101.1'
 actuators['blade_off'] = 'GD_OUT_9:OFF'
-actuators['start'] = 'GD_IN_15:ON:%IX100.15'
+
+actuators['start'] = 'GD_IN_15:ON:%IX102.4' # %IX100.15 %IX102.7'
+
+
+
 actuators['lid_at_place_FE'] = 'FE_LaP:GD_IN_2:%IX100.2'
 actuators['lid_clampled'] = "GD_IN_4:ON:%IX100.4"
 actuators['base_at_place_FE'] = 'FE_BaP:GD_IN_3:%IX100.3'
-actuators['part_leaving_FE'] = 'FE_PaL:GD_IN_9:%IX100.9'
+actuators['part_leaving_FE'] = 'FE_PaL:GD_IN_9:%IX101.1'
 actuators['base_clampled'] = "GD_IN_5:ON:%IX100.5"
 actuators['z_movement_finish'] = 'FE_Zag:GD_IN_6:%IX100.6'
 actuators['x_movement_finish'] = 'FE_Xag:GD_IN_7:%IX100.7'
-actuators['blade_pos_limit'] = 'GD_IN_8:ON:%IX100.8'
+actuators['blade_pos_limit'] = 'GD_IN_8:ON:%IX101.0'
 
-new_process = ag.process('PLANTA1')
-new_process2 = ag.process('EJEMPLO1')
-M1 = new_process2.new_automaton('M1_join')
-new_process2.add_state(M1, 3, ['I1', 'D1', 'P1'], [True])
-new_process2.add_transition(M1, [(0, 2), (2, 0), (2, 1), (1, 0)],
-                           ['start1', 'end1', 'breakdown1', 'repair1'], uncontrollable=['end1', 'breakdown1'])
 
-M2 = new_process2.new_automaton('M2')
-new_process2.add_state(M2, 3, ['I2', 'D2', 'P2'], [True])
-new_process2.add_transition(M2, [(0, 2), (2, 0), (2, 1), (1, 0)],
-                           ['start2', 'end2', 'breakdown2', 'repair2'], uncontrollable=['end2', 'breakdown2'])
-buffer = new_process2.new_automaton('buffer')
-new_process2.add_state(buffer, 3, ['empty', 'inter', 'full'], [True, True, True])
-new_process2.add_transition(buffer, [(0, 1), (1, 2), (2, 1), (1, 0)],
-                           ['end1', 'end1', 'start2', 'start2'], uncontrollable=['end1'])
-
-repair = new_process2.new_automaton('repair')
-new_process2.add_state(repair, 2, ['2ok', '2down'], [True, True])
-new_process2.add_transition(repair, [(0, 0), (0, 1), (1, 0)],
-                           ['repair1', 'breakdown2', 'repair2'], uncontrollable=['breakdown2'])
-new_process2.generate_all_automata()
+actuators['gen_base'] = 'GD_IN_10:ON:%IX102.7'
+actuators['gen_lid'] = 'GD_IN_11:ON:%IX103.0'
+Mascaras = dict([])
+Mascaras['GD_IN_10'] = [('GD_OUT_12', '%QX101.2')]
+Mascaras['GD_IN_11'] = [('GD_OUT_13', '%QX101.3')]
+new_process = ag.process('setter_line')
 
 Lids_conveyor = new_process.new_automaton('lids_conveyor')
 new_process.add_state(Lids_conveyor, 2, ['lids_on', 'lids_off'], marked=[True, True])
@@ -231,7 +221,6 @@ supdat5 = new_process.condat(plant5, sup5, 'supdat5')
 simsup5 = new_process.supreduce(plant5, sup5, supdat5, 'simsup45')
 
 new_process.plot_automatas([Grab, blade, spec5, sup5, plant5, all5], 1, False)
-new_process2.plot_automatas([M1,M2,buffer,repair], 1, False)
 
 
 new_process.load_automata([sup, sup2, sup3, sup4, sup5])
@@ -244,7 +233,7 @@ print(new_process.get_automata('sup3'))
 print(new_process.get_automata('sup4'))
 print(new_process.get_automata('sup5'))
 new_process.generate_ST_OPENPLC([sup, sup2, sup3, sup4, sup5],[plant, plant2, plant3, plant4, plant5],
-                                actuators,'setter_line')
+                                actuators,'setter_line', Mascaras=Mascaras)
 
 
 
