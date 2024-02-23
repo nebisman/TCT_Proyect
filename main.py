@@ -20,8 +20,6 @@ actuators['blade_off'] = 'GD_OUT_9:OFF'
 
 actuators['start'] = 'GD_IN_15:ON:%IX102.4' # %IX100.15 %IX102.7'
 
-
-
 actuators['lid_at_place_FE'] = 'FE_LaP:GD_IN_2:%IX100.2'
 actuators['lid_clampled'] = "GD_IN_4:ON:%IX100.4"
 actuators['base_at_place_FE'] = 'FE_BaP:GD_IN_3:%IX100.3'
@@ -32,8 +30,8 @@ actuators['x_movement_finish'] = 'FE_Xag:GD_IN_7:%IX100.7'
 actuators['blade_pos_limit'] = 'GD_IN_8:ON:%IX101.0'
 
 
-actuators['gen_base'] = 'GD_IN_10:ON:%IX102.7'
-actuators['gen_lid'] = 'GD_IN_11:ON:%IX103.0'
+actuators['gen_base'] = 'GD_IN_10:ON:%IX102.5'
+actuators['gen_lid'] = 'GD_IN_11:ON:%IX102.6'
 Mascaras = dict([])
 Mascaras['GD_IN_10'] = [('GD_OUT_12', '%QX101.2')]
 Mascaras['GD_IN_11'] = [('GD_OUT_13', '%QX101.3')]
