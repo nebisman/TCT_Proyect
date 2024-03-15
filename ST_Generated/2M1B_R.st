@@ -25,6 +25,7 @@ PROGRAM tesis0
 		random_numer : DINT;
 		initial : BOOL;
 		state : ARRAY [0..8] OF DINT;
+		slt0 : ARRAY [0..2] OF DINT;
 		FE_M1E : F_TRIG;
 		FE_M2E : F_TRIG;
 		FE_A : F_TRIG;
@@ -55,8 +56,8 @@ PROGRAM tesis0
 		GD_OUT_6 AT %QX100.6 : BOOL;
 		GD_IN_10 AT %IX102.4 : BOOL;
 		GD_IN_11 AT %IX103.1 : BOOL;
-		GD_IN_12 AT %IX102.7 : BOOL;
-		GD_IN_13 AT %IX103.0 : BOOL;
+		GD_IN_12 AT %IX102.5 : BOOL;
+		GD_IN_13 AT %IX102.6 : BOOL;
 		GD_OUT_12 AT %QX101.2 : BOOL;
 		GD_OUT_13 AT %QX101.3 : BOOL;
 	END_VAR
@@ -75,12 +76,136 @@ PROGRAM tesis0
 	ELSIF initial THEN
 		IF state[0] = 0 & GD_IN_15 THEN
 	  		state[0] := 1;
-	  	ELSIF state[0] = 2 & NOT GD_IN_10 THEN
+	  	ELSIF state[0] = 2 & FE_PL.Q THEN
 	  		state[0] := 3;
-	  	ELSIF state[0] = 2 & NOT GD_IN_0 THEN
+	  	ELSIF state[0] = 2 & NOT GD_IN_10 THEN
+	  		state[0] := 4;
+	  	ELSIF state[0] = 4 & NOT GD_IN_0 THEN
 	  		state[0] := 1;
-	  	ELSIF state[0] = 3 & NOT GD_IN_0 THEN
+	  	ELSIF state[0] = 5 & FE_PL.Q THEN
+	  		state[0] := 7;
+	  	ELSIF state[0] = 5 & NOT GD_IN_10 THEN
+	  		state[0] := 8;
+	  	ELSIF state[0] = 6 & FE_M2E.Q THEN
 	  		state[0] := 1;
+	  	ELSIF state[0] = 6 & NOT GD_IN_11 THEN
+	  		state[0] := 10;
+	  	ELSIF state[0] = 8 & NOT GD_IN_0 THEN
+	  		state[0] := 3;
+	  	ELSIF state[0] = 9 & FE_M2E.Q THEN
+	  		state[0] := 2;
+	  	ELSIF state[0] = 9 & FE_PL.Q THEN
+	  		state[0] := 11;
+	  	ELSIF state[0] = 9 & NOT GD_IN_10 THEN
+	  		state[0] := 12;
+	  	ELSIF state[0] = 9 & NOT GD_IN_11 THEN
+	  		state[0] := 13;
+	  	ELSIF state[0] = 10 & FE_M2E.Q THEN
+	  		state[0] := 14;
+	  	ELSIF state[0] = 11 & FE_M2E.Q THEN
+	  		state[0] := 3;
+	  	ELSIF state[0] = 11 & NOT GD_IN_11 THEN
+	  		state[0] := 16;
+	  	ELSIF state[0] = 12 & FE_M2E.Q THEN
+	  		state[0] := 4;
+	  	ELSIF state[0] = 12 & NOT GD_IN_0 THEN
+	  		state[0] := 6;
+	  	ELSIF state[0] = 12 & NOT GD_IN_11 THEN
+	  		state[0] := 17;
+	  	ELSIF state[0] = 13 & FE_M2E.Q THEN
+	  		state[0] := 18;
+	  	ELSIF state[0] = 13 & FE_PL.Q THEN
+	  		state[0] := 16;
+	  	ELSIF state[0] = 13 & NOT GD_IN_10 THEN
+	  		state[0] := 17;
+	  	ELSIF state[0] = 15 & FE_M2E.Q THEN
+	  		state[0] := 5;
+	  	ELSIF state[0] = 15 & FE_PL.Q THEN
+	  		state[0] := 20;
+	  	ELSIF state[0] = 15 & NOT GD_IN_10 THEN
+	  		state[0] := 19;
+	  	ELSIF state[0] = 15 & NOT GD_IN_11 THEN
+	  		state[0] := 21;
+	  	ELSIF state[0] = 16 & FE_M2E.Q THEN
+	  		state[0] := 22;
+	  	ELSIF state[0] = 17 & FE_M2E.Q THEN
+	  		state[0] := 23;
+	  	ELSIF state[0] = 17 & NOT GD_IN_0 THEN
+	  		state[0] := 10;
+	  	ELSIF state[0] = 18 & FE_PL.Q THEN
+	  		state[0] := 22;
+	  	ELSIF state[0] = 18 & NOT GD_IN_10 THEN
+	  		state[0] := 23;
+	  	ELSIF state[0] = 19 & FE_M2E.Q THEN
+	  		state[0] := 8;
+	  	ELSIF state[0] = 19 & NOT GD_IN_0 THEN
+	  		state[0] := 11;
+	  	ELSIF state[0] = 19 & NOT GD_IN_11 THEN
+	  		state[0] := 24;
+	  	ELSIF state[0] = 20 & FE_M2E.Q THEN
+	  		state[0] := 7;
+	  	ELSIF state[0] = 20 & NOT GD_IN_11 THEN
+	  		state[0] := 25;
+	  	ELSIF state[0] = 21 & FE_M2E.Q THEN
+	  		state[0] := 26;
+	  	ELSIF state[0] = 21 & FE_PL.Q THEN
+	  		state[0] := 25;
+	  	ELSIF state[0] = 21 & NOT GD_IN_10 THEN
+	  		state[0] := 24;
+	  	ELSIF state[0] = 23 & NOT GD_IN_0 THEN
+	  		state[0] := 14;
+	  	ELSIF state[0] = 24 & FE_M2E.Q THEN
+	  		state[0] := 28;
+	  	ELSIF state[0] = 24 & NOT GD_IN_0 THEN
+	  		state[0] := 16;
+	  	ELSIF state[0] = 25 & FE_M2E.Q THEN
+	  		state[0] := 29;
+	  	ELSIF state[0] = 26 & FE_PL.Q THEN
+	  		state[0] := 29;
+	  	ELSIF state[0] = 26 & NOT GD_IN_10 THEN
+	  		state[0] := 28;
+	  	ELSIF state[0] = 27 & FE_M2E.Q THEN
+	  		state[0] := 14;
+	  	ELSIF state[0] = 27 & NOT GD_IN_11 THEN
+	  		state[0] := 10;
+	  	ELSIF state[0] = 28 & NOT GD_IN_0 THEN
+	  		state[0] := 22;
+	  	ELSIF state[0] = 30 & FE_M2E.Q THEN
+	  		state[0] := 18;
+	  	ELSIF state[0] = 30 & FE_PL.Q THEN
+	  		state[0] := 32;
+	  	ELSIF state[0] = 30 & NOT GD_IN_10 THEN
+	  		state[0] := 31;
+	  	ELSIF state[0] = 30 & NOT GD_IN_11 THEN
+	  		state[0] := 13;
+	  	ELSIF state[0] = 31 & FE_M2E.Q THEN
+	  		state[0] := 23;
+	  	ELSIF state[0] = 31 & NOT GD_IN_0 THEN
+	  		state[0] := 27;
+	  	ELSIF state[0] = 31 & NOT GD_IN_11 THEN
+	  		state[0] := 17;
+	  	ELSIF state[0] = 32 & FE_M2E.Q THEN
+	  		state[0] := 22;
+	  	ELSIF state[0] = 32 & NOT GD_IN_11 THEN
+	  		state[0] := 16;
+	  	ELSIF state[0] = 33 & FE_M2E.Q THEN
+	  		state[0] := 26;
+	  	ELSIF state[0] = 33 & FE_PL.Q THEN
+	  		state[0] := 35;
+	  	ELSIF state[0] = 33 & NOT GD_IN_10 THEN
+	  		state[0] := 34;
+	  	ELSIF state[0] = 33 & NOT GD_IN_11 THEN
+	  		state[0] := 21;
+	  	ELSIF state[0] = 34 & FE_M2E.Q THEN
+	  		state[0] := 28;
+	  	ELSIF state[0] = 34 & NOT GD_IN_0 THEN
+	  		state[0] := 32;
+	  	ELSIF state[0] = 34 & NOT GD_IN_11 THEN
+	  		state[0] := 24;
+	  	ELSIF state[0] = 35 & FE_M2E.Q THEN
+	  		state[0] := 29;
+	  	ELSIF state[0] = 35 & NOT GD_IN_11 THEN
+	  		state[0] := 25;
 	  	END_IF;
 	
 		IF state[1] = 0 & GD_OUT_0 THEN
@@ -171,6 +296,50 @@ PROGRAM tesis0
 		CASE state[0] OF
 	  		1:
 	  			INTERN_0 := 1;
+			3:
+	  			CASE slt0[0] OF
+	  				0:
+	  					INTERN_0 := 1;
+	  				1:
+	  					INTERN_1 := 1;
+	  			END_CASE;
+	  			slt0[0] := (random_numer + slt0[0]) MOD 2;
+	  			random_numer := random_numer - slt0[0];
+	 		5:
+	  			INTERN_1 := 1;
+			6:
+	  			INTERN_0 := 1;
+			7:
+	  			INTERN_1 := 1;
+			8:
+	  			INTERN_1 := 1;
+			10:
+	  			INTERN_0 := 1;
+			11:
+	  			INTERN_0 := 1;
+			14:
+	  			INTERN_0 := 1;
+			16:
+	  			INTERN_0 := 1;
+			22:
+	  			CASE slt0[1] OF
+	  				0:
+	  					INTERN_0 := 1;
+	  				1:
+	  					INTERN_1 := 1;
+	  			END_CASE;
+	  			slt0[1] := (random_numer + slt0[1]) MOD 2;
+	  			random_numer := random_numer - slt0[1];
+	 		26:
+	  			INTERN_1 := 1;
+			27:
+	  			INTERN_0 := 1;
+			28:
+	  			INTERN_1 := 1;
+			29:
+	  			INTERN_1 := 1;
+			32:
+	  			INTERN_0 := 1;
 		END_CASE;
 	
 		CASE state[1] OF
@@ -245,6 +414,40 @@ PROGRAM tesis0
 	  	END_CASE;
 		IF state[0] = 1 & INTERN_0 THEN
 	  		state[0] := 2;
+	  	ELSIF state[0] = 3 & INTERN_0 THEN
+	  		state[0] := 5;
+	  	ELSIF state[0] = 3 & INTERN_1 THEN
+	  		state[0] := 6;
+	  	ELSIF state[0] = 5 & INTERN_1 THEN
+	  		state[0] := 9;
+	  	ELSIF state[0] = 6 & INTERN_0 THEN
+	  		state[0] := 9;
+	  	ELSIF state[0] = 7 & INTERN_1 THEN
+	  		state[0] := 11;
+	  	ELSIF state[0] = 8 & INTERN_1 THEN
+	  		state[0] := 12;
+	  	ELSIF state[0] = 10 & INTERN_0 THEN
+	  		state[0] := 13;
+	  	ELSIF state[0] = 11 & INTERN_0 THEN
+	  		state[0] := 15;
+	  	ELSIF state[0] = 14 & INTERN_0 THEN
+	  		state[0] := 18;
+	  	ELSIF state[0] = 16 & INTERN_0 THEN
+	  		state[0] := 21;
+	  	ELSIF state[0] = 22 & INTERN_0 THEN
+	  		state[0] := 26;
+	  	ELSIF state[0] = 22 & INTERN_1 THEN
+	  		state[0] := 27;
+	  	ELSIF state[0] = 26 & INTERN_1 THEN
+	  		state[0] := 30;
+	  	ELSIF state[0] = 27 & INTERN_0 THEN
+	  		state[0] := 30;
+	  	ELSIF state[0] = 28 & INTERN_1 THEN
+	  		state[0] := 31;
+	  	ELSIF state[0] = 29 & INTERN_1 THEN
+	  		state[0] := 32;
+	  	ELSIF state[0] = 32 & INTERN_0 THEN
+	  		state[0] := 33;
 	  	END_IF;
 	
 		IF state[1] = 2 & NOT GD_OUT_0 THEN

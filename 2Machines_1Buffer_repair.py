@@ -24,10 +24,10 @@ actuators['Piece_restard_OFF'] = 'GD_OUT_5:OFF:%QX100.5'
 actuators['Blade_ON'] = 'GD_OUT_6:ON:%QX100.6'
 actuators['Blade_OFF'] = 'GD_OUT_6:OFF:%QX100.6'
 
-actuators['M1_BROKEN'] = 'GD_IN_10:OFF:%IX102.4' #12 %IX101.0 IX102.4
-actuators['M2_BROKEN'] = 'GD_IN_11:OFF:%IX103.1' #22 %IX101.1
-actuators['M1_REPAIR'] = 'GD_IN_12:ON:%IX102.7' #%IX101.2
-actuators['M2_REPAIR'] = 'GD_IN_13:ON:%IX103.0'#%IX101.3
+actuators['M1_BROKEN'] = 'GD_IN_10:OFF:%IX102.4' #12 %IX101.0 IX102.4 PIN17
+actuators['M2_BROKEN'] = 'GD_IN_11:OFF:%IX103.1' #22 %IX101.1 PIN23
+actuators['M1_REPAIR'] = 'GD_IN_12:ON:%IX102.5' #%IX101.2 PIN18
+actuators['M2_REPAIR'] = 'GD_IN_13:ON:%IX102.6'#%IX101.3 PIN19
 
 
 actuators['M1_REPAIR_OUT'] = 'INTERN_4:ON'

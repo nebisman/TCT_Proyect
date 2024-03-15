@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ppx:project xmlns:ppx="http://www.plcopen.org/xml/tc6_0201" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ns1="http://www.plcopen.org/xml/tc6.xsd">
+  <ppx:fileHeader companyName="Unknown" productName="Unnamed" productVersion="1" creationDateTime="2022-06-03T13:37:24"/>
+  <ppx:contentHeader name="Unnamed" modificationDateTime="2022-06-03T13:39:11">
+    <ppx:coordinateInfo>
+      <ppx:fbd>
+        <ppx:scaling x="10" y="10"/>
+      </ppx:fbd>
+      <ppx:ld>
+        <ppx:scaling x="10" y="10"/>
+      </ppx:ld>
+      <ppx:sfc>
+        <ppx:scaling x="10" y="10"/>
+      </ppx:sfc>
+    </ppx:coordinateInfo>
+  </ppx:contentHeader>
+  <ppx:types>
+    <ppx:dataTypes/>
+    <ppx:pous>
+      <ppx:pou name="blank_project" pouType="program">
+        <ppx:interface>
+          <ppx:localVars>
+            <ppx:variable name="dummy_in">
+              <ppx:type>
+                <ppx:BOOL/>
+              </ppx:type>
+            </ppx:variable>
+            <ppx:variable name="dummy_out">
+              <ppx:type>
+                <ppx:BOOL/>
+              </ppx:type>
+            </ppx:variable>
+          </ppx:localVars>
+        </ppx:interface>
+        <ppx:body>
+          <ppx:LD>
+            <ppx:leftPowerRail localId="1" width="10" height="40">
+              <ppx:position x="60" y="60"/>
+              <ppx:connectionPointOut formalParameter="">
+                <ppx:relPosition x="10" y="20"/>
+              </ppx:connectionPointOut>
+            </ppx:leftPowerRail>
+            <ppx:contact localId="2" negated="false" width="30" height="20">
+              <ppx:position x="170" y="70"/>
+              <ppx:connectionPointIn>
+                <ppx:relPosition x="0" y="10"/>
+                <ppx:connection refLocalId="1">
+                  <ppx:position x="170" y="80"/>
+                  <ppx:position x="70" y="80"/>
+                </ppx:connection>
+              </ppx:connectionPointIn>
+              <ppx:connectionPointOut>
+                <ppx:relPosition x="30" y="10"/>
+              </ppx:connectionPointOut>
+              <ppx:variable>dummy_in</ppx:variable>
+            </ppx:contact>
+            <ppx:coil localId="3" negated="false" width="30" height="20">
+              <ppx:position x="650" y="70"/>
+              <ppx:connectionPointIn>
+                <ppx:relPosition x="0" y="10"/>
+                <ppx:connection refLocalId="2">
+                  <ppx:position x="650" y="80"/>
+                  <ppx:position x="200" y="80"/>
+                </ppx:connection>
+              </ppx:connectionPointIn>
+              <ppx:connectionPointOut>
+                <ppx:relPosition x="30" y="10"/>
+              </ppx:connectionPointOut>
+              <ppx:variable>dummy_out</ppx:variable>
+            </ppx:coil>
+            <ppx:rightPowerRail localId="4" width="10" height="40">
+              <ppx:position x="760" y="60"/>
+              <ppx:connectionPointIn>
+                <ppx:relPosition x="0" y="20"/>
+                <ppx:connection refLocalId="3">
+                  <ppx:position x="760" y="80"/>
+                  <ppx:position x="680" y="80"/>
+                </ppx:connection>
+              </ppx:connectionPointIn>
+            </ppx:rightPowerRail>
+          </ppx:LD>
+        </ppx:body>
+      </ppx:pou>
+    </ppx:pous>
+  </ppx:types>
+  <ppx:instances>
+    <ppx:configurations>
+      <ppx:configuration name="Config0">
+        <ppx:resource name="Res0">
+          <ppx:task name="task0" priority="0" interval="T#20ms">
+            <ppx:pouInstance name="instance0" typeName="blank_project"/>
+          </ppx:task>
+        </ppx:resource>
+      </ppx:configuration>
+    </ppx:configurations>
+  </ppx:instances>
+</ppx:project>
