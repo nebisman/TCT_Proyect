@@ -1,0 +1,10 @@
+digraph finite_state_machine {
+graph [label = "\n\nDES grab \n2024.03.26/17:48 "];
+rankdir=LR;
+node [shape = doublecircle]; 0 1 ;
+a [shape = point, color = white];
+node [shape = circle];
+a -> 0;
+0 -> 1  [ label = "9" ];
+1 -> 0  [ label = "11" ];
+}
