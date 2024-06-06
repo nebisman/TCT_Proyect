@@ -1,0 +1,16 @@
+CO_0_1    # states: 2    state set: 0 ... 1    initial state: 0
+
+marker states:       
+
+      0 
+
+vocal states: none
+
+
+# transitions: 9
+
+transitions: 
+
+[    0, 10,    0]  [    0, 12,    0]  [    0, 34,    0]  [    0, 38,    0]  
+[    0, 45,    0]  [    0, 47,    1]  [    1, 20,    1]  [    1, 38,    1]  
+[    1, 49,    0]  
