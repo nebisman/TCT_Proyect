@@ -38,10 +38,7 @@ static int init_level = 0;
 /*
  * Prototypes of functions exported by plugins
  **/
-int __init_py_ext(int argc,char **argv);
-void __cleanup_py_ext(void);
-void __retrieve_py_ext(void);
-void __publish_py_ext(void);
+
 
 /*
  * Retrieve input variables, run PLC and publish output variables
@@ -52,7 +49,7 @@ void __run(void)
     if (greatest_tick_count__)
         __tick %= greatest_tick_count__;
 
-    __retrieve_py_ext();
+    
 
     /*__retrieve_debug();*/
 
@@ -60,7 +57,7 @@ void __run(void)
 
     __publish_debug();
 
-    __publish_py_ext();
+    
 
 }
 
@@ -79,7 +76,7 @@ int __init(int argc,char **argv)
 
     config_init__();
     __init_debug();
-    init_level=1; if((res = __init_py_ext(argc,argv))){return res;}
+    
     return res;
 }
 /*
@@ -87,7 +84,7 @@ int __init(int argc,char **argv)
  **/
 void __cleanup(void)
 {
-    if(init_level >= 1) __cleanup_py_ext();
+    
     __cleanup_debug();
 }
 
@@ -96,6 +93,10 @@ void PLC_SetTimer(unsigned long long next, unsigned long long period);
 
 
 
+IEC_BOOL var0;
+IEC_BOOL *__IX0_0 = &var0;
+IEC_BOOL var1;
+IEC_BOOL *__QX0_1 = &var1;
 /**
  * Win32 specific code
  **/
@@ -133,12 +134,6 @@ void PLC_GetTime(IEC_TIME *CURRENT_TIME)
 	(*CURRENT_TIME).tv_nsec = timetmp.millitm * 1000000;
 }
 
-void PLC_timer_notify()
-{
-    PLC_GetTime(&__CURRENT_TIME);
-    __run();
-}
-
 HANDLE PLC_timer = NULL;
 void PLC_SetTimer(unsigned long long next, unsigned long long period)
 {
@@ -163,9 +158,12 @@ void PlcLoop()
 {
     PLC_shutdown = 0;
     while(!PLC_shutdown) {
-        if (WaitForSingleObject(PLC_timer, INFINITE) != WAIT_OBJECT_0)
+        if (WaitForSingleObject(PLC_timer, INFINITE) != WAIT_OBJECT_0){
             PLC_shutdown = 1;
-        PLC_timer_notify();
+            break;
+        }
+        PLC_GetTime(&__CURRENT_TIME);
+        __run();
     }
 }
 
@@ -180,7 +178,6 @@ int startPLC(int argc,char **argv)
 {
 	unsigned long thread_id = 0;
     BOOL tmp;
-    setlocale(LC_NUMERIC, "C");
 
     debug_sem = CreateSemaphore(
                             NULL,           // default security attributes
@@ -271,9 +268,16 @@ void LeaveDebugSection(void)
 
 int stopPLC()
 {
-    CloseHandle(PLC_timer);
+ 	
+    PLC_shutdown = 1;
+    // force last wakeup of PLC thread
+    SetWaitableTimer(PLC_timer, 0, 0, NULL, NULL, 0);
+    // wait end of PLC thread
     WaitForSingleObject(PLC_thread, INFINITE);
+
     __cleanup();
+
+    CloseHandle(PLC_timer);
     CloseHandle(debug_wait_sem);
     CloseHandle(debug_sem);
     CloseHandle(python_wait_sem);
