@@ -1,0 +1,16 @@
+Small_factory\sup_BA    # states: 5    state set: 0 ... 4    initial state: 0
+
+marker states:       
+
+      0       1       2       3       4 
+
+vocal states: none
+
+
+# transitions: 9
+
+transitions: 
+
+[    0,  9,    1]  [    1,  9,    1]  [    1, 37,    2]  [    2,  9,    2]  
+[    2, 39,    3]  [    3,  9,    3]  [    3, 41,    4]  [    4,  7,    1]  
+[    4,  9,    4]  

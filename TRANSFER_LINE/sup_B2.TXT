@@ -1,0 +1,18 @@
+TRANSFER_LINE\sup_B2    # states: 5    state set: 0 ... 4    initial state: 0
+
+marker states:       
+
+      0       1       2       3       4 
+
+vocal states: none
+
+
+# transitions: 17
+
+transitions: 
+
+[    0, 33,    1]  [    0, 37,    0]  [    0, 43,    0]  [    1, 33,    1]  
+[    1, 37,    2]  [    1, 43,    1]  [    2, 33,    2]  [    2, 37,    2]  
+[    2, 39,    3]  [    2, 43,    2]  [    3, 33,    3]  [    3, 37,    3]  
+[    3, 43,    4]  [    4, 33,    4]  [    4, 37,    4]  [    4, 41,    0]  
+[    4, 43,    4]  

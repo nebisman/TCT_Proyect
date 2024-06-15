@@ -1,0 +1,18 @@
+TRANSFER_LINE\sup2    # states: 8    state set: 0 ... 7    initial state: 0
+
+marker states:       
+
+      0 
+
+vocal states: none
+
+
+# transitions: 16
+
+transitions: 
+
+[    0, 85,    1]  [    1, 43,    2]  [    2, 85,    3]  [    2, 87,    4]  
+[    3, 87,    5]  [    4, 29,    0]  [    4, 75,    0]  [    4, 85,    5]  
+[    5, 29,    1]  [    5, 43,    6]  [    5, 75,    1]  [    6, 29,    2]  
+[    6, 75,    2]  [    6, 85,    7]  [    7, 29,    3]  [    7, 75,    3]  
+

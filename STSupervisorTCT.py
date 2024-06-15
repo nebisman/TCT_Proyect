@@ -2,6 +2,7 @@ import math
 import os
 from PIL import Image
 import matplotlib.pyplot as plt
+import pytct
 
 user_route = "TCTX64_20210701/" # Project route
 
@@ -31,47 +32,25 @@ transitions = "\n\n" + """Transitions:
 class process:
     def __init__(self, route): #generate a closed enviorment to process related automata.
         self.automatas = dict([])
-        self.componed = []
         self.dict_events = dict([])
         self.dict_events_name = dict([])
         self.dict_states = dict([])
         self.c_events = []
         self.uc_events = []
-        directorio = user_route + route
-        if not os.path.exists(directorio):
-            os.makedirs(directorio)
-            print(f"Folder '{directorio}' has been created.")
-        else:
-            print(f"Folder '{directorio}' already exist.")
+        pytct.init(route, overwrite=True)
         self.init = route + '\n' + 'CLOCK 0\n'
-        self.route = directorio
-        self.update_route()
+        self.route = route
 
-    def update_route(self): #Update the route of the ctct.ini file in the correct folder
-        with open('TCTX64_20210701/ctct.ini', 'w') as archivo:
-            archivo.write(self.init)
 
     def load_automata(self, names: list, save_txt=False): #Load the TCT synthesized automata
-        self.update_route()
         for name in names:
-            self.aux_auto2txt(name)
+            pytct.printdes(name,name)
             self.aux_read_TXT(name)
 
     def get_automata(self, name): #Get a specfic automaton by its name
         return self.automatas[name]
 
-    def aux_auto2txt(self, name: str): #gets the txt file from the DES File
-        ruta_carpeta = self.route + "/"
-        generate_command = "0\n1\n33\n"
-        generate_command += name + "\n" + name + "\n"
 
-        with open(ruta_carpeta + "ctct.prm", "w") as archivo:
-            archivo.write(generate_command)
-
-        command = "cd TCTX64_20210701"
-        command += " & TCTX64_20210701.exe -cmdline"
-        a = os.system(command)
-        return a
 
     def print_events(self, actuators=[]): #Print in console all events
         aux = list(map(int, self.dict_events.values()))
@@ -85,7 +64,6 @@ class process:
                 print(n + " -> " + self.dict_events_name[n] + " : " + actuators[self.dict_events_name[n]])
 
     def plot_automatas(self, nameList: list, numcolumns: int = 1, show=True): #Generate images of automata and plot them
-        self.update_route()
         self.generate_image(nameList)
         num_filas = math.ceil(len(nameList) / numcolumns)
         if show:
@@ -103,7 +81,6 @@ class process:
             plt.show()
 
     def generate_image(self, name_list: list): #Generate image of autamaton list
-        self.update_route()
         for name in name_list:
             self.aux_generate_image(name)
 
@@ -131,15 +108,20 @@ class process:
         for e in events:
             self.add_self_event(name, e)
 
-    def add_self_event(self, name, event): #Add a self loop of one event in an automaton
+    def add_self_event(self, name, event, uncontrollable:bool = False): #Add a self loop of one event in an automaton
         for s in self.automatas[name].states:
             active_events = s.get_active_events()
             if event not in active_events:
+                if event not in self.c_events and event not in self.uc_events:
+                    if uncontrollable:
+                        self.add_transition(name, [(s.get_id(), s.get_id())], [event], [event])
+                    else:
+                        self.add_transition(name, [(s.get_id(), s.get_id())], [event], [])
+                        return
                 if event in self.uc_events:
                     self.add_transition(name, [(s.get_id(), s.get_id())], [event], [event])
                 else:
                     self.add_transition(name, [(s.get_id(), s.get_id())], [event], [])
-            # print(s.get_id(),e)
 
     def coordinator(self, supervisores, plantas): #Returns if a pair of supervisors are nonconflicting
         TESTcoor = self.automata_syncronize(supervisores, "SUPt")
@@ -149,84 +131,31 @@ class process:
         return noncoor, TESTcoor, AEcoor
 
     def all_events(self, automata_name, alleventsname): #Get the all events automaton from an automaton
-        self.update_route()
-        ruta_carpeta = self.route + "/"
-        generate_command = "0\n1\n19\n"
-        generate_command += automata_name + "\n" + alleventsname + "\n" + "1\n"
-
-        with open(ruta_carpeta + "ctct.prm", "w") as archivo:
-            archivo.write(generate_command)
-        command = "cd TCTX64_20210701"
-        command += " & TCTX64_20210701.exe -cmdline"
-        a = os.system(command)
+        pytct.allevents(alleventsname, automata_name)
         return alleventsname
 
     def supreduce(self, plant, sup, sup_dat, simsup): #returns the minimal proper supervisor
-        self.update_route()
-        ruta_carpeta = self.route + "/"
-        generate_command = "0\n1\n8\n"
-        generate_command += plant + "\n" + sup + "\n" + sup_dat + "\n" + simsup + "\n"
-
-        with open(ruta_carpeta + "ctct.prm", "w") as archivo:
-            archivo.write(generate_command)
-        command = "cd TCTX64_20210701"
-        command += " & TCTX64_20210701.exe -cmdline"
-        a = os.system(command)
+        pytct.supreduce(simsup, plant, sup, sup_dat)
         return simsup
 
     def condat(self, plant, sup, sup_dat): #returns de .dat of a supervisor.
-        self.update_route()
-        ruta_carpeta = self.route + "/"
-        generate_command = "0\n1\n7\n"
-        generate_command += plant + "\n" + sup + "\n" + sup_dat + "\n"
-
-        with open(ruta_carpeta + "ctct.prm", "w") as archivo:
-            archivo.write(generate_command)
-        command = "cd TCTX64_20210701"
-        command += " & TCTX64_20210701.exe -cmdline"
-        a = os.system(command)
+        pytct.condat(sup_dat, plant, sup)
         return sup_dat
 
-    def supcon(self, test, all, name: str = ""):#Synthetize the supervisor of a plant
-        self.update_route()
-        if name == "":
-            name = "sc_" + test[0]
-        ruta_carpeta = self.route + "/"
-        generate_command = "0\n1\n5\n"
-        generate_command += test + "\n" + all + "\n" + name + "\n"
-
-        with open(ruta_carpeta + "ctct.prm", "w") as archivo:
-            archivo.write(generate_command)
-        command = "cd TCTX64_20210701"
-        command += " & TCTX64_20210701.exe -cmdline"
-        a = os.system(command)
-        return name
+    def supcon(self, plant, specifications, sup: str = ""):#Synthetize the supervisor of a plant
+        pytct.supcon(sup, plant, specifications)
+        return sup
 
     def nonconflict(self, name_1, name_2): #Returns if a pair of automata are conflicting
-        self.update_route()
         return len(self.nonconflict_aux(name_1, [name_2])) == 0
 
     def nonconflict_aux(self, name, names: list): #Find each conflicting supervisor in names with name
         conflicting = []
         for n in names:
             if not n == name:
-                ruta_carpeta = self.route + "/"
-                generate_command = "0\n1\n25\n"
-                generate_command += name + '\n'
-                generate_command += n + '\n'
-                with open(ruta_carpeta + "ctct.prm", "w") as archivo:
-                    archivo.write(generate_command)
-                command = "cd TCTX64_20210701"
-                command += " & TCTX64_20210701.exe -cmdline"
-                a = os.system(command)
-                with open(ruta_carpeta + "ctct.rst", "r") as archivo:
-                    error = archivo.readline()
-                    if error != '0\n':
-                        print('error, no se logro calcular nonconflict\n')
-                    else:
-                        result = archivo.readline()
-                        if result == '0\n':
-                            conflicting.append((n))
+                result = pytct.nonconflict(n, name)
+                if not result:
+                    conflicting.append((n))
         return conflicting
 
     def new_automaton(self, name: str): #Generate a new automaton
@@ -245,56 +174,24 @@ class process:
                                             self.dict_events, self.dict_events_name)
 
     def generate_all_automata(self): #Generate all the automaton TCT files
-        self.update_route()
         for name in self.automatas.keys():
             self.generate_automata(name)
 
     def generate_automata(self, name): #Generate a TCT automaton file
-        ruta_carpeta = self.route + "/"
-        generate_command = "0\n1\n0\n"
-
-        if name in self.automatas.keys():
-            generate_command += name + '\n' + str(len(self.automatas[name].dict_states)) + "\n"
-            for marker in self.automatas[name].states_marked:
-                generate_command += str(self.automatas[name].dict_states[marker]) + ' '
-            generate_command += "-1\n"
-            for transition in self.automatas[name].transitions:
-                generate_command += str(transition[0]) + ' ' + str(transition[1]) + ' ' + str(transition[2]) + "\n"
-        with open(ruta_carpeta + "ctct.prm", "w") as archivo:
-            archivo.write(generate_command)
-        command = "cd TCTX64_20210701"
-        command += " & TCTX64_20210701.exe -cmdline"
-        a = os.system(command)
-        return a
+        delta = []
+        Qm = [self.automatas[name].dict_states[key] for key in self.automatas[name].states_marked]
+        size = len(self.automatas[name].dict_states)
+        for transition in self.automatas[name].transitions:
+                delta.append((transition[0],transition[1],transition[2]))
+        pytct.create(name, size, delta,Qm)
+        return
         # Lista de comandos que deseas enviar
 
     def automata_syncronize(self, automata_names: list, name_sync: str = ""): #Syncronize the group of automata automata_names
-        self.update_route()
-        ruta_carpeta = self.route + "/"
-        to_sync = ""
-        num_sync = 0
-        if name_sync == "":
-            name_sync = "("
-            for n in automata_names:
-                name_sync += n[0]
-            name_sync = ")"
-
-        generate_command = "0\n1\n3\n"
-        for name in automata_names:
-            to_sync += name + "\n"
-            num_sync += 1
-        name_sync = name_sync.upper()
-        generate_command += name_sync + "\n" + str(num_sync) + "\n" + to_sync
-        with open(ruta_carpeta + "ctct.prm", "w") as archivo:
-            archivo.write(generate_command)
-        command = "cd TCTX64_20210701"
-        command += " & TCTX64_20210701.exe -cmdline"
-        a = os.system(command)
-        self.componed.append(name_sync)
+        pytct.sync(name_sync, *automata_names)
         return name_sync
 
     def aux_read_TXT(self, name): #Read TCT TXT files and charge the info in the process
-        self.update_route()
         with open(self.route + "/" + name + ".TXT", "r") as archivo:
             marked = -1
             transitions = []
@@ -316,7 +213,6 @@ class process:
                     marked = [int(x) for x in linea.split()]
                     self.add_state(name, num_state, [], [[x in marked for x in range(0, num_state)]])
                     aux = 2
-
                     continue
                 if "[" not in linea:
                     continue
@@ -778,8 +674,6 @@ class process:
 
         case += "\tEND_CASE;\n  "
         return case
-
-
 class State: #Automaton state structure
     def __init__(self, id):
         self.id = id
@@ -804,7 +698,6 @@ class State: #Automaton state structure
 
     def get_id(self): #Get the state id
         return self.id
-
 
 class Automata:#Automaton structure
     def __init__(self, name: str):
