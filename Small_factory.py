@@ -44,7 +44,7 @@ Mascaras = dict([])
 Mascaras['GD_OUT_2'] = [('GD_OUT_3', '%QX100.3')]  # BANDM1 -> EMITER
 Mascaras['NOT GD_IN_10'] = [('GD_OUT_8', '%QX101.0')]  # M1_BROKEN -> M1_BROKEN
 Mascaras['NOT GD_IN_11'] = [('GD_OUT_9', '%QX101.1')]  # M2_BROKEN -> M2_BROKEN
-new_process = ag.process('..\\Small_factory')
+new_process = ag.process('Small_factory')
 
 M1 = new_process.new_automaton('M1')
 new_process.add_state(M1, number_of_states=4, names=[], marked=[True, True, True, True])

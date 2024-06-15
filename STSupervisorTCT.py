@@ -1,4 +1,6 @@
 import math
+import os
+
 from PIL import Image
 import matplotlib.pyplot as plt
 import pytct
@@ -486,7 +488,8 @@ class process:
                 out += ('\tIF NOT initial THEN\n\t\tIF ' + actuators[initial].split(':')[
                     0] + ' THEN\n\t\t\tinitial := 1;\n\t\tEND_IF;\n\tELSIF initial THEN\n'
                         + out_aux + '\n\tEND_IF;' + END)
-
+        if not os.path.exists('ST_Generated'):
+            os.makedirs('ST_Generated')
         with open('ST_Generated/' + namest + ".st", 'w') as archivo:
             archivo.write(out)
         return out
