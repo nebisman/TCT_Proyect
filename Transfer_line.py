@@ -309,5 +309,5 @@ new_process.generate_ST_OPENPLC([sup_2, sup2_2],
                                 actuators, 'transfer_line', Masks, AISLATED, initial='start')
 
 new_process.print_events()
-print(new_process.get_automata(sup_2))
-print(new_process.get_automata(sup2_2))
+print(new_process.get_automaton(sup_2))
+print(new_process.get_automaton(sup2_2))

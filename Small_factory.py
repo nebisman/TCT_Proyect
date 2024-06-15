@@ -44,13 +44,14 @@ Mascaras = dict([])
 Mascaras['GD_OUT_2'] = [('GD_OUT_3', '%QX100.3')]  # BANDM1 -> EMITER
 Mascaras['NOT GD_IN_10'] = [('GD_OUT_8', '%QX101.0')]  # M1_BROKEN -> M1_BROKEN
 Mascaras['NOT GD_IN_11'] = [('GD_OUT_9', '%QX101.1')]  # M2_BROKEN -> M2_BROKEN
-new_process = ag.process('Small_factory')
+new_process = ag.process('..\\Small_factory')
 
 M1 = new_process.new_automaton('M1')
 new_process.add_state(M1, number_of_states=4, names=[], marked=[True, True, True, True])
 new_process.add_transition(M1, transitions=[(0, 1), (1, 2), (2, 3), (3, 0)],
                            events=['M1_ON', 'M1_Bussy', 'M1_OFF', 'M1_END'],
                            uncontrollable=['M1_ON', 'M1_Bussy', 'M1_END'])  # 'M1_ON'
+new_process.add_self_events(M1, ['M1_ON', 'M1_Bussy', 'M1_END'])
 
 Buffer_llenado = new_process.new_automaton('Buffer_llenado')
 new_process.add_state(Buffer_llenado, 10, [], [True, True, True, True, True, True, True, True, True, True, True])
@@ -80,15 +81,15 @@ new_process.add_state(M2, 4, [], [True, True, True, True])
 new_process.add_transition(M2, [(0, 1), (1, 2), (2, 3), (3, 0)], ['M2_ON', 'M2_Bussy', 'M2_OFF', 'M2_END'],
                            ['M2_ON', 'M2_Bussy', 'M2_END'])
 
-Buffer_M1 = new_process.new_automaton('B_A')
-new_process.add_state(Buffer_M1, number_of_states=4, names=[], marked=[True, True, True, True])
-new_process.add_transition(Buffer_M1, transitions=[(0, 1), (1, 2), (2, 3), (3, 0)],
+B_A = new_process.new_automaton('B_A')
+new_process.add_state(B_A, number_of_states=4, names=[], marked=[True, True, True, True])
+new_process.add_transition(B_A, transitions=[(0, 1), (1, 2), (2, 3), (3, 0)],
                            events=['BA_ON', 'Fed', 'BA_OFF', 'M1_END'], uncontrollable=['Fed', 'M1_END'])
 
 start = new_process.new_automaton('start')
 new_process.add_state(start, number_of_states=2, names=["waiting", 'start'], marked=[True, True])
 new_process.add_transition(start, transitions=[(0, 1), (1, 1)], events=['start', 'BA_ON'], uncontrollable=['start'])
-new_process.add_self_event(Buffer_M1, event='start')
+new_process.add_self_event(B_A, event='start')
 new_process.complete_spec(start)
 
 model_M1 = new_process.new_automaton('model_M1')
@@ -150,7 +151,7 @@ new_process.add_transition(repair, transitions=[(0, 1), (1, 2), (2, 3), (3, 4), 
 
 new_process.generate_all_automata()
 
-plant_BA = new_process.automata_syncronize([Buffer_M1], name_sync='plant_BA')
+plant_BA = new_process.automata_syncronize([B_A], name_sync='plant_BA')
 all_BA = new_process.all_events(plant_BA, 'all_BA')
 spec_BA = new_process.automata_syncronize([start, all_BA], name_sync='spec_BA')
 sup_BA = new_process.supcon(plant_BA, spec_BA, 'sup_BA')
@@ -171,13 +172,13 @@ new_process.load_automata([plant, sup])
 # ('21', 'M2_ON'), ('11', 'M1_ON')
 AISLATED = [[M1, M2, sup_BA, generate, Buffer_llenado, Blade, repair],
             [('21', 'M2_ON'), ('11', 'M1_ON')]]
-
-new_process.generate_image(
-    [M1, M2, Buffer_M1, Blade, sup_BA, sup, plant, model_M1, Buffer_llenado, REQ_Buffer,
-     model_M2, REQ_repair, repair])
+new_process.print_events()
+print(new_process.get_automaton('SUP'))
 
 new_process.generate_ST_OPENPLC([sup],
                                 [plant],
                                 actuators, 'Small_factory', Mask=Mascaras, Aislated=AISLATED, initial='start')
-new_process.print_events()
-print(new_process.get_automata('SUP'))
+
+new_process.generate_image(
+    [M1, M2, B_A, Blade, sup_BA, sup, plant, model_M1, Buffer_llenado, REQ_Buffer,
+     model_M2, REQ_repair, repair])

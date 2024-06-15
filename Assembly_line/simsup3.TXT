@@ -1,0 +1,15 @@
+Assembly_line\simsup3    # states: 1    state set: 0 ... 0    initial state: 0
+
+marker states:       
+
+      0 
+
+vocal states: none
+
+
+# transitions: 6
+
+transitions: 
+
+[    0,  6,    0]  [    0,  8,    0]  [    0, 13,    0]  [    0, 27,    0]  
+[    0, 33,    0]  [    0, 35,    0]  

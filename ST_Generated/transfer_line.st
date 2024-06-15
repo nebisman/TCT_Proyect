@@ -30,8 +30,8 @@ PROGRAM tesis0
 		INTERN_3_C : ARRAY [0..1] OF BOOL;
 		INTERN_5_C : ARRAY [0..1] OF BOOL;
 		slt0 : ARRAY [0..2] OF DINT;
-		INTERN_5_G : ARRAY [0..2] OF BOOL;
 		INTERN_3_G : ARRAY [0..2] OF BOOL;
+		INTERN_5_G : ARRAY [0..2] OF BOOL;
 		INTERN_1_G : ARRAY [0..1] OF BOOL;
 		RE_M1 : R_TRIG;
 		FE_M2E : F_TRIG;
@@ -426,20 +426,7 @@ PROGRAM tesis0
 				INTERN_3_C[1] := 0;
 				INTERN_5_C[1] := 1;
 		END_CASE;
-	  	IF INTERN_5_G[0] <> INTERN_5_G[1] THEN
-			INTERN_5_G[0] := INTERN_5;
-			INTERN_5_G[1] := INTERN_5;
-		END_IF;
-		aux := INTERN_5_G[0];
-		IF aux XOR INTERN_5 THEN
-			IF NOT aux & INTERN_5_C[0] THEN
-				INTERN_5 := 0;
-			ELSIF aux & INTERN_5_C[1] THEN
-				INTERN_5 := 1;
-			END_IF;
-		END_IF;
-		INTERN_5_G[0] := INTERN_5;
-		IF INTERN_3_G[0] <> INTERN_3_G[1] THEN
+	  	IF INTERN_3_G[0] <> INTERN_3_G[1] THEN
 			INTERN_3_G[0] := INTERN_3;
 			INTERN_3_G[1] := INTERN_3;
 		END_IF;
@@ -452,6 +439,19 @@ PROGRAM tesis0
 			END_IF;
 		END_IF;
 		INTERN_3_G[0] := INTERN_3;
+		IF INTERN_5_G[0] <> INTERN_5_G[1] THEN
+			INTERN_5_G[0] := INTERN_5;
+			INTERN_5_G[1] := INTERN_5;
+		END_IF;
+		aux := INTERN_5_G[0];
+		IF aux XOR INTERN_5 THEN
+			IF NOT aux & INTERN_5_C[0] THEN
+				INTERN_5 := 0;
+			ELSIF aux & INTERN_5_C[1] THEN
+				INTERN_5 := 1;
+			END_IF;
+		END_IF;
+		INTERN_5_G[0] := INTERN_5;
 	
 		aux := INTERN_1_G[0];
 		IF aux XOR INTERN_1 THEN

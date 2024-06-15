@@ -1,10 +1,10 @@
 import math
-import os
 from PIL import Image
 import matplotlib.pyplot as plt
 import pytct
+from graphviz import Digraph
 
-user_route = "TCTX64_20210701/" # Project route
+user_route = "TCTX64_20210701/"  # Project route
 
 ## Common info for TCT files:
 state_size = """State size (State set will be (0,1....,size-1)):     
@@ -29,8 +29,95 @@ transitions = "\n\n" + """Transitions:
 # Example: 2 0 1 (for transition labeled 0 from state 2 to state 1)."""
 
 
+class State:  # Automaton state structure
+    def __init__(self, id):
+        self.id = id
+        self.active_events = []
+
+    def __str__(self):
+        return "id: " + str(self.id) + ", name: " + str(self.actuators)
+
+    def add_active_event(self, event: str):  # Add active events
+        try:
+            self.active_events.append(event)
+        except:
+            print(event)
+            print(self.id)
+
+    def __repr__(self):
+        # return "{ " + str(self.id) + " ," + str(self.actuators) + ", ev: " + str(self.active_events) + "}"
+        return str(self.id)
+
+    def get_active_events(self):  # Get active events
+        return self.active_events
+
+    def get_id(self):  # Get the state id
+        return self.id
+
+
+class Automata:  # Automaton structure
+    def __init__(self, name: str):
+        self.name = name
+        self.c_events = []
+        self.uc_events = []
+        self.transitions = []
+        self.states = []
+        self.dict_events = dict([])
+        self.dict_states = dict([])
+        self.states_marked = []
+
+    def __str__(self):
+        return "name: " + str(self.name) + ", # states: " + str(len(self.states)) + ", # transitions: " + str(
+            len(self.transitions))
+
+    def add_state(self, number_of_states: int, names: list, marked: list):  # Add state in the automaton
+        dif_mark = number_of_states - len(marked)
+        if dif_mark > 0:
+            for i in range(0, dif_mark):
+                marked.append(False)
+        for i in range(0, number_of_states):
+            state = State(i)
+            self.states.append(state)
+            self.dict_states[names[i]] = i
+            if marked[i]:
+                self.states_marked.append(names[i])
+
+    def add_transition(self, transitions: list, event: list, uncontrollable: list = [], uc_events: list = [],
+                       c_events: list = [], dict_events: dict = [], dict_events_name: dict = []):
+        # Add a transition in the automaton
+        for i in range(0, len(event)):
+            aux_event = event[i]
+            aux_list = dict_events.keys()
+            if event[i] not in self.uc_events and event[i] in uncontrollable:
+                self.uc_events.append(event[i])
+            if event[i] not in self.c_events and event[i] not in uncontrollable:
+                self.c_events.append(event[i])
+
+            if event[i] not in dict_events.keys():
+                if event[i] in uncontrollable:
+                    if event[i] not in uc_events:
+                        uc_events.append(event[i])
+                        id = 2 * (len(uc_events) - 1)
+                        dict_events[event[i]] = str(id)
+                        dict_events_name[str(id)] = event[i]
+                else:
+                    if event[i] not in c_events:
+                        c_events.append(event[i])
+                        id = 2 * (len(c_events) - 1) + 1
+                        dict_events[event[i]] = str(id)
+                        dict_events_name[str(id)] = event[i]
+
+        for i in range(0, len(transitions)):
+            aux = self.states[transitions[i][0]]
+            eve = event[i]
+            self.states[transitions[i][0]].add_active_event(event[i])
+            self.transitions.append((transitions[i][0], int(dict_events.get(event[i])), transitions[i][1]))
+        # print(self.transitions)
+        # print(dict_events)
+
+
 class process:
-    def __init__(self, route): #generate a closed enviorment to process related automata.
+    def __init__(self, route):  # generate a closed enviorment to process related automata.
         self.automatas = dict([])
         self.dict_events = dict([])
         self.dict_events_name = dict([])
@@ -41,18 +128,18 @@ class process:
         self.init = route + '\n' + 'CLOCK 0\n'
         self.route = route
 
-
-    def load_automata(self, names: list, save_txt=False): #Load the TCT synthesized automata
+    def load_automata(self, names: list):  # Load the TCT synthesized automata
         for name in names:
-            pytct.printdes(name,name)
+            self.DES2TXT(name)
             self.aux_read_TXT(name)
 
-    def get_automata(self, name): #Get a specfic automaton by its name
+    def DES2TXT(self, name):  # Load the TCT synthesized automata
+        pytct.printdes(name, name)
+
+    def get_automaton(self, name) -> Automata:  # Get a specfic automaton by its name
         return self.automatas[name]
 
-
-
-    def print_events(self, actuators=[]): #Print in console all events
+    def print_events(self, actuators=[]):  # Print in console all events
         aux = list(map(int, self.dict_events.values()))
         aux.sort()
         aux = list(map(str, aux))
@@ -63,7 +150,8 @@ class process:
             for n in aux:
                 print(n + " -> " + self.dict_events_name[n] + " : " + actuators[self.dict_events_name[n]])
 
-    def plot_automatas(self, nameList: list, numcolumns: int = 1, show=True): #Generate images of automata and plot them
+    def plot_automatas(self, nameList: list, numcolumns: int = 1,
+                       show=True):  # Generate images of automata and plot them
         self.generate_image(nameList)
         num_filas = math.ceil(len(nameList) / numcolumns)
         if show:
@@ -80,23 +168,49 @@ class process:
                 axs[i].axis('off')  # Ocultar los ejes
             plt.show()
 
-    def generate_image(self, name_list: list): #Generate image of autamaton list
+    def generate_image(self, name_list: list):  # Generate image of autamaton list
         for name in name_list:
             self.aux_generate_image(name)
 
-    def aux_generate_image(self, name): #Generate image for an automaton
-        ruta_carpeta = self.route + "/"
-        generate_command = "0\n1\n30\n"
-        generate_command += name + "\n" + name + "\n"
+    # Función para ajustar el tamaño de la fuente basado en la longitud del label
+    def adjust_fontsize(self, label):
+        base_size = 12
+        max_length = 20
+        min_size = 8
+        if len(label) > max_length:
+            return str(max(min_size, base_size - (len(label) - max_length) // 2))
+        return str(base_size)
 
-        with open(ruta_carpeta + "ctct.prm", "w") as archivo:
-            archivo.write(generate_command)
-        command = "cd TCTX64_20210701"
-        command += " & TCTX64_20210701.exe -cmdline"
-        a = os.system(command)
-        return a
+    def aux_generate_image(self, name):  # Generate image for an automaton
+        automaton = self.get_automaton(name)
+        states = [str(state.get_id()) for state in automaton.states]
+        transitions = []
+        transition_labels = dict([])
+        for start, label, end in automaton.transitions:
+            key = (str(start), str(end))
+            if key not in transitions:
+                transitions.append(key)
+            if key in transition_labels.keys():
+                transition_labels[key] += ",\n " + self.dict_events_name[str(label)]
+            else:
+                transition_labels[key] = self.dict_events_name[str(label)]
+        marked_states = [str(automaton.dict_states[key]) for key in automaton.states_marked]
+        dot = Digraph()
+        dot.attr(rankdir='LR', nodesep='0.3', ranksep='0.3', splines='true')
+        for state in states:
+            if state in marked_states:
+                dot.node(state, shape='doublecircle', width='0.4', height='0.4', fixedsize='true')
+            else:
+                dot.node(state, shape='circle', width='0.5', height='0.5', fixedsize='true')
+        for start, end in transitions:
+            label = transition_labels.get((start, end), "")
+            fontzise = self.adjust_fontsize(label)
+            minlen = str(int(fontzise) // 6)
+            dot.edge(start, end, label=label, fontsize=fontzise, constraint='true', minlen=minlen)  #
+        dot.render(self.route + "\\Images\\" + name, format='png', cleanup=True)
+        return
 
-    def complete_spec(self, name): #For an automaton add all the self-loops of uncontrollable events
+    def complete_spec(self, name):  # For an automaton add all the self-loops of uncontrollable events
         for s in self.automatas[name].states:
             for e in self.automatas[name].uc_events:
                 active_events = s.get_active_events()
@@ -104,11 +218,11 @@ class process:
                     self.add_transition(name, [(s.get_id(), s.get_id())], [e], [e])
                 # print(s.get_id(),e)
 
-    def add_self_events(self, name, events: list): #Add a self loop  for each event in events in an automaton
+    def add_self_events(self, name, events: list):  # Add a self loop  for each event in events in an automaton
         for e in events:
             self.add_self_event(name, e)
 
-    def add_self_event(self, name, event, uncontrollable:bool = False): #Add a self loop of one event in an automaton
+    def add_self_event(self, name, event, uncontrollable: bool = False):  # Add a self loop of one event in an automaton
         for s in self.automatas[name].states:
             active_events = s.get_active_events()
             if event not in active_events:
@@ -123,33 +237,33 @@ class process:
                 else:
                     self.add_transition(name, [(s.get_id(), s.get_id())], [event], [])
 
-    def coordinator(self, supervisores, plantas): #Returns if a pair of supervisors are nonconflicting
+    def coordinator(self, supervisores, plantas):  # Returns if a pair of supervisors are nonconflicting
         TESTcoor = self.automata_syncronize(supervisores, "SUPt")
         planta = self.automata_syncronize(plantas, "plantaTotal")
         AEcoor = self.all_events(planta, 'AEcoor')
         noncoor = self.nonconflict(TESTcoor, AEcoor)
         return noncoor, TESTcoor, AEcoor
 
-    def all_events(self, automata_name, alleventsname): #Get the all events automaton from an automaton
+    def all_events(self, automata_name, alleventsname):  # Get the all events automaton from an automaton
         pytct.allevents(alleventsname, automata_name)
         return alleventsname
 
-    def supreduce(self, plant, sup, sup_dat, simsup): #returns the minimal proper supervisor
+    def supreduce(self, plant, sup, sup_dat, simsup):  # returns the minimal proper supervisor
         pytct.supreduce(simsup, plant, sup, sup_dat)
         return simsup
 
-    def condat(self, plant, sup, sup_dat): #returns de .dat of a supervisor.
+    def condat(self, plant, sup, sup_dat):  # returns de .dat of a supervisor.
         pytct.condat(sup_dat, plant, sup)
         return sup_dat
 
-    def supcon(self, plant, specifications, sup: str = ""):#Synthetize the supervisor of a plant
+    def supcon(self, plant, specifications, sup: str = ""):  # Synthetize the supervisor of a plant
         pytct.supcon(sup, plant, specifications)
         return sup
 
-    def nonconflict(self, name_1, name_2): #Returns if a pair of automata are conflicting
+    def nonconflict(self, name_1, name_2):  # Returns if a pair of automata are conflicting
         return len(self.nonconflict_aux(name_1, [name_2])) == 0
 
-    def nonconflict_aux(self, name, names: list): #Find each conflicting supervisor in names with name
+    def nonconflict_aux(self, name, names: list):  # Find each conflicting supervisor in names with name
         conflicting = []
         for n in names:
             if not n == name:
@@ -158,40 +272,43 @@ class process:
                     conflicting.append((n))
         return conflicting
 
-    def new_automaton(self, name: str): #Generate a new automaton
+    def new_automaton(self, name: str):  # Generate a new automaton
         self.automatas[name] = Automata(name)
         return name
 
-    def add_state(self, automaton_name: str, number_of_states: int, names: list, marked: list): #Define states of an empty automata
+    def add_state(self, automaton_name: str, number_of_states: int, names: list,
+                  marked: list):  # Define states of an empty automata
         if len(names) == 0:
             names = range(0, number_of_states)
             names = [str(numero) for numero in names]
         self.automatas[automaton_name].add_state(number_of_states, names, marked, )
 
     def add_transition(self, automaton_name: str, transitions: list, events: list, uncontrollable: list = []) -> object:
-        #Add transitions to an automaton
-        self.automatas[automaton_name].add_transition(transitions, events, uncontrollable, self.uc_events, self.c_events,
-                                            self.dict_events, self.dict_events_name)
+        # Add transitions to an automaton
+        self.automatas[automaton_name].add_transition(transitions, events, uncontrollable, self.uc_events,
+                                                      self.c_events,
+                                                      self.dict_events, self.dict_events_name)
 
-    def generate_all_automata(self): #Generate all the automaton TCT files
+    def generate_all_automata(self):  # Generate all the automaton TCT files
         for name in self.automatas.keys():
             self.generate_automata(name)
 
-    def generate_automata(self, name): #Generate a TCT automaton file
+    def generate_automata(self, name):  # Generate a TCT automaton file
         delta = []
         Qm = [self.automatas[name].dict_states[key] for key in self.automatas[name].states_marked]
         size = len(self.automatas[name].dict_states)
         for transition in self.automatas[name].transitions:
-                delta.append((transition[0],transition[1],transition[2]))
-        pytct.create(name, size, delta,Qm)
+            delta.append((transition[0], transition[1], transition[2]))
+        pytct.create(name, size, delta, Qm)
         return
         # Lista de comandos que deseas enviar
 
-    def automata_syncronize(self, automata_names: list, name_sync: str = ""): #Syncronize the group of automata automata_names
+    def automata_syncronize(self, automata_names: list,
+                            name_sync: str = ""):  # Syncronize the group of automata automata_names
         pytct.sync(name_sync, *automata_names)
         return name_sync
 
-    def aux_read_TXT(self, name): #Read TCT TXT files and charge the info in the process
+    def aux_read_TXT(self, name):  # Read TCT TXT files and charge the info in the process
         with open(self.route + "/" + name + ".TXT", "r") as archivo:
             marked = -1
             transitions = []
@@ -202,6 +319,8 @@ class process:
                 if '# states: ' in linea:
                     aux = linea.split()
                     name = aux[0]
+                    if "\\" in name:
+                        name = name.split("\\")[1]
                     num_state = int(aux[3])
                     self.new_automaton(name)
                 if "marker" in linea and not 'none' in linea:
@@ -236,7 +355,7 @@ class process:
         return name
 
     def aislated(self, aislated: list = [], actuators: list = [], interseccion=dict([])):
-        #Generate ST code from Ailated supervisor and actuators.
+        # Generate ST code from Ailated supervisor and actuators.
         out = ""
         for a in aislated:
             add = ""
@@ -253,9 +372,9 @@ class process:
             out += "END_IF;\n"
         return out
 
-    def generate_ST_OPENPLC(self, supervisors: list, plants: list = [], actuators: dict= dict([]), namest='code_st',
+    def generate_ST_OPENPLC(self, supervisors: list, plants: list = [], actuators: dict = dict([]), namest='code_st',
                             Mask: dict = dict([]), Aislated: list = [], initial: str = "null"):
-    #Generate the full ST code
+        # Generate the full ST code
 
         RANDOM = "FUNCTION_BLOCK random_number\n\tVAR_INPUT\n\t\tIN : BOOL;\n\tEND_VAR\n\tVAR\n\t\tM : BOOL;"
         RANDOM += "\n\t\tINIT : BOOL;\n\tEND_VAR\n\tVAR_OUTPUT\n\t\tOUT : DINT;\n\tEND_VAR\n"
@@ -282,7 +401,7 @@ class process:
                         TESTSUP = self.supcon(TESTcoor, alltest, 'SUPf')
                         TESTSUP_dat = self.condat(TESTcoor, TESTSUP, 'TESTSUPdat')
                         CO = self.supreduce(TESTcoor, TESTSUP, TESTSUP_dat, "CO_" + str(i) + "_" + str(j))
-                        self.plot_automatas([CO, TESTcoor, alltest, TESTSUP], 1, False)
+#                        self.plot_automatas([CO, TESTcoor, alltest, TESTSUP], 1, False)
                         # DEStoADS(CO)
                         self.load_automata([CO])
                         Coordinators.append(CO)
@@ -374,7 +493,7 @@ class process:
 
     def aux_generate_ST_OPENPLC(self, name: str = "", actuators: dict = dict([]), namest="code_st", RANDOM="",
                                 Mask: dict = dict([]), Aislated: list = [[], []], initial: str = 'null'):
-    #Generate the ST code for 1 supervisor
+        # Generate the ST code for 1 supervisor
         HEADER = "PROGRAM tesis0\n"
         END = "\nEND_PROGRAM\n\n"
         END += "CONFIGURATION Config0\n\n\tRESOURCE Res0 ON PLC\n\t\tTASK task0(INTERVAL := T#20ms,PRIORITY := 0);"
@@ -423,7 +542,7 @@ class process:
         return out
 
     def intersection(self, intersection: dict, CO=False, addG="_G[", addC="_C[", name_intersection="aux"):
-        #Generate the code for the intersection between supervisors and coordinators
+        # Generate the code for the intersection between supervisors and coordinators
         out = ""
         for inter in intersection.keys():
             aux = ""
@@ -472,7 +591,7 @@ class process:
 
     def declaration_OPENPLC(self, actuators, n_state: list, n_automata=-1, intersetion: dict = dict([]), CO: list = [],
                             mascara: dict = dict([]), initial: str = 'null'):
-    #Variable blocks for OPENPLC ST version
+        # Variable blocks for OPENPLC ST version
 
         declaration = "\tVAR\n"
         clocks = ""
@@ -547,7 +666,7 @@ class process:
         declaration += "\tEND_VAR\n"
         return start + declaration + clocks + ran
 
-    def ifs(self, name: str, actuators=dict([]), n_state=0): #Generate the ST code for conditional sentences
+    def ifs(self, name: str, actuators=dict([]), n_state=0):  # Generate the ST code for conditional sentences
         if_uncontrollable = "\t"
         if_controllable = "\t"
         if name not in self.automatas.keys():
@@ -556,7 +675,7 @@ class process:
         for i in range(0, len(transit)):
             origin = self.automatas[name].transitions[i][0]
             destination = self.automatas[name].transitions[i][2]
-            event = self.automatas[name].transitions[i][1]
+            event = str(self.automatas[name].transitions[i][1])
             if len(actuators) == 0:
                 name_event = self.dict_events_name[event]
             else:
@@ -588,7 +707,7 @@ class process:
         return if_controllable, if_uncontrollable
 
     def sw_case(self, name, actuators=dict([]), n_aut=0, n_state=0, intersection: dict = dict([])):
-        #Generate the ST code for the case statements
+        # Generate the ST code for the case statements
         act_guess = dict([])
         for inter in intersection.keys():
             for i in range(len(intersection[inter])):
@@ -649,7 +768,7 @@ class process:
         return [case + "\tEND_CASE;", n_r]
 
     def coordinator_sc(self, name, state_it: int = 2, actuators=dict([])):
-        #Generate the ST code for the Coordinator case statements
+        # Generate the ST code for the Coordinator case statements
         state_list = self.automatas[name].states
         case = "\tCASE state[" + str(state_it) + "] OF\n  "
         for state in state_list:
@@ -674,87 +793,3 @@ class process:
 
         case += "\tEND_CASE;\n  "
         return case
-class State: #Automaton state structure
-    def __init__(self, id):
-        self.id = id
-        self.active_events = []
-
-    def __str__(self):
-        return "id: " + str(self.id) + ", name: " + str(self.actuators)
-
-    def add_active_event(self, event: str): #Add active events
-        try:
-            self.active_events.append(event)
-        except:
-            print(event)
-            print(self.id)
-
-    def __repr__(self):
-        # return "{ " + str(self.id) + " ," + str(self.actuators) + ", ev: " + str(self.active_events) + "}"
-        return str(self.id)
-
-    def get_active_events(self): #Get active events
-        return self.active_events
-
-    def get_id(self): #Get the state id
-        return self.id
-
-class Automata:#Automaton structure
-    def __init__(self, name: str):
-        self.name = name
-        self.c_events = []
-        self.uc_events = []
-        self.transitions = []
-        self.states = []
-        self.dict_events = dict([])
-        self.dict_states = dict([])
-        self.states_marked = []
-
-    def __str__(self):
-        return "name: " + str(self.name) + ", # states: " + str(len(self.states)) + ", # transitions: " + str(
-            len(self.transitions))
-
-    def add_state(self, number_of_states: int, names: list, marked: list):  #Add state in the automaton
-        dif_mark = number_of_states - len(marked)
-        if dif_mark > 0:
-            for i in range(0, dif_mark):
-                marked.append(False)
-        for i in range(0, number_of_states):
-            state = State(i)
-            self.states.append(state)
-            self.dict_states[names[i]] = i
-            if marked[i]:
-                self.states_marked.append(names[i])
-
-    def add_transition(self, transitions: list, event: list, uncontrollable: list = [], uc_events: list = [],
-                       c_events: list = [], dict_events: dict = [], dict_events_name: dict = []):
-    #Add a transition in the automaton
-        for i in range(0, len(event)):
-            aux_event = event[i]
-            aux_list = dict_events.keys()
-            if event[i] not in self.uc_events and event[i] in uncontrollable:
-                self.uc_events.append(event[i])
-            if event[i] not in self.c_events and event[i] not in uncontrollable:
-                self.c_events.append(event[i])
-
-            if event[i] not in dict_events.keys():
-                if event[i] in uncontrollable:
-                    if event[i] not in uc_events:
-                        uc_events.append(event[i])
-                        id = 2 * (len(uc_events) - 1)
-                        dict_events[event[i]] = str(id)
-                        dict_events_name[str(id)] = event[i]
-                else:
-                    if event[i] not in c_events:
-                        c_events.append(event[i])
-                        id = 2 * (len(c_events) - 1) + 1
-                        dict_events[event[i]] = str(id)
-                        dict_events_name[str(id)] = event[i]
-
-        for i in range(0, len(transitions)):
-            aux = self.states[transitions[i][0]]
-            eve = event[i]
-            self.states[transitions[i][0]].add_active_event(event[i])
-            self.transitions.append((str(transitions[i][0]), dict_events.get(event[i]), str(transitions[i][1])))
-        # print(self.transitions)
-        # print(dict_events)

@@ -194,17 +194,17 @@ sup5 = new_process.supcon(plant5, spec5, 'sup5')
 supdat5 = new_process.condat(plant5, sup5, 'supdat5')
 simsup5 = new_process.supreduce(plant5, sup5, supdat5, 'simsup5')
 
-new_process.plot_automatas([Grab, Blade, spec5, sup5, plant5, all5], 1, False)
+#new_process.plot_automatas([Grab, Blade, spec5, sup5, plant5, all5], 1, False)
 
 new_process.load_automata([sup1, sup2, sup3, sup4, sup5])
 new_process.load_automata([simsup, simsup2, simsup3, simsup4, simsup5])
 new_process.load_automata([plant1, plant2, plant3, plant4, plant5])
 
-print(new_process.get_automata('SUP'))
-print(new_process.get_automata('sup2'))
-print(new_process.get_automata('sup3'))
-print(new_process.get_automata('sup4'))
-print(new_process.get_automata('sup5'))
+print(new_process.get_automaton('SUP'))
+print(new_process.get_automaton('sup2'))
+print(new_process.get_automaton('sup3'))
+print(new_process.get_automaton('sup4'))
+print(new_process.get_automaton('sup5'))
 
 new_process.generate_ST_OPENPLC(supervisors=[sup1, sup2, sup3, sup4, sup5],
                                 plants=[plant1, plant2, plant3, plant4, plant5],
