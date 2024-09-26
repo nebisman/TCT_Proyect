@@ -375,7 +375,7 @@ class process:
         return out
 
     def generate_ST_OPENPLC(self, supervisors: list, plants: list = [], actuators: dict = dict([]), namest='code_st',
-                            Mask: dict = dict([]), Aislated: list = [], initial: str = "null"):
+                            Mask: dict = dict([]), Isolated: list = [], initial: str = "null"):
         # Generate the full ST code
 
         RANDOM = "FUNCTION_BLOCK random_number\n\tVAR_INPUT\n\t\tIN : BOOL;\n\tEND_VAR\n\tVAR\n\t\tM : BOOL;"
@@ -389,7 +389,7 @@ class process:
 
         if len(supervisors) == 1:
             out = self.aux_generate_ST_OPENPLC(supervisors[0], actuators, namest, RANDOM, Mask=Mask,
-                                               Aislated=Aislated, initial=initial)
+                                               Isolated=Isolated, initial=initial)
         else:
             Coordinators = []
             Intersections = dict([])
@@ -449,18 +449,18 @@ class process:
                     if_uncontrollable += if_u + '\n'
                     sc += "\n" + s + "\n"
                     st.append(n_r)
-            if len(Aislated) != 0:
-                if len(Aislated[0]) != 0:
-                    for ais in range(len(Aislated[0])):
-                        if_c, if_u = self.ifs(Aislated[0][ais], actuators, j)
-                        s, n_r = self.sw_case(Aislated[0][ais], actuators, j, j)
+            if len(Isolated) != 0:
+                if len(Isolated[0]) != 0:
+                    for ais in range(len(Isolated[0])):
+                        if_c, if_u = self.ifs(Isolated[0][ais], actuators, j)
+                        s, n_r = self.sw_case(Isolated[0][ais], actuators, j, j)
                         j += 1
                         if_controllable += if_c + "\n"
                         if_uncontrollable += if_u + '\n'
                         sc += "\n" + s + "\n"
                         st.append(n_r)
-                if len(Aislated[1]) != 0:
-                    aislated = self.aislated(Aislated[1], actuators, Intersections)
+                if len(Isolated[1]) != 0:
+                    aislated = self.aislated(Isolated[1], actuators, Intersections)
                 for c in Coordinators:
                     COsw += self.coordinator_sc(c, actuators=actuators, state_it=j)
                     a, b = self.ifs(c, actuators, j)
@@ -495,7 +495,7 @@ class process:
         return out
 
     def aux_generate_ST_OPENPLC(self, name: str = "", actuators: dict = dict([]), namest="code_st", RANDOM="",
-                                Mask: dict = dict([]), Aislated: list = [[], []], initial: str = 'null'):
+                                Mask: dict = dict([]), Isolated: list = [[], []], initial: str = 'null'):
         # Generate the ST code for 1 supervisor
         HEADER = "PROGRAM tesis0\n"
         END = "\nEND_PROGRAM\n\n"
@@ -515,18 +515,18 @@ class process:
         st.append(n_r)
         j = 1
         aislated = ""
-        if len(Aislated) != 0:
-            if len(Aislated[0]) != 0:
-                for ais in range(len(Aislated[0])):
-                    if_c, if_u = self.ifs(Aislated[0][ais], actuators, j)
-                    s, n_r = self.sw_case(Aislated[0][ais], actuators, j, j)
+        if len(Isolated) != 0:
+            if len(Isolated[0]) != 0:
+                for ais in range(len(Isolated[0])):
+                    if_c, if_u = self.ifs(Isolated[0][ais], actuators, j)
+                    s, n_r = self.sw_case(Isolated[0][ais], actuators, j, j)
                     j += 1
                     if_controllable += if_c + "\n"
                     if_uncontrollable += if_u + '\n'
                     sc += "\n" + s + "\n"
                     st.append(n_r)
-            if len(Aislated[1]) != 0:
-                aislated = self.aislated(Aislated[1], actuators)
+            if len(Isolated[1]) != 0:
+                aislated = self.aislated(Isolated[1], actuators)
         declaration = self.declaration_OPENPLC(actuators, st, j, mascara=Mask, initial=initial)
         for msk in Mask.keys():
             for e in Mask[msk]:

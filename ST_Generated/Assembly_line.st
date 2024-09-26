@@ -27,8 +27,8 @@ PROGRAM tesis0
 		slt1 : ARRAY [0..8] OF DINT;
 		slt2 : ARRAY [0..15] OF DINT;
 		GD_OUT_4_G : ARRAY [0..2] OF BOOL;
-		GD_OUT_8_G : ARRAY [0..2] OF BOOL;
 		GD_OUT_7_G : ARRAY [0..2] OF BOOL;
+		GD_OUT_8_G : ARRAY [0..2] OF BOOL;
 		GD_OUT_5_G : ARRAY [0..3] OF BOOL;
 		FE_LaP : F_TRIG;
 		FE_BaP : F_TRIG;
@@ -506,16 +506,16 @@ PROGRAM tesis0
 		GD_OUT_4_G[1] := GD_OUT_4;
 	END_IF;
 	GD_OUT_4 := GD_OUT_4_G[0];
-	IF GD_OUT_8_G[0] <> GD_OUT_8_G[1] THEN
-		GD_OUT_8_G[0] := GD_OUT_8;
-		GD_OUT_8_G[1] := GD_OUT_8;
-	END_IF;
-	GD_OUT_8 := GD_OUT_8_G[0];
 	IF GD_OUT_7_G[0] <> GD_OUT_7_G[1] THEN
 		GD_OUT_7_G[0] := GD_OUT_7;
 		GD_OUT_7_G[1] := GD_OUT_7;
 	END_IF;
 	GD_OUT_7 := GD_OUT_7_G[0];
+	IF GD_OUT_8_G[0] <> GD_OUT_8_G[1] THEN
+		GD_OUT_8_G[0] := GD_OUT_8;
+		GD_OUT_8_G[1] := GD_OUT_8;
+	END_IF;
+	GD_OUT_8 := GD_OUT_8_G[0];
 	IF (GD_OUT_5_G[0] <> GD_OUT_5_G[1]) OR (GD_OUT_5_G[1] <> GD_OUT_5_G[2]) THEN
 		GD_OUT_5_G[0] := GD_OUT_5;
 		GD_OUT_5_G[1] := GD_OUT_5;

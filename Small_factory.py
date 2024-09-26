@@ -19,8 +19,8 @@ actuators['Buffer_conveyor_ON_UC'] = 'GD_OUT_4:ON:%QX100.4'
 actuators['Buffer_conveyor_OFF'] = 'GD_OUT_4:OFF'
 actuators['Piece_located'] = 'FE_PL:GD_IN_3:%IX100.3'
 actuators['Piece_ready'] = 'FE_PR:GD_IN_4:%IX100.4'
-actuators['Piece_restard_ON'] = 'GD_OUT_5:ON:%QX100.5'
-actuators['Piece_restard_OFF'] = 'GD_OUT_5:OFF:%QX100.5'
+actuators['Piece_restart_ON'] = 'GD_OUT_5:ON:%QX100.5'
+actuators['Piece_restart_OFF'] = 'GD_OUT_5:OFF:%QX100.5'
 actuators['Blade_ON'] = 'GD_OUT_6:ON:%QX100.6'
 actuators['Blade_OFF'] = 'GD_OUT_6:OFF:%QX100.6'
 actuators['M1_BROKEN'] = 'GD_IN_10:OFF:%IX101.0'  # 12 %IX101.0 IX102.4 PIN17
@@ -40,10 +40,10 @@ actuators['R2_NOT_PERMITTED'] = 'INTERN_3:OFF'
 actuators['11'] = 'INTERN_0:ON'
 actuators['21'] = 'INTERN_1:ON'  # M1_arriving
 
-Mascaras = dict([])
-Mascaras['GD_OUT_2'] = [('GD_OUT_3', '%QX100.3')]  # BANDM1 -> EMITER
-Mascaras['NOT GD_IN_10'] = [('GD_OUT_8', '%QX101.0')]  # M1_BROKEN -> M1_BROKEN
-Mascaras['NOT GD_IN_11'] = [('GD_OUT_9', '%QX101.1')]  # M2_BROKEN -> M2_BROKEN
+Mask = dict([])
+Mask['GD_OUT_2'] = [('GD_OUT_3', '%QX100.3')]  # BANDM1 -> EMITER
+Mask['NOT GD_IN_10'] = [('GD_OUT_8', '%QX101.0')]  # M1_BROKEN -> M1_BROKEN
+Mask['NOT GD_IN_11'] = [('GD_OUT_9', '%QX101.1')]  # M2_BROKEN -> M2_BROKEN
 new_process = ag.process('Small_factory')
 
 M1 = new_process.new_automaton('M1')
@@ -53,12 +53,12 @@ new_process.add_transition(M1, transitions=[(0, 1), (1, 2), (2, 3), (3, 0)],
                            uncontrollable=['M1_ON', 'M1_Bussy', 'M1_END'])  # 'M1_ON'
 new_process.add_self_events(M1, ['M1_ON', 'M1_Bussy', 'M1_END'])
 
-Buffer_llenado = new_process.new_automaton('Buffer_llenado')
-new_process.add_state(Buffer_llenado, 10, [], [True, True, True, True, True, True, True, True, True, True, True])
-new_process.add_transition(Buffer_llenado, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5),
-                                            (5, 2), (7, 2),
-                                            (5, 6), (6, 7), (7, 8), (8, 5),
-                                            (1, 9), (9, 1)],
+Buffer_fill = new_process.new_automaton('Buffer_fill')
+new_process.add_state(Buffer_fill, 10, [], [True, True, True, True, True, True, True, True, True, True, True])
+new_process.add_transition(Buffer_fill, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5),
+                                         (5, 2), (7, 2),
+                                         (5, 6), (6, 7), (7, 8), (8, 5),
+                                         (1, 9), (9, 1)],
                            ['start', 'M1_END', 'Buffer_conveyor_ON', 'Piece_ready', 'Buffer_conveyor_OFF',
                             'M2_END', 'M2_END',
                             'M1_END', 'Buffer_conveyor_ON', 'Piece_located', 'Buffer_conveyor_OFF',
@@ -67,14 +67,16 @@ new_process.add_transition(Buffer_llenado, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 
 
 Blade = new_process.new_automaton('Blade')
 new_process.add_state(Blade, 4, [], [])
-new_process.add_transition(Blade, [(0, 1), (1, 2), (2, 3), (3, 0)], ['M2_END', 'Blade_OFF', 'Piece_ready', 'Blade_ON'],
+new_process.add_transition(Blade, [(0, 1), (1, 2), (2, 3), (3, 0)],
+                           ['M2_END', 'Blade_OFF', 'Piece_ready', 'Blade_ON'],
                            ['M2_END', 'Piece_ready'])
 
 generate = new_process.new_automaton('generate')
 new_process.add_state(generate, 6, [], [])
 new_process.add_transition(generate, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (1, 5), (5, 0)],
-                           ['M1_Bussy', 'M1_END', 'Piece_restard_ON', 'Piece_located', 'Piece_restard_OFF',
-                            'M1_BROKEN', 'M1_END'], ['Piece_located', 'M1_Bussy', 'M1_END', 'M1_BROKEN', 'M1_END'])
+                           ['M1_Bussy', 'M1_END', 'Piece_restart_ON', 'Piece_located', 'Piece_restart_OFF',
+                            'M1_BROKEN', 'M1_END'],
+                           ['Piece_located', 'M1_Bussy', 'M1_END', 'M1_BROKEN', 'M1_END'])
 
 M2 = new_process.new_automaton('M2')
 new_process.add_state(M2, 4, [], [True, True, True, True])
@@ -100,19 +102,21 @@ new_process.add_transition(model_M1, transitions=[(0, 1), (1, 0), (1, 2), (2, 0)
 
 model_M2 = new_process.new_automaton('model_M2')
 new_process.add_state(model_M2, 3, [], [True, False, False])
-new_process.add_transition(model_M2, [(0, 1), (1, 0), (1, 2), (2, 0)], ['21', 'M2_END', 'M2_BROKEN', 'M2_END'],
+new_process.add_transition(model_M2, [(0, 1), (1, 0), (1, 2), (2, 0)],
+                           ['21', 'M2_END', 'M2_BROKEN', 'M2_END'],
                            ['M2_END', 'M2_BROKEN'])
 
 REQ_Buffer = new_process.new_automaton('REQ_Buffer')
 new_process.add_state(REQ_Buffer, 3, [], [True, True, True])
-new_process.add_transition(REQ_Buffer, [(0, 1), (1, 0), (1, 2), (2, 1)], ['Piece_located', '21', 'Piece_located', '21'],
+new_process.add_transition(REQ_Buffer, [(0, 1), (1, 0), (1, 2), (2, 1)],
+                           ['Piece_located', '21', 'Piece_located', '21'],
                            ['Piece_located'])
 
-##M1_REPAIR_OUT_ON no esta definido entre M1 ni en M2, por tanto la restriccion del lenguage no lo mete en el supervisor. Es casi igual a que no existe
-# este requerimiento.
+
 REQ_repair = new_process.new_automaton('REQ_repair')
 new_process.add_state(REQ_repair, 2, [], [True, True])
-new_process.add_transition(REQ_repair, [(0, 0), (0, 1), (1, 0)], ['M1_REPAIR_OUT_ON', 'M2_BROKEN', 'M2_REPAIR_OUT_ON'],
+new_process.add_transition(REQ_repair, [(0, 0), (0, 1), (1, 0)],
+                           ['M1_REPAIR_OUT_ON', 'M2_BROKEN', 'M2_REPAIR_OUT_ON'],
                            ['M2_BROKEN'])
 
 new_process.complete_spec(REQ_repair)
@@ -170,15 +174,15 @@ simsup = new_process.supreduce(plant, sup, supdat, 'SIMSUP')
 new_process.load_automata([plant, sup])
 
 # ('21', 'M2_ON'), ('11', 'M1_ON')
-AISLATED = [[M1, M2, sup_BA, generate, Buffer_llenado, Blade, repair],
+ISOLATED = [[M1, M2, sup_BA, generate, Buffer_fill, Blade, repair],
             [('21', 'M2_ON'), ('11', 'M1_ON')]]
 new_process.print_events()
 print(new_process.get_automaton('SUP'))
 
 new_process.generate_ST_OPENPLC([sup],
                                 [plant],
-                                actuators, 'Small_factory', Mask=Mascaras, Aislated=AISLATED, initial='start')
+                                actuators, 'Small_factory', Mask=Mask, Isolated=ISOLATED, initial='start')
 
 new_process.generate_image(
-    [M1, M2, B_A, Blade, sup_BA, sup, plant, model_M1, Buffer_llenado, REQ_Buffer,
+    [M1, M2, B_A, Blade, sup_BA, sup, plant, model_M1, Buffer_fill, REQ_Buffer,
      model_M2, REQ_repair, repair])
