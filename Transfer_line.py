@@ -262,9 +262,10 @@ simsup2 = new_process.supreduce(plant2, sup2, supdat2, 'simsup2')
 
 new_process.load_automata([plant2, sup2])
 
-#new_process.plot_automatas(
-#    [plant, plant2, spec2, spec, sup, sup2, B2SP, B1SP, M1_REQ, M2_REQ, TU_REQ, Buffer2_join, Pyp],
-#    show=False)
+new_process.plot_automatas(
+    [plant, plant2, spec2, spec, sup, sup2, B2SP, B1SP, M1_REQ, M2_REQ, TU_REQ, Buffer2_join, Pyp],
+    show=False)
+    
 
 start = new_process.new_automaton('start')
 new_process.add_state(start, 2, ["waiting", 'start'], [False, True])
@@ -272,6 +273,12 @@ new_process.add_transition(start, [(0, 1), (1, 1), (1, 1), (1, 1)], ['start', '1
                            ['start'])
 new_process.add_self_event(M2_REQ, 'start')
 new_process.complete_spec(start)
+
+
+new_process.generate_all_automata()
+
+
+""" 
 new_process.generate_all_automata()
 
 #PLANT with START button
@@ -316,4 +323,4 @@ new_process.plot_automatas([plant_2, plant2_2, "CO_0_1", Clamp,Clamp_REQ], show=
 
 new_process.print_events()
 print(new_process.get_automaton(sup_2))
-print(new_process.get_automaton(sup2_2))
+print(new_process.get_automaton(sup2_2)) """

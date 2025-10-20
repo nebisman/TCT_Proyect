@@ -1,10 +1,16 @@
+
+
+
 import math
 import os
 
+
 from PIL import Image
 import matplotlib.pyplot as plt
-import pytct
+import pitct  as pytct
 from graphviz import Digraph
+
+
 
 user_route = "TCTX64_20210701/"  # Project route
 

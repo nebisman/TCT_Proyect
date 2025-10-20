@@ -4,6 +4,7 @@ actuators = dict([])
 actuators['M1_ON'] = 'GD_OUT_0:ON:%QX100.0'
 actuators['M1_OFF'] = 'GD_OUT_0:OFF'
 actuators['M2_ON'] = 'GD_OUT_1:ON:%QX100.1'
+
 actuators['M2_OFF'] = 'GD_OUT_1:OFF'
 actuators['M1_Bussy'] = 'GD_IN_0:ON:%IX100.0'
 actuators['M1_NOT_Bussy'] = 'GD_IN_0:OFF:%IX100.0'
@@ -12,8 +13,10 @@ actuators['M1_END'] = 'FE_M1E:GD_IN_0:%IX100.0'  # 10
 actuators['M2_END'] = 'FE_M2E:GD_IN_1:%IX100.1'  # 20
 actuators['start'] = 'GD_IN_15:ON:%IX100.5'
 actuators['BA_ON'] = 'GD_OUT_2:ON:%QX100.2'
+
 actuators['BA_OFF'] = 'GD_OUT_2:OFF'
 actuators['Fed'] = 'FE_A:GD_IN_2:%IX100.2'
+
 actuators['Buffer_conveyor_ON'] = 'GD_OUT_4:ON:%QX100.4'
 actuators['Buffer_conveyor_ON_UC'] = 'GD_OUT_4:ON:%QX100.4'
 actuators['Buffer_conveyor_OFF'] = 'GD_OUT_4:OFF'
@@ -167,6 +170,8 @@ new_process.load_automata([plant_BA, sup_BA])
 plant = new_process.automata_syncronize([model_M1, model_M2], name_sync='PLANT')
 all = new_process.all_events(plant, 'ALL')
 spec = new_process.automata_syncronize([REQ_Buffer, REQ_start, REQ_repair, all], name_sync='SPEC')
+
+
 sup = new_process.supcon(plant, spec, 'SUP')
 supdat = new_process.condat(plant, sup, 'SUPDAT')
 simsup = new_process.supreduce(plant, sup, supdat, 'SIMSUP')
@@ -177,7 +182,7 @@ new_process.load_automata([plant, sup])
 ISOLATED = [[M1, M2, sup_BA, generate, Buffer_fill, Blade, repair],
             [('21', 'M2_ON'), ('11', 'M1_ON')]]
 new_process.print_events()
-print(new_process.get_automaton('SUP'))
+#print(new_process.get_automaton('SUP'))
 
 new_process.generate_ST_OPENPLC([sup],
                                 [plant],
