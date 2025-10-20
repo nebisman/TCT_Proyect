@@ -14,6 +14,7 @@ new_ststprocess.add_transition(automaton_name=M_0, transitions=[(0, 1), (1, 0)],
                                uncontrollable=['e_0'])
 
 M_1 = new_ststprocess.new_automaton('M_1')
+
 new_ststprocess.add_state(automaton_name=M_1, number_of_states=2, names=[], marked=[True,True])
 new_ststprocess.add_transition(automaton_name=M_1, transitions=[(0, 1), (1, 0)], events=["s_1", "e_1"],
                                uncontrollable=['e_1'])
